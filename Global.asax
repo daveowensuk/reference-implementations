@@ -10,7 +10,9 @@
         return;
       //Initialize System
       AdHocSettings.LicenseKey = "INSERT_LICENSE_KEY_HERE";
-      AdHocSettings.SqlServerConnectionString = @"INSERT_CONNECTION_STRING_HERE";
+      FusionDriver fd = new FusionDriver();
+      fd.AddConnection("SecureConnection", FusionConnectionType.OData, "INSERT_ODATA_URL");
+      AdHocContext.Driver = fd;
       AdHocSettings.GenerateThumbnails = true;
       AdHocSettings.DashboardViewer = "Dashboards.aspx";
       AdHocSettings.ShowSimpleModeViewer = true;
