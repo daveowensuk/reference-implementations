@@ -1,5 +1,6 @@
 <%@ Application Language="C#" %>
 <%@ Import Namespace="Izenda.AdHoc" %>
+<%@ Import Namespace="Izenda.Fusion" %>
 
 <script RunAt="server">
   [Serializable]
