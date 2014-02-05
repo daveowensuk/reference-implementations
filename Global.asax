@@ -11,7 +11,7 @@
       //Initialize System
       AdHocSettings.LicenseKey = "INSERT_LICENSE_KEY_HERE";
       FusionDriver fd = new FusionDriver();
-      fd.AddConnection("SecureConnection", FusionConnectionType.OData, "INSERT_ODATA_URL");
+      fd.AddConnection("SecureConnection", FusionConnectionType.OData, "INSERT_ODATA_URL_HERE");
       AdHocContext.Driver = fd;
       AdHocSettings.GenerateThumbnails = true;
       AdHocSettings.DashboardViewer = "Dashboards.aspx";
