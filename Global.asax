@@ -169,7 +169,7 @@
           lastDelta = currentDelta;
 
           // This sanitizes the string in the case of a DBNull value. 
-          string deltaHead = string.Join(", ", currentDelta).Replace(", ,", ",");
+          string deltaHead = string.Join(",", currentDelta).Replace(", ,", ", ");
           
 
           // Remove the delta from the list. 
@@ -194,7 +194,7 @@
     private static void PrintFinalDeltas(HtmlNode reportTable, HtmlNode previousNode, string[] lastDelta)
     {
       // delta takes the lastDelta array and converts it back into a string.
-      string delta = string.Join(",", lastDelta);
+      string delta = string.Join(", ", lastDelta);
 
       // This loop keeps running until all of the pertinent information has been pulled from the string. 
       while (delta.LastIndexOf(',') > 0)
