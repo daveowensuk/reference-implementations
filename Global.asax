@@ -2,7 +2,7 @@
 <%@ Import Namespace="Izenda.AdHoc" %>
 <%@ Import Namespace="Izenda.Fusion" %>
 
-<script RunAt="server">
+<script runat="server">
   [Serializable]
   public class CustomAdHocConfig : FileSystemAdHocConfig {
     public static void InitializeReporting() {
