@@ -45,14 +45,14 @@
     /// </summary>
 
     public override void ProcessDataSet(System.Data.DataSet ds, string reportPart) {
-      string header, where;
-      System.Collections.Generic.List<object> dataColumns = new System.Collections.Generic.List<object>();
-      System.Collections.Generic.Dictionary<string, string> dataHeaders = new System.Collections.Generic.Dictionary<string, string>();
-
-      deltas = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<object>>();
-      isTargetVGStyle = AdHocContext.CurrentReportSet.VisualGroupStyle == VisualGroupStyle.LineDelimitedWithLabels;
-
       if (firstPass) {
+        string header, where;
+        System.Collections.Generic.List<object> dataColumns = new System.Collections.Generic.List<object>();
+        System.Collections.Generic.Dictionary<string, string> dataHeaders = new System.Collections.Generic.Dictionary<string, string>();
+
+        deltas = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<object>>();
+        isTargetVGStyle = AdHocContext.CurrentReportSet.VisualGroupStyle == VisualGroupStyle.LineDelimitedWithLabels;
+              
         if (!String.IsNullOrEmpty(reportPart) && isTargetVGStyle) {
           foreach (System.Data.DataTable table in ds.Tables) {
             foreach (System.Data.DataRow row in table.Rows) {
