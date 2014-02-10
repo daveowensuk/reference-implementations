@@ -31,9 +31,15 @@
     // Holds the delta totals for use in custom rendering. 
     public static System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<object>> deltas;
 
-    // Holds the current ReportSet Visual Grouping style. If you need to support multiple styles, turn this into a collection.
-    bool VGStyle;
-    
+    // Boolean flag indicating if the VG style of the report is targeted by the custom subtotaling.
+    bool isTargetVGStyle;
+
+    // Boolean flag indicating whether the report is using basic subtotaling. 
+    bool hasSubtotals;
+
+    // Boolean flag indicating whether the dataset has already been processed once.
+    bool firstPass = true;
+
     /// <summary>
     /// Overrides base version to support custom totaling of various deltas in the report. 
     /// </summary>
@@ -44,62 +50,68 @@
       System.Collections.Generic.Dictionary<string, string> dataHeaders = new System.Collections.Generic.Dictionary<string, string>();
 
       deltas = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<object>>();
-      VGStyle = AdHocContext.CurrentReportSet.VisualGroupStyle == VisualGroupStyle.LineDelimitedWithLabels;
-      
-      if (!String.IsNullOrEmpty(reportPart) && VGStyle)
-      {
-        foreach (System.Data.DataTable table in ds.Tables) {
-          foreach (System.Data.DataRow row in table.Rows) {
-            header = String.Empty;
-            where = String.Empty;
+      isTargetVGStyle = AdHocContext.CurrentReportSet.VisualGroupStyle == VisualGroupStyle.LineDelimitedWithLabels;
 
-            foreach (System.Data.DataColumn column in table.Columns) {
-              // If the value in this column is a string, it means the column is a header, and not a data column.
-              if (row[column].GetType() == typeof(string))
-              {
-                // If the header is empty, add the first value formatted as follows. 
-                if (header.Length == 0) {
-                  header = row[column].ToString();
-                  where = "[" + column + "] = '" + row[column] + "'";
-                }
-                else {
-                  // Use , to separate column names in this header. This ensures the head looks 
-                  // identical to the visual grouping on page.
-                  header += ", " + row[column].ToString();
-                  where += " AND [" + column + "] = '" + row[column] + "'";
+      if (firstPass) {
+        if (!String.IsNullOrEmpty(reportPart) && isTargetVGStyle) {
+          foreach (System.Data.DataTable table in ds.Tables) {
+            foreach (System.Data.DataRow row in table.Rows) {
+              header = String.Empty;
+              where = String.Empty;
+
+              foreach (System.Data.DataColumn column in table.Columns) {
+                // If the value in this column is a string, it means the column is a header, and not a data column.
+                if (row[column].GetType() == typeof(string)) {
+                  // If the header is empty, add the first value formatted as follows. 
+                  if (header.Length == 0) {
+                    header = row[column].ToString();
+                    where = "[" + column + "] = '" + row[column] + "'";
+                  }
+                  else {
+                    // Otherwise, add the item, separated by a comma.
+                    header += ", " + row[column].ToString();
+                    where += " AND [" + column + "] = '" + row[column] + "'";
+                  }
+
+                  // If the header is already in the list, ignore it and move on.
+                  if (!dataHeaders.ContainsKey(header)) {
+                    dataHeaders.Add(header, where);
+                  }
                 }
 
-                // If the header is already in the list, ignore it and move on.
-                if (!dataHeaders.ContainsKey(header)) {
-                  dataHeaders.Add(header, where);
+                // Otherwise this is a data column and add it to that data structure. 
+                else if (!dataColumns.Contains(column) && row[column].GetType() != typeof(DBNull)) {
+                  dataColumns.Add(column);
                 }
               }
-                  
-              // Otherwise this is a data column and add it to that data structure. 
-              else if (!dataColumns.Contains(column) && row[column].GetType() != typeof(DBNull)) {
-                dataColumns.Add(column);
+            }
+
+            // Iterate over the gathered headers, computing the sum for each data column associated with it. 
+            foreach (string head in dataHeaders.Keys) {
+              System.Collections.Generic.List<object> data = new System.Collections.Generic.List<object>();
+              int i = 0;
+              foreach (object column in dataColumns) {
+                data.Add(table.Compute("Sum(" + column.ToString() + ")", dataHeaders[head]));
               }
-            }
-          }
 
-          // Iterate over the gathered headers, computing the sum for each data column associated with it. 
-          foreach (string head in dataHeaders.Keys) {
-            System.Collections.Generic.List<object> data = new System.Collections.Generic.List<object>();
-            int i = 0;
-            foreach (object column in dataColumns) {
-              data.Add(table.Compute("Sum(" + column.ToString() + ")", dataHeaders[head]));
-            }
-
-            if (data.Count > 0) {
-              // add the header and all the sums for the data columns to the deltas structure. 
-              deltas.Add(head, data);
+              if (data.Count > 0) {
+                // add the header and all the sums for the data columns to the deltas structure. 
+                deltas.Add(head, data);
+              }
             }
           }
         }
-      }      
+      }
+
+      // If subtotaling is enabled, toggle first pass so the subtotal loop does wipe out custom totals. 
+      if (hasSubtotals) {
+        firstPass = !firstPass;
+      }
     }
 
     public override void PreExecuteReportSet(ReportSet reportSet) {
+      //Inspect the actual report object to determing if subtotaling is used.
+      hasSubtotals = reportSet.Detail.AddGrandTotals;
       base.PreExecuteReportSet(reportSet);
     }
 
@@ -109,7 +121,7 @@
     /// </summary>
 
     public override string PerformCustomRendering(string initialHtml) {
-      if (VGStyle) {
+      if (isTargetVGStyle) {
         HtmlDocument doc = new HtmlDocument();
         doc.LoadHtml(initialHtml);
 
@@ -117,8 +129,7 @@
         // the visual grouping to the deltas retreived from ProcessDataSet.
         HtmlNodeCollection highestLevelDeltas = doc.DocumentNode.SelectNodes("//tr[@class='VisualGroup']");
 
-        if (highestLevelDeltas == null)
-        {
+        if (highestLevelDeltas == null) {
           return initialHtml;
         }
 
@@ -127,41 +138,35 @@
 
         // Splits the string into an array for looping and comparison.
         string[] lastDelta = SanitizeDelta(highestLevelDeltas.FindFirst("tr").FirstChild.InnerHtml.Split(new string[] { "<br>" }, StringSplitOptions.RemoveEmptyEntries));
-        
+
         // Loops through all the deltas extracted from the report, node by node.
-        foreach (HtmlNode delta in highestLevelDeltas)
-        {
+        foreach (HtmlNode delta in highestLevelDeltas) {
           // Splits the string into an array for looping and comparison.
-          string[] currentDelta = SanitizeDelta(delta.FirstChild.InnerHtml.Split(new string[] {"<br>"}, StringSplitOptions.RemoveEmptyEntries));
+          string[] currentDelta = SanitizeDelta(delta.FirstChild.InnerHtml.Split(new string[] { "<br>" }, StringSplitOptions.RemoveEmptyEntries));
 
           string deltaString = string.Empty;
 
           // Loops through, comparing the arrays index by index. Ignores the last index since this
           // delta is handled by the standard subtotaling.         
-          for (int i = 0; i < currentDelta.Length - 1; i++)
-          {
+          for (int i = 0; i < currentDelta.Length - 1; i++) {
             // Adds the current index from the array to a string for later use. 
             deltaString += lastDelta[i];
 
-            if (lastDelta[i] != currentDelta[i])
-            {
+            if (lastDelta[i] != currentDelta[i]) {
               // This check is needed to handle 1st level delta changes. In these cases, there can be
               // more than just one delta to output, and this method will print them all. 
-              if (i == 0)
-              {
+              if (i == 0) {
                 PrintFinalDeltas(reportTable, delta, lastDelta);
               }
               // Otherwise, add the delta to report and remove it from the list of deltas. 
-              else
-              {
+              else {
                 InjectHtml(reportTable, delta, deltaString);
                 deltas.Remove(deltaString);
               }
               break;
             }
             // If the values at the index are the same, add a , and move to the next index. 
-            else
-            {
+            else {
               deltaString += ", ";
             }
           }
@@ -170,11 +175,10 @@
 
           // This sanitizes the string in the case of a DBNull value. 
           string deltaHead = string.Join(",", currentDelta).Replace(", ,", ", ");
-          
+
 
           // Remove the delta from the list. 
-          if (deltas.ContainsKey(deltaHead))
-          {            
+          if (deltas.ContainsKey(deltaHead)) {
             deltas.Remove(deltaHead);
           }
         }
@@ -191,20 +195,17 @@
     /// PrintFinalDeltas is called to in the case of level 1 delta changes. It makes sure all deltas get printed out,
     /// not just the level 1.
     /// </summary>
-    private static void PrintFinalDeltas(HtmlNode reportTable, HtmlNode previousNode, string[] lastDelta)
-    {
+    private static void PrintFinalDeltas(HtmlNode reportTable, HtmlNode previousNode, string[] lastDelta) {
       // delta takes the lastDelta array and converts it back into a string.
       string delta = string.Join(", ", lastDelta);
 
       // This loop keeps running until all of the pertinent information has been pulled from the string. 
-      while (delta.LastIndexOf(',') > 0)
-      {
+      while (delta.LastIndexOf(',') > 0) {
         //Since standard subtotals print off the low level delta, this puuls that one out and discards it.
         delta = delta.Substring(0, delta.LastIndexOf(','));
-        
+
         // If the string is a valid delta, print it out and remove it from the dictionary.
-        if (deltas.ContainsKey(delta))
-        {
+        if (deltas.ContainsKey(delta)) {
           InjectHtml(reportTable, previousNode, delta);
           deltas.Remove(delta);
         }
@@ -214,7 +215,7 @@
     /// <summary>
     /// InjectHtml actually alters the html string, injecting the deltas into it. 
     /// </summary>
-    
+
     private static void InjectHtml(HtmlNode reportTable, HtmlNode currentNode, string deltaString) {
       // Build up the table row to inject. 
       HtmlNode deltaRow = HtmlNode.CreateNode("<tr class=ReportFooter></tr>");
@@ -222,8 +223,7 @@
 
       // This will loop through the various delta columns for a particular row, adding each as a td to the row.
       if (deltas.ContainsKey(deltaString)) {
-        foreach (object column in deltas[deltaString])
-        {
+        foreach (object column in deltas[deltaString]) {
           deltaRow.AppendChild(HtmlNode.CreateNode("<td>" + column + "</td>"));
         }
 
@@ -236,7 +236,7 @@
       string[] sanitizedDelta = new string[delta.Length];
       for (int i = 0; i < delta.Length; i++) {
         if (!string.IsNullOrEmpty(delta[i].Substring(delta[i].IndexOf(':') + 1).Trim()))
-          sanitizedDelta[i] = delta[i].Substring(delta[i].IndexOf(':') + 2);  
+          sanitizedDelta[i] = delta[i].Substring(delta[i].IndexOf(':') + 2);
       }
 
       return sanitizedDelta;
