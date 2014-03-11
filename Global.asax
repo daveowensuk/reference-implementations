@@ -2,6 +2,7 @@
 <%@ Import Namespace="System" %>
 <%@ Import Namespace="Izenda.AdHoc" %>
 <%@ Import Namespace="System.IO" %>
+<%@ Import Namespace="System.Globalization" %>
 
 <script RunAt="server">
 	void Application_AcquireRequestState(object sender, EventArgs e)
@@ -27,6 +28,7 @@
 			AdHocSettings.ReportDesignerUrl = "ReportDesigner";
 			AdHocSettings.DashboardDesignerUrl = "DashboardDesigner";
 			AdHocSettings.ReportList = "ReportList";
+			AdHocSettings.Culture = new CultureInfo("en-AU");
 			AdHocSettings.FormDesignerUrl = "FormDesigner";
 			AdHocSettings.SettingsPageUrl = "Settings";
 			AdHocSettings.ParentSettingsUrl = "Settings";
@@ -48,7 +50,11 @@
 			AdHocSettings.PrintMode = PrintMode.Html2PdfAndHtml;
 			AdHocSettings.ShowPoweredByLogo = false;
 			AdHocSettings.SqlCommandTimeout = 120;
-			AdHocSettings.VisibleDataSources = new string[] { "ActiveAlarms_SP", "ActiveAlarmsV", "AssetEventListV", "HistoricalAlarmsV", "MaintenanceEventsV", "AssetOperationalStatusV", "EventsAllAlarmsV", "EventsCollectionCommEventV", "EventsCollectionCBRV", "EventsGSMConnectionLogsV", "EventsTransactionsV", "CollReconDetCBRCOMMSsubV", "CreditCardReconciliationV", "LastCollectioNDateTimeV", "CurrentMeterAmountsV", "CustomerPaymentTransactionV", "DailyFinancialTransactionV", "MeterUptimeV", "MSM_Sensor_Gateway_AttribStatExceptsSummV", "OccupancyRateSummaryV", "TotalIncomeSummaryV", "OccupancyRateSummary_SP", "A_EventsAlarmsTransactionsV", "A_LastCollectionAndGSMConnectionV" };
+			AdHocSettings.VisibleDataSources = new string[] { "ActiveAlarms_SP", "ActiveAlarmsV", "AssetEventListV", "HistoricalAlarmsV", "MaintenanceEventsV", "AssetOperationalStatusV",
+						"EventsAllAlarmsV", "EventsCollectionCommEventV", "EventsCollectionCBRV", "EventsGSMConnectionLogsV", "EventsTransactionsV", "CollReconDetCBRCOMMSsubV",
+						"CreditCardReconciliationV", "LastCollectioNDateTimeV", "CurrentMeterAmountsV", "CustomerPaymentTransactionV", "DailyFinancialTransactionV", "MeterUptimeV",
+						"MSM_Sensor_Gateway_AttribStatExceptsSummV", "OccupancyRateSummaryV", "TotalIncomeSummaryV", "OccupancyRateSummary_SP", "A_EventsAlarmsTransactionsV",
+						"A_LastCollectionAndGSMConnectionV" };
 			AdHocSettings.ExtendedFunctions = new string[] { "ufn_AllSpacesEvents" };
 			AdHocSettings.AllowEqualsSelectForStoredProcedures = true;
 
