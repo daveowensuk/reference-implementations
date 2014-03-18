@@ -10,18 +10,18 @@ mkdir -p Reports
 touch Izenda.config
 mkdir -p "${RI}"
 
-gsed -i '/<script type="text\/javascript" src=".\/rs.aspx?js_nocache=ModernScripts.IzendaLocalization"><\/script>/a\
+sed -i '/<script type="text\/javascript" src=".\/rs.aspx?js_nocache=ModernScripts.IzendaLocalization"><\/script>/a\
 \<script type="text\/javascript" src="annotation.js"><\/script>' Resources/html/ReportViewer-Head.ascx
 
 line=$(grep -n 'rs.aspx?output=CSV' Resources/html/ReportViewer-Body.ascx | grep -o '^[0-9]*')
 line=$((line - 2))
 echo $line
 
-gsed -i "${line} {
+sed -i "${line} {
   r powerpoint.html
 }" Resources/html/ReportViewer-Body.ascx
 
-gsed -i '/InitializeViewer();/a\
+sed -i '/InitializeViewer();/a\
 \    RefreshAnnotations();' Resources/html/ReportViewer-Body.ascx
 
 find . \( -path "./.git" -o -path "./Forms/elrte/.git" -o -path "./${RI}" \) -prune -o -print | cpio -mpvd "${RI}"
