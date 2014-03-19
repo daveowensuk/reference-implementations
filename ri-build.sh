@@ -11,6 +11,7 @@ mv DocumentFormat.OpenXml.dll bin
 rm izenda.adhoc.zip
 rm DocumentFormat.OpenXml-2.5.0.zip
 mkdir -p Reports
+mkdir -p App_Data
 touch Izenda.config
 mkdir -p "${RI}"
 
