@@ -4,8 +4,12 @@ CORE_TYPE=${2}
 CORE_TYPE=${CORE_TYPE:="latest"}
 
 wget http://archives.izenda.us/core/${CORE_TYPE}/izenda.adhoc.zip
+wget http://www.nuget.org/api/v2/package/DocumentFormat.OpenXml/2.5.0 -O DocumentFormat.OpenXml-2.5.0.zip
 unzip izenda.adhoc.zip
+unzip -j DocumentFormat.OpenXml-2.5.0.zip lib/DocumentFormat.OpenXml.dll
+mv DocumentFormat.OpenXml.dll bin
 rm izenda.adhoc.zip
+rm DocumentFormat.OpenXml-2.5.0.zip
 mkdir -p Reports
 touch Izenda.config
 mkdir -p "${RI}"
