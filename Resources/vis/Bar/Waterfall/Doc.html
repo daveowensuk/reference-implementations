@@ -1,0 +1,37 @@
+﻿<html>
+<head>
+	<head>
+		<title>Waterfall chart documentation</title>
+	</head>
+</head>
+<body>
+	<table>
+		<tr>
+			<td><div id="holder"></div></td>
+			<td style="width:200px; vertical-align:top; font-weight:bold;">
+				<p>Two fields must be selected in Detail report:</p>
+				<p>First one with X-axis values. It can be numeric or string.</p>
+				<p>Second one with Y-axis values. It can be numeric only.</p>
+			</td>
+		</tr>
+	</table>
+	<script type="text/javascript">
+		function getRequest(url) {
+			var result = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+			result.open("GET", url, false);
+			result.send();
+			return result.responseText;
+		}
+		function globalEval(value) {
+			(window.execScript || function(text) { window.eval.call(window, text); })(value);
+		};
+
+		document.getElementById("holder").innerHTML = getRequest("View.html");
+		var elements = document.getElementById("holder").getElementsByTagName("script");
+		for (var i = 0; i < elements.length; i++) {
+			var src = elements[i].getAttribute("src");
+			globalEval(src ? getRequest(src) : elements[i].innerHTML);
+		}
+	</script>
+</body>
+</html>

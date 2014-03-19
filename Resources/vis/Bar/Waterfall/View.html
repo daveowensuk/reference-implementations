@@ -1,0 +1,80 @@
+<div id="VIS_ID"></div>
+
+<script type="text/javascript" id="skip_within_izenda_1" src="jquery-latest.js"></script>
+<script type="text/javascript" id="skip_within_izenda_2" src="highcharts.js"></script>
+<script type="text/javascript" id="skip_within_izenda_3" src="highcharts-more.js"></script>
+
+<script type="text/javascript">
+  (function ExecuteVIS_ID() {
+  	if (typeof window.jq$ == "undefined")
+  		window.jq$ = jQuery.noConflict(true);
+
+  	var VIS_EMBEDDED_DATA;
+
+    VIS_ISDASHBOARD = (typeof VIS_ISDASHBOARD !== 'undefined' && VIS_ISDASHBOARD) || jq$('#VIS_ID').parent().is('.db-report-part-container');
+	
+    var width = VIS_ISDASHBOARD ? "100%" : (720 + 'px'),
+			height = 500 + 'px';
+    var emb = typeof VIS_EMBEDDED != 'undefined',
+			util = window.ReportScripting, vis = {}, columns;
+
+    var VIS_COLNAMES = emb ? VIS_COLNAMES : ['Ship Country', 'Sum(Freight)'];
+    var VIS_REPORTTITLE = emb ? VIS_REPORTTITLE : '';
+
+    if (!emb) {
+    	columns = [
+				['Brazil', 'Austria', 'Germany', 'USA', 'France'],
+				[50000, 40000, 30000, 20000, 10000]
+    	];
+    }
+    else {
+    	vis = new util("VIS_ID", VIS_ISDASHBOARD, VIS_FORMJSASTATUS, VIS_REPORTTITLE, VIS_COLTYPES, VIS_COLORIGINS, VIS_COLNAMES, VIS_ROWS, VIS_WIDTH, VIS_HEIGHT);
+    	var rows = vis.getRows(true);
+    	columns = util.exchangeAxes(rows);
+
+    	width = VIS_ISDASHBOARD ? "100%" : (vis.getWidth() + 'px');
+    	height = vis.getHeight() + 'px';
+		}
+    var container = document.getElementById('VIS_ID');
+    container.style.width = width;
+    container.style.height = height;
+  
+    var wfData = new Array();
+    for (var i = 0; i < columns[0].length; i++) {
+      wfData[wfData.length] = new Object();
+      wfData[wfData.length - 1].name = columns[0][i];
+      wfData[wfData.length - 1].y = columns[1][i];
+    }
+    jq$('#VIS_ID').highcharts({
+    	chart: { type: 'waterfall' },
+    	title: { text: VIS_REPORTTITLE },
+    	xAxis: {
+    		type: 'category',
+    		title: { text: VIS_COLNAMES[0] }
+    	},
+    	yAxis: {
+    		title: { text: VIS_COLNAMES[1] }
+    	},
+    	legend: { enabled: false },
+    	series: [{
+    		name: VIS_COLNAMES[1],
+    		upColor: Highcharts.getOptions().colors[2],
+    		color: Highcharts.getOptions().colors[3],
+    		data: wfData,
+    		dataLabels: {
+    			enabled: true,
+    			style: {
+    				color: '#FFFFFF',
+    				fontWeight: 'bold'
+    			}
+    		},
+    		pointPadding: 0
+    	}]
+    });
+
+    if (emb) {
+	    util.registerResize("VIS_ID", ExecuteVIS_ID);
+	    util.onReady();
+    }
+  })();
+</script>
