@@ -13,16 +13,23 @@
 
   <%--Styles--%>
   <link rel="shortcut icon" href="rs.aspx?image=ModernImages.report-icon.png" type='image/png' />
-  <link rel="stylesheet" type="text/css" href="Resources/bootstrap/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="Resources/newcss/main.css" type="text/css" />
+  <link rel="stylesheet" type="text/css" href="DashboardsResources/bootstrap/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="DashboardsResources/css/main.css" type="text/css" />
+  <link rel="stylesheet" href="DashboardsResources/css/jsPreloader.css" type="text/css" />
 
   <%--Scripts--%>
   <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery-1.9.1.min"></script>
   <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery-ui-1.10.0.min"></script>
-  <script type="text/javascript" src="Resources/bootstrap/js/bootstrap.min.js"></script>
-  
+  <script type="text/javascript" src="DashboardsResources/bootstrap/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="DashboardsResources/js/jpreloader.min.js"></script>
+  <script type="text/javascript" src="DashboardsResources/js/jsrender.min.js"></script>
+  <script type="text/javascript">
+    // this function should be overriden at page if some initialization needed after splash screen completed.
+    var izendaPreloadCompleted = function() {};
+  </script>
+
   <%--Page header injection--%>
-  
+
   <script type="text/javascript">
     function ShowIzendaSplashScreen() {
       $('#mainContentDiv').hide();
@@ -36,8 +43,8 @@
     }
   </script>
   <asp:ContentPlaceHolder ID="HeadPlaceHolder" runat="server"></asp:ContentPlaceHolder>
-
 </head>
+
 <body>
   <%--Page header (logo, company name, etc)--%>
   <header>
@@ -93,7 +100,7 @@
       </ul>
     </div>
   </nav>
-  
+
   <%--Splash screen--%>
   <div id="izendaSplashScreen">
     <div id="izendaSplashScreenText" class="text">Loading...</div>
@@ -110,5 +117,19 @@
     <hr />
     <cite title="Copyright 2014 Izenda, LLC">Copyright 2014 Izenda, LLC</cite>
   </footer>
+
+  <%--Preloader run--%>
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $('body').jpreLoader({
+        loaderVPos: '0%',
+        showPercentage: false
+      }, function () {
+        if (typeof izendaPreloadCompleted != 'undefined') {
+          izendaPreloadCompleted();
+        }
+      });
+    });
+  </script>
 </body>
 </html>
