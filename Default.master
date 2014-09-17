@@ -12,15 +12,17 @@
   <meta name="robots" content="noindex, follow" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="alternate" href="" title="Team Blog - RSS" type="application/rss+xml" />
-  <link rel="stylesheet" href="Resources/css/reset2.css" type="text/css" />
-  <link rel="stylesheet" href="Resources/css/print.css" type="text/css" media="print" />
-  <link rel="stylesheet" href="Resources/css/fun.css" type="text/css" />
   <link rel="shortcut icon" href="Resources/FromDLL/Resources/ModernImages/report-icon.png" type='image/png' />
+  <link rel='stylesheet' href='Resources/css/izenda.min.css' />
+  <!--<link rel="stylesheet" href="Resources/css/reset2.css" type="text/css" />
+  <link rel="stylesheet" href="Resources/css/print.css" type="text/css" media="print" />
+  <link rel="stylesheet" href="Resources/css/fun.css" type="text/css" />-->
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
-  <link rel="stylesheet" href="Resources/FromDLL/Resources/Styles/ModernStyles/bootstrap-responsive.css" />
+  <link rel='stylesheet' href='Resources/css/zen-boot.min.css' />
+  <!--<link rel="stylesheet" href="Resources/FromDLL/Resources/Styles/ModernStyles/bootstrap-responsive.css" />
   <link rel="stylesheet" href="Resources/FromDLL/Resources/Styles/ModernStyles/bootstrap.css"  />
   <link rel="stylesheet" href="Resources/FromDLL/Resources/Styles/ModernStyles/bootstrap-modals.css"  /> 
-  <link rel="stylesheet" href="Resources/FromDLL/Resources/Styles/ModernStyles/bootstrap-override.css"  />
+  <link rel="stylesheet" href="Resources/FromDLL/Resources/Styles/ModernStyles/bootstrap-override.css"  />-->
   <link rel="stylesheet" href="Resources/css/main.css" type="text/css" />
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <script type="text/javascript" src="Resources/FromDLL/Scripts/ModernScripts/jquery-1.7.2.min.js"></script>
