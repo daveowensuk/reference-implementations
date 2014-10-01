@@ -47,7 +47,7 @@ public partial class TemplateDesigner : Page {
     if (!String.IsNullOrEmpty(delete) && delete == "1") {
       AdHocSettings.AdHocConfig.DeleteTemplateInternal(templateName);
     }
-    string templateData = AdHocSettings.AdHocConfig.GetVolatileTemplate(templateName);
+    string templateData = AdHocSettings.AdHocConfig.GetVolatileTemplate(templateName, false);
 
     Response.Write("<html><head>");
 		if (!safeForm) {
