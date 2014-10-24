@@ -1,4 +1,5 @@
 <%@ Application Language="C#" %>
+<%@ Import Namespace="System.Collections.Generic" %>
 <%@ Import Namespace="Izenda.AdHoc" %>
 
 <script runat="server">
@@ -34,5 +35,16 @@
     public override void PreExecuteReportSet(ReportSet reportSet) {
       base.PreExecuteReportSet(reportSet);
     }
+
+	public Dictionary<string, int> GetUpdateIntervalsInSeconds()
+	{
+		Dictionary<string, int> intervals = new Dictionary<string, int>();
+		intervals.Add("Never", -1);
+		intervals.Add("5 Minutes", 300);
+		intervals.Add("10 Minutes", 600);
+		intervals.Add("30 Minutes", 1800);
+		intervals.Add("1 Hour", 3600);
+		return intervals;
+	}
   }
 </script>
