@@ -1,5 +1,4 @@
 ﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="Default-New.master.cs" Inherits="Default_New" %>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,126 +9,97 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta http-equiv="Expires" content="0" />
   <meta http-equiv="Pragma" content="no-cache" />
-
+  
   <%--Styles--%>
   <link rel="shortcut icon" href="rs.aspx?image=ModernImages.report-icon.png" type='image/png' />
-  <link rel="stylesheet" type="text/css" href="DashboardsResources/bootstrap/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jquery-ui" />
+  <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.bootstrap.min" />
+  <link rel="stylesheet" href="DashboardsResources/css/reset2.css" type="text/css" />
   <link rel="stylesheet" href="DashboardsResources/css/main.css" type="text/css" />
-  <link rel="stylesheet" href="DashboardsResources/css/jsPreloader.css" type="text/css" />
 
-  <%--Scripts--%>
-  <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery-1.9.1.min"></script>
-  <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery-ui-1.10.0.min"></script>
-  <script type="text/javascript" src="DashboardsResources/bootstrap/js/bootstrap.min.js"></script>
-  <script type="text/javascript" src="DashboardsResources/js/jpreloader.min.js"></script>
-  <script type="text/javascript" src="DashboardsResources/js/jsrender.min.js"></script>
-  <script type="text/javascript">
-    // this function should be overriden at page if some initialization needed after splash screen completed.
-    var izendaPreloadCompleted = function() {};
-  </script>
-
-  <%--Page header injection--%>
-
-  <script type="text/javascript">
-    function ShowIzendaSplashScreen() {
-      $('#mainContentDiv').hide();
-      var $splash = $('#izendaSplashScreen');
-      $splash.css('height', document.body.scrollHeight + 'px');
-      $splash.show();
-      var $splashImg = $('#izendaSplashScreenImg');
-      var $splashText = $('#izendaSplashScreenText');
-      var vSize = document.body.offsetHeight;
-      $splashText.css('paddingTop', (3 + vSize / 2) + 'px');
-    }
-  </script>
   <asp:ContentPlaceHolder ID="HeadPlaceHolder" runat="server"></asp:ContentPlaceHolder>
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if IE]>
+<script type="text/javascript" src="rs.aspx?js=ModernScripts.html5shiv"></script>
+<script type="text/javascript" src="rs.aspx?js=ModernScripts.respond"></script>
+<![endif]-->
 </head>
 
-<body>
-  <%--Page header (logo, company name, etc)--%>
-  <header>
-    <div class="container-fluid">
-      <div class="row" id="whiteHeader">
-        <div class="col-xs-4 col-md-4 left-logo">
-          <img src="rs.aspx?image=ModernImages.bi-logo.png" alt="Business intelligence" />
-        </div>
-        <div class="col-xs-8 col-md-8 right-logo">
-          <a href="http://izenda.com">
-            <img runat="server" id="rightLogo" src="rs.aspx?image=ModernImages.izenda-logo-4.gif" alt="Izenda Reports" />
-          </a>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <%--Navigation bar--%>
-  <nav class="navbar navbar-inverse" role="navigation">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
+<body class="izenda">
+  <div class="container-fluid">
+    <div class="row">
+      <%--Page header (logo, company name, etc)--%>
+      <header>
+        <nav class="navbar white-background" role="navigation">
+          <div class="container-fluid">
+            <div class="row" id="whiteHeader">
+              <div class="col-xs-4 col-md-4 left-logo">
+                <img src="rs.aspx?image=ModernImages.bi-logo.png" alt="Business intelligence" />
+              </div>
+              <div class="col-xs-8 col-md-8 right-logo">
+                <a href="http://izenda.com">
+                  <img runat="server" id="rightLogo" src="rs.aspx?image=ModernImages.izenda-logo-4.gif" alt="Izenda Reports" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </header>
     </div>
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li><a href="ReportList.aspx" title="Open report list">Reports</a></li>
-        <li><a href="Dashboards.aspx?clear=1" title="Open dashboards" onclick="ShowIzendaSplashScreen();">Dashboards</a></li>
-        <li class="dropdown">
-          <a href="ReportDesigner.aspx?clear=1&tab=Data+Sources" class="dropdown-toggle"
-            data-toggle="dropdown"><span class="plus">+</span> New <b class="caret"></b></a>
-          <ul class="dropdown-menu">
-            <li><a href="ReportDesigner.aspx?clear=1&tab=Data+Sources" title="Create new report">Report</a></li>
-            <li><a href="InstantReport.aspx" title="Create new report instantly">Instant Report</a></li>
-            <li><a href="DashboardDesigner.aspx?clear=1" title="Create new dashboard">Dashboard</a></li>
+    <div class="row">
+      <%--Navigation bar--%>
+      <nav class="navbar navbar-inverse" role="navigation">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="izenda-menu collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li><a href="ReportList.aspx" title="Open report list">Reports</a></li>
+            <li><a href="Dashboards.aspx?clear=1" title="Open dashboards" onclick="ShowIzendaSplashScreen();">Dashboards</a></li>
+            <li class="dropdown">
+              <a href="ReportDesigner.aspx?clear=1&tab=Data+Sources" class="dropdown-toggle"
+                data-toggle="dropdown"><span class="plus">+</span> New <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="ReportDesigner.aspx?clear=1&tab=Data+Sources" title="Create new report">Report</a></li>
+                <li><a href="InstantReport.aspx" title="Create new report instantly">Instant Report</a></li>
+                <li><a href="DashboardDesigner.aspx?clear=1" title="Create new dashboard">Dashboard</a></li>
+              </ul>
+            </li>
           </ul>
-        </li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <% if (Izenda.AdHoc.AdHocSettings.ShowSettingsButton) { %>
-        <li>
-          <a title="Settings" href="Settings.aspx">
-            <img class="icon" src="./rs.aspx?image=ModernImages.settings.png" alt="Settings" />
-          </a>
-        </li>
-        <% } %>
-      </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <% if (Izenda.AdHoc.AdHocSettings.ShowSettingsButton) { %>
+            <li>
+              <a title="Settings" href="Settings.aspx">
+                <img class="icon" src="./rs.aspx?image=ModernImages.settings.png" alt="Settings" />
+              </a>
+            </li>
+            <% } %>
+          </ul>
+        </div>
+      </nav>
     </div>
-  </nav>
 
-  <%--Splash screen--%>
-  <div id="izendaSplashScreen">
-    <div id="izendaSplashScreenText" class="text">Loading...</div>
-    <img id="izendaSplashScreenImg" class="img" src="rs.aspx?image=loading.gif" alt="" />
+    <%--Page content--%>
+    <div class="row">
+      <asp:ContentPlaceHolder ID="PlaceHolder" runat="server"></asp:ContentPlaceHolder>
+    </div>
+
+    <%--Page footer--%>
+    <%--<div class="row">
+      <footer>
+        <hr />
+        <cite title="Copyright 2014 Izenda, LLC">Copyright 2014 Izenda, LLC</cite>
+      </footer>
+    </div>--%>
   </div>
-
-  <%--Page content--%>
-  <div class="main-content" id="mainContentDiv">
-    <asp:ContentPlaceHolder ID="PlaceHolder" runat="server"></asp:ContentPlaceHolder>
-  </div>
-
-  <%--Page footer--%>
-  <footer>
-    <hr />
-    <cite title="Copyright 2014 Izenda, LLC">Copyright 2014 Izenda, LLC</cite>
-  </footer>
-
-  <%--Preloader run--%>
-  <script type="text/javascript">
-    $(document).ready(function () {
-      $('body').jpreLoader({
-        loaderVPos: '0%',
-        showPercentage: false
-      }, function () {
-        if (typeof izendaPreloadCompleted != 'undefined') {
-          izendaPreloadCompleted();
-        }
-      });
-    });
-  </script>
 </body>
 </html>

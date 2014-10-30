@@ -1,5 +1,5 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Default-New.master" AutoEventWireup="true" CodeFile="Dashboards.aspx.cs" 
-  Inherits="Dashboards" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Default-New.master" AutoEventWireup="true" CodeFile="Dashboards-New.aspx.cs" 
+  Inherits="DashboardsNew" %>
 <%@ Register Src="~/DashboardsResources/html/Dashboards-New-Head.ascx" TagName="ccn1" TagPrefix="ccp1" %>
 <%@ Register Src="~/DashboardsResources/html/Dashboards-New-Body.ascx" TagName="ccn2" TagPrefix="ccp2" %>
 

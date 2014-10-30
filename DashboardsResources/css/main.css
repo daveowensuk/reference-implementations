@@ -1,4 +1,8 @@
-﻿header .left-logo {
+﻿#whiteHeader {
+  background-color: #fff;
+}
+
+header .left-logo {
   padding: 4px;
   padding-left: 24px;
 }
@@ -15,6 +19,10 @@ nav .plus {
   line-height: 10%;
   vertical-align: baseline;
   position: relative;
+}
+
+footer {
+  background-color: #fff;
 }
 
 footer cite {

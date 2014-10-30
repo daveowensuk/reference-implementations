@@ -1,4 +1,5 @@
-bin
-Reports
-App_Code
-App_Data
+/bin
+/Resources/**
+/Reports
+/App_Code
+/App_Data
