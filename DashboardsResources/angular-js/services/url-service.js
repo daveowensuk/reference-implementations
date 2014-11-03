@@ -93,6 +93,8 @@
 	}
 
 	function getIsNew() {
+		if (angular.isUndefined($location.search()['isNew']))
+			return null;
 		return $location.search()['isNew'];
 	}
 

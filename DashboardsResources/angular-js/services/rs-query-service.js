@@ -42,7 +42,8 @@ angular.module('izendaQuery').factory('$izendaRsQuery', ['$http', '$q', '$izenda
 			angular.extend(queryOptions, options);
 		}
 
-		console.log('>>> ' + url);
+		// uncomment if want to trace queries
+		//console.log('>>> ' + url);
 
 		// make request
 		var request = $http({

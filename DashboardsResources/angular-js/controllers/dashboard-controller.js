@@ -1,7 +1,7 @@
-﻿angular.module('izendaDashboard').controller('IzendaDashboardController', ['$scope', '$animate', '$timeout', '$injector', '$izendaUrl', '$izendaDashboardQuery',
-function IzendaDashboardController($scope, $animate, $timeout, $injector, $izendaUrl, $izendaDashboardQuery) {
+﻿angular.module('izendaDashboard').controller('IzendaDashboardController', ['$rootScope', '$scope', '$animate', '$timeout', '$injector', '$izendaUrl', '$izendaDashboardQuery',
+function IzendaDashboardController($rootScope, $scope, $animate, $timeout, $injector, $izendaUrl, $izendaDashboardQuery) {
 	'use strict';
-	
+
 	// dashboard options
 	$scope.options = {
 		dashboardFullName: null,
@@ -14,28 +14,62 @@ function IzendaDashboardController($scope, $animate, $timeout, $injector, $izend
 	$scope.tileContainerStyle = {
 		'height': 0
 	};
+	// is dashboard changing now.
+	$scope.isChangingNow = false;
 
 	// dashboard tiles
 	$scope.tiles = [];
 	$scope.tileWidth = 0;
 	$scope.tileHeight = 0;
-	
-	// old dashboard instance
-	$scope.dashboard = null;
+
+	// dashboard resize
+	$scope.windowResizeOptions = {
+		timeout: false
+	};
+
+	////////////////////////////////////////////////////////
+	// event handlers:
+	////////////////////////////////////////////////////////
 
 	/**
 	 * Dashboard window resized handler
 	 */
 	$scope.$on('dashboardResizeEvent', function () {
+		$scope.isChangingNow = true;
+		if (!$scope.$$phase)
+			$scope.$apply();
+
+		// update dashboard tile sizes
 		updateDashboardSize();
+
+		// update all tiles
+		var resizeEnd = function () {
+			if (new Date() - $scope.windowResizeOptions.rtime < 500) {
+				setTimeout(function () {
+					resizeEnd.apply();
+				}, 500);
+			} else {
+				$scope.windowResizeOptions.timeout = false;
+				$scope.isChangingNow = false;
+				$rootScope.$broadcast('windowResized', []);
+				$scope.refreshAllTiles();
+			}
+		};
+		$scope.windowResizeOptions.rtime = new Date();
+		if ($scope.windowResizeOptions.timeout === false) {
+			$scope.windowResizeOptions.timeout = true;
+			setTimeout(function () {
+				resizeEnd.apply();
+			}, 500);
+		}
 	});
 
 	/**
 	 * Create new dashboard
 	 */
 	$scope.$on('dashboardCreateNewEvent', function () {
-		if ($scope.dashboard)
-			$scope.dashboard.createNewDashboard();
+		/*if ($scope.dashboard)
+			$scope.dashboard.createNewDashboard();*/
 	});
 
 	/**
@@ -57,13 +91,13 @@ function IzendaDashboardController($scope, $animate, $timeout, $injector, $izend
 	 * Listen dashboard "save/save as" event
 	 */
 	$scope.$on('dashboardSaveEvent', function (event, args) {
-		if (!$scope.dashboard)
+		/*if (!$scope.dashboard)
 			return;
 		var useSaveAs = args[0];
 		if (useSaveAs)
 			$scope.dashboard.saveDashboard();
 		else
-			$scope.dashboard.saveDashboardAs();
+			$scope.dashboard.saveDashboardAs();*/
 	});
 
 	/**
@@ -77,11 +111,70 @@ function IzendaDashboardController($scope, $animate, $timeout, $injector, $izend
 	});
 
 	/**
+	 * Start tile edit event handler
+	 */
+	$scope.$on('startEditTileEvent', function (event, args) {
+		$scope.showTileGrid();
+	});
+
+	/**
+	 * Tile edit completed event handler
+	 */
+	$scope.$on('stopEditTileEvent', function (event, args) {
+		$scope.hideTileGrid();
+	});
+
+	////////////////////////////////////////////////////////
+	// scope helper functions:
+	////////////////////////////////////////////////////////
+
+	$scope.getRoot = function() {
+		return angular.element('#dashboardsDiv');
+	};
+	$scope.getTileContainer = function() {
+		return angular.element('#dashboardBodyContainer');
+	};
+	$scope.getTileById = function(tileId) {
+		for (var i = 0; i < $scope.tiles.length; i++) {
+			if ($scope.tiles[i].id == tileId)
+				return $scope.tiles[i];
+		}
+		return null;
+	};
+	$scope.getTileByTile$ = function(tile$) {
+		return $scope.getTileById(tile$.attr('tileid'));
+	};
+	$scope.getOtherTiles = function(tiles, tile) {
+		if (tile == null)
+			return tiles;
+		var otherTiles = [];
+		for (var i = 0; i < tiles.length; i++) {
+			if (tiles[i].id != tile.id)
+				otherTiles.push(tiles[i]);
+		}
+		return otherTiles;
+	};
+	$scope.getTile$ById = function(tileId) {
+		return $scope.getTileContainer().find('.iz-dash-tile[tileid="' + tileId + '"]');
+	};
+	$scope.getTile$ByInnerEl = function(el) {
+		var $el = angular.element(el);
+		return angular.element($el.closest('.iz-dash-tile'));
+	};
+
+	////////////////////////////////////////////////////////
+	// scope functions:
+	////////////////////////////////////////////////////////
+
+	/**
 	 * Initialize dashboard
 	 */
 	$scope.initialize = function (options) {
 		// set options
 		$scope.options.reportInfo = $izendaUrl.getReportInfo();
+
+		// remove content from all tiles to speed up "bounce up" animation
+		angular.element('.report').empty();
 
 		// prepare dashboard parameters
 		prepareDashboard();
@@ -89,6 +182,119 @@ function IzendaDashboardController($scope, $animate, $timeout, $injector, $izend
 		// load dashboard tiles layout
 		loadDashboardLayout();
 	};
+
+	/**
+	 * Refresh all tiles.
+	 */
+	$scope.refreshAllTiles = function () {
+		refreshAllTiles();
+	};
+
+	/**
+	 * Show editor grid
+	 */
+	$scope.showTileGrid = function () {
+		var $gridPlaceholder = $scope.getTileContainer();
+		if (angular.isUndefined($scope.$grid) || $scope.$grid == null) {
+			$scope.$grid = angular.element('<div></div>')
+				  .addClass('dashboard-grid')
+				  .hide();
+			$gridPlaceholder.prepend($scope.$grid);
+		}
+		$scope.$grid.css('background-size', $scope.tileWidth + 'px ' + $scope.tileHeight + 'px, ' +
+					$scope.tileWidth + 'px ' + $scope.tileHeight + 'px');
+		$scope.$grid.show();
+	};
+
+	/**
+	 * Hide editor grid 
+	 */
+	$scope.hideTileGrid = function () {
+		if (angular.isUndefined($scope.$grid) || $scope.$grid == null)
+			return;
+		$scope.$grid.hide();
+	};
+
+	/**
+	 * Check tile intersects to any other tile
+	 */
+	$scope.checkTileIntersects = function (tile, $helper) {
+		var hitTest = function (a, b, accuracy) {
+			var aPos = a.offset();
+			var bPos = b.offset();
+
+			var aLeft = aPos.left;
+			var aRight = aPos.left + a.width();
+			var aTop = aPos.top;
+			var aBottom = aPos.top + a.height();
+
+			var bLeft = bPos.left + accuracy;
+			var bRight = bPos.left + b.width() - accuracy;
+			var bTop = bPos.top + accuracy;
+			var bBottom = bPos.top + b.height() - accuracy;
+			return !(bLeft > aRight
+				|| bRight < aLeft
+				|| bTop > aBottom
+				|| bBottom < aTop
+			);
+		};
+		// check
+
+		var $tile = $scope.getTile$ById(tile.id);
+		if (!angular.isUndefined($helper)) {
+			$tile = $helper;
+		}
+		var otherTiles = $scope.getOtherTiles($scope.tiles, tile);
+		for (var i = 0; i < otherTiles.length; i++) {
+			var oTile = otherTiles[i];
+			var $oTile = $scope.getTile$ById(oTile.id);
+			if (hitTest($tile, $oTile, 30)) {
+				return true;
+			}
+		}
+		return false;
+	};
+
+	/**
+	 * Check tile is outside the dashboard
+	 */
+	$scope.checkTileMovedToOuterSpace = function ($tile, sencitivity) {
+		var precision = sencitivity;
+		if (typeof (sencitivity) == 'undefined' || sencitivity == null)
+			precision = 0;
+		var tp = $tile.position();
+		if (tp.left + $tile.width() > $scope.tileWidth * 12 + precision || tp.left < -precision || tp.top < -precision)
+			return true;
+		return false;
+	};
+
+	/**
+	 * Get tile which lie under testing tile.
+	 */
+	$scope.getUnderlyingTile = function(x, y, testingTile) {
+		var $target = null;
+		var targetTile;
+		var $tiles = $scope.getRoot().find('.iz-dash-tile');
+		for (var i = 0; i < $tiles.length; i++) {
+			var $t = angular.element($tiles[i]);
+			if ($t.hasClass('iz-dash-tile-helper'))
+				break;
+			var tile = $scope.getTileByTile$($t);
+			if (tile == null || tile.id != testingTile.id) {
+				var tilePosition = $t.offset();
+				if (tilePosition.left <= x && tilePosition.left + $t.width() >= x
+					&& tilePosition.top <= y && tilePosition.top + $t.height() >= y) {
+					targetTile = tile;
+					$target = $t;
+				}
+			}
+		}
+		return $target;
+	};
+
+	////////////////////////////////////////////////////////
+	// dashboard functions:
+	////////////////////////////////////////////////////////
 
 	/**
 	 * Calculate and set main dashboard parameters
@@ -118,7 +324,7 @@ function IzendaDashboardController($scope, $animate, $timeout, $injector, $izend
 			var timeElapsed = (new Date()).getTime() - startTime;
 			var timeout = 1000 - timeElapsed;
 			if (timeout <= 0) timeout = 1;
-			$timeout(function() {
+			$timeout(function () {
 				var maxHeight = 0;
 				if (data == null || data.Rows == null || data.Rows.length == 0) {
 					// if there is no data - create new empty tile
@@ -160,37 +366,32 @@ function IzendaDashboardController($scope, $animate, $timeout, $injector, $izend
 		});
 	};
 
+	/**
+	 * Refresh all tiles
+	 */
+	function refreshAllTiles() {
+		$scope.$broadcast('tileRefreshEvent', [false]);
+	}
+
 	////////////////////////////////////////////////////////
 	// tile container functions:
 	////////////////////////////////////////////////////////
-
-	function getRootContainer() {
-		return angular.element('#dashboardsDiv');
-	}
-
-	/**
-	 * Get tile container
-	 */
-	function getTileContainer() {
-		return angular.element('#dashboardBodyContainer');
-	}
 
 	/**
 	 * Update dashboard size parameters
 	 */
 	function updateDashboardSize() {
 		updateTileContainerSize();
-		console.log($scope.tileWidth, $scope.tileHeight);
 	}
 
 	/**
 	 * Tile container style
 	 */
 	function updateTileContainerSize(additionalBox) {
-		var $tileContainer = getTileContainer();
+		var $tileContainer = $scope.getTileContainer();
 
 		// update width
-		var parentWidth = getRootContainer().width();
+		var parentWidth = $scope.getRoot().width();
 		var width = Math.floor(parentWidth / 12) * 12;
 		$tileContainer.width(width);
 
@@ -214,12 +415,4 @@ function IzendaDashboardController($scope, $animate, $timeout, $injector, $izend
 		}
 		$scope.tileContainerStyle.height = (maxHeight + $scope.tileHeight) + 'px';
 	};
-
-	/**
-	 * Refresh all tiles
-	 */
-	function refreshAllTiles() {
-		$scope.$broadcast('tileRefreshEvent', [false]);
-	}
-
 }]);

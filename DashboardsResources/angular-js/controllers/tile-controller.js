@@ -5,6 +5,7 @@
 	reportSetName: null,
 	reportName: null,
 	reportCategory: null,
+	reportNameWithCategory: null,
 	x: 0,
 	y: 0,
 	width: 1,
@@ -12,11 +13,15 @@
 	top: 100
 });
 
-angular.module('izendaDashboard').controller('IzendaTileController', ['$element', '$scope', '$injector', '$izendaUrl', '$izendaDashboardQuery',
-function IzendaTileController($element, $scope, $injector, $izendaUrl, $izendaDashboardQuery) {
+angular.module('izendaDashboard').controller('IzendaTileController', ['$element', '$rootScope', '$scope', '$injector', '$izendaUrl', '$izendaDashboardQuery',
+function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUrl, $izendaDashboardQuery) {
 	'use strict';
 
 	$scope.isHidden = false;
+
+	$scope.state = {
+		resizableHandlerStarted: false
+	};
 
 	/**
 	 * Tile refresh event handler
@@ -29,12 +34,47 @@ function IzendaTileController($element, $scope, $injector, $izendaUrl, $izendaDa
 	});
 
 	/**
+	 * Update tile after completing window resize
+	 */
+	$scope.$on('windowResized', function(event, args) {
+		var $tile = $scope.$parent.getTile$ById($scope.id);
+		if ($scope.state.resizableHandlerStarted)
+			$tile.resizable('option', 'grid', [$scope.$parent.tileWidth, $scope.$parent.tileHeight]);
+	});
+
+	/**
+	 * Start tile edit event handler
+	 */
+	$scope.$on('startEditTileEvent', function (event, args) {
+		
+	});
+
+	/**
+	 * Tile edit completed event handler
+	 */
+	$scope.$on('stopEditTileEvent', function (event, args) {
+		$scope.updateTileParameters();
+		$scope.refreshTile(false);
+	});
+
+	////////////////////////////////////////////////////////
+	// scope functions:
+	////////////////////////////////////////////////////////
+
+	/**
 	 * Initialize tile
 	 */
 	$scope.initialize = function (tile) {
 		// extend scope with tile parameters and default parameters:
 		var tileDefaults = $injector.get('tileDefaults');
 		angular.extend($scope, tileDefaults, tile);
+		// set report name
+		$scope.reportNameWithCategory = $scope.reportName;
+		if ($scope.reportCategory != null)
+			$scope.reportNameWithCategory = $scope.reportCategory + '\\' + $scope.reportNameWithCategory;
+
+		initializeDraggable();
+		initializeResizable();
 
 		/**
 		 * Change size handler
@@ -42,6 +82,7 @@ function IzendaTileController($element, $scope, $injector, $izendaUrl, $izendaDa
 		$scope.$watch(['width', 'height'], function () {
 			changeTileSizeHandler();
 		});
+
 	};
 
 	/**
@@ -49,6 +90,21 @@ function IzendaTileController($element, $scope, $injector, $izendaUrl, $izendaDa
 	 */
 	$scope.refreshTile = function (updateFromSourceReport) {
 		refreshTile(updateFromSourceReport);
+	};
+
+	/**
+	 * Refresh tile parameters
+	 */
+	$scope.updateTileParameters = function () {
+		var $tile = $scope.$parent.getTile$ById($scope.id);
+		var x = Math.round($tile.position().left / $scope.$parent.tileWidth),
+			y = Math.round($tile.position().top / $scope.$parent.tileHeight),
+			width = Math.round($tile.width() / $scope.$parent.tileWidth),
+			height = Math.round($tile.height() / $scope.$parent.tileHeight);
+		$scope.x = x;
+		$scope.y = y;
+		$scope.width = width;
+		$scope.height = height;
 	};
 
 	/**
@@ -73,8 +129,133 @@ function IzendaTileController($element, $scope, $injector, $izendaUrl, $izendaDa
 	};
 
 	////////////////////////////////////////////////////////
-	// tile handlers:
+	// tile functions:
 	////////////////////////////////////////////////////////
+
+	/**
+	 * initialize draggable for tile
+	 */
+	function initializeDraggable() {
+		var $animates = $scope.$parent.getTileContainer().find('.animate-flip');
+		$element.draggable({
+			stack: '.iz-dash-tile',
+			handle: '.title-container',
+			helper: function (event, ui) {
+				var $target = angular.element(event.currentTarget);
+				console.log('a:', arguments);
+				var helperStr =
+					'<div class="iz-dash-tile iz-dash-tile-helper" style="top: 0px; height: ' + $target.height() + 'px; left: 0px; width: ' + $target.width() + 'px; opacity: 1; transform: matrix(1, 0, 0, 1, 0, 0); z-index: 1000;">' +
+					'<div class="animate-flip">' +
+					'<div class="flippy-front animated fast">' +
+						'<div class="title-container" style="height: 35px; overflow: hidden;"><div class="title"><span class="title-text">' +
+						'</span></div></div>' +
+					'</div></div></div>';
+				return angular.element(helperStr);
+			},
+			distance: 10,
+			start: function (event, ui) {
+				$rootScope.$broadcast('startEditTileEvent', [{
+					actionName: 'drag'
+				}]);
+
+				var $target = angular.element(event.target),
+					$helper = ui.helper,
+					targetPos = $target.position(),
+					helperPos = $helper.position(),
+					targetWidth = $target.width(),
+					targetHeight = $target.height();
+				$helper.find('.flippy-front, .flippy-back').removeClass('flipInY');
+				$helper.find('.flippy-front, .flippy-back').css('background-color', 'rgba(50,205,50, 0.3)');
+				$helper.find('.frame').remove();
+				$helper.css('z-index', 1000);
+				$helper.css('opacity', 1);
+			},
+			drag: function (event, ui) {
+				var $flippies = $scope.$parent.getTileContainer().find('.animate-flip > .flippy-front, .animate-flip > .flippy-back');
+				var $helper = ui.helper;
+				$flippies.css('background-color', '#fff');
+				$helper.find('.flippy-front, .flippy-back').css('background-color', 'rgba(50,205,50, 0.3)');
+				var $target = $scope.$parent.getUnderlyingTile(event.pageX, event.pageY, $scope);
+				if ($target != null) {
+					$target.find('.flippy-front, .flippy-back').css('background-color', 'rgba(50,205,50, 1)');
+				} else {
+					if ($scope.$parent.checkTileIntersects($scope, $helper) || $scope.$parent.checkTileMovedToOuterSpace($helper, 10)) {
+						$helper.find('.flippy-front, .flippy-back').css('background-color', 'rgba(220,20,60,0.2)');
+					}
+				}
+			},
+			stop: function (event, ui) {
+
+				$rootScope.$broadcast('stopEditTileEvent', [{
+					actionName: 'drag'
+				}]);
+			}
+		});
+	}
+
+	/**
+	 * Initialize resizable handler
+	 */
+	function initializeResizable() {
+		var $animates = $scope.$parent.getTileContainer().find('.animate-flip');
+		$element.resizable({
+			grid: [$scope.$parent.tileWidth, $scope.$parent.tileHeight],
+			containment: 'parent',
+			handles: 'n, e, s, w, se',
+			start: function (event, ui) {
+				$rootScope.$broadcast('startEditTileEvent', [{
+					actionName: 'resize'
+				}]);
+
+				var $target = angular.element(event.target);
+				$target.find('.flippy-front, .flippy-back').removeClass('flipInY');
+				$target.find('.flippy-front, .flippy-back').css('background-color', 'rgba(50,205,50, 0.3)');
+				$target.find('.frame').addClass('hidden');
+				$target.css('z-index', 1000);
+				$target.css('opacity', 1);
+			},
+			resize: function(event, ui) {
+				var $currentTileUi = ui.element;
+				var $t = $scope.$parent.getTile$ByInnerEl($currentTileUi);
+				var tile = $scope.$parent.getTileByTile$($t);
+
+				$animates.find('.flippy-front,.flippy-back').css('background-color', '#fff');
+				$t.find('.flippy-front,.flippy-back').css('background-color', 'rgba(50,205,50, 0.5)');
+				if ($scope.$parent.checkTileIntersects(tile)) {
+					$t.find('.flippy-front,.flippy-back').css('background-color', 'rgba(220,20,60,0.5)');
+				}
+			},
+			stop: function (event, ui) {
+				var $currentTileUi = ui.element;
+				var $t = $scope.$parent.getTile$ByInnerEl($currentTileUi);
+				var tile = $scope.$parent.getTileByTile$($t);
+				$t.css('z-index', 1);
+				$t.find('.frame').removeClass('hidden');
+				$t.find('.flippy-front, .flippy-back').addClass('flipInY');
+				$animates.find('.flippy-front,.flippy-back').css('background-color', '#fff');
+				if ($scope.$parent.checkTileIntersects(tile) || $scope.$parent.checkTileMovedToOuterSpace($t)) {
+					// revert if intersects
+					$currentTileUi.animate({
+						left: ui.originalPosition.left,
+						top: ui.originalPosition.top,
+						width: ui.originalSize.width,
+						height: ui.originalSize.height
+					}, 200, function () {
+						$rootScope.$broadcast('stopEditTileEvent', [{
+							actionName: 'resize'
+						}]);
+					});
+				} else {
+					$rootScope.$broadcast('stopEditTileEvent', [{
+						actionName: 'resize'
+					}]);
+				}
+				$t.find('.flippy-front .report, .flippy-back .report').removeClass('hidden');
+				$t.css('opacity', 1);
+			}
+		});
+		$scope.state.resizableHandlerStarted = true;
+	}
 
 	/**
 	 * Tile changed handler
@@ -82,10 +263,6 @@ function IzendaTileController($element, $scope, $injector, $izendaUrl, $izendaDa
 	function changeTileSizeHandler() {
 		refreshTile(false);
 	}
-
-	////////////////////////////////////////////////////////
-	// tile functions:
-	////////////////////////////////////////////////////////
 
 	/**
 	 * Flip tile to the front side and refresh if needed.
@@ -162,14 +339,14 @@ function IzendaTileController($element, $scope, $injector, $izendaUrl, $izendaDa
 		$body.html(loadingHtml);
 		$izendaDashboardQuery
 			.loadTileReport(updateFromSourceReport, $izendaUrl.getReportInfo().fullName, $scope.reportFullName, $scope.top,
-						$scope.width * $scope.$parent.tileWidth - 20, $scope.height * $scope.$parent.tileHeight - 65)
+						($scope.width * $scope.$parent.tileWidth) - 20, ($scope.height * $scope.$parent.tileHeight) - 80)
 			.then(function (htmlData) {
 				clearTileContent();
 
-				var $body = angular.element($element).find('.report');
-				ReportScripting.loadReportResponse(htmlData, $body);
+				var $b = angular.element($element).find('.report');
+				ReportScripting.loadReportResponse(htmlData, $b);
 
-				var divs$ = $body.find('div.DashPartBody, div.DashPartBodyNoScroll');
+				var divs$ = $b.find('div.DashPartBody, div.DashPartBodyNoScroll');
 				var $zerochartResults = divs$.find('.iz-zero-chart-results');
 				if ($zerochartResults.length > 0) {
 					$zerochartResults.closest('table').css('height', '100%');
