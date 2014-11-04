@@ -46,15 +46,25 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 	 * Start tile edit event handler
 	 */
 	$scope.$on('startEditTileEvent', function (event, args) {
-		
+		var eventOptions = angular.isArray(args) && args.length > 0 ? args[0] : null;
+		if (eventOptions == null)
+			throw 'tile controller: startEditTileEvent should have 1 options argument.';
 	});
 
 	/**
 	 * Tile edit completed event handler
 	 */
 	$scope.$on('stopEditTileEvent', function (event, args) {
-		$scope.updateTileParameters();
-		$scope.refreshTile(false);
+		var eventOptions = angular.isArray(args) && args.length > 0 ? args[0] : null;
+		if (eventOptions == null)
+			throw 'tile controller: stopEditTileEvent should have 1 options argument.';
+
+		var tileIdArray = angular.isArray(eventOptions.tileId) ? eventOptions.tileId : [eventOptions.tileId];
+		if (tileIdArray.indexOf($scope.id) >= 0) {
+			$scope.updateTileParameters();
+			if (eventOptions.refresh)
+				$scope.refreshTile(false);
+		}
 	});
 
 	////////////////////////////////////////////////////////
@@ -136,13 +146,11 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 	 * initialize draggable for tile
 	 */
 	function initializeDraggable() {
-		var $animates = $scope.$parent.getTileContainer().find('.animate-flip');
 		$element.draggable({
 			stack: '.iz-dash-tile',
 			handle: '.title-container',
 			helper: function (event, ui) {
 				var $target = angular.element(event.currentTarget);
-				console.log('a:', arguments);
 				var helperStr =
 					'<div class="iz-dash-tile iz-dash-tile-helper" style="top: 0px; height: ' + $target.height() + 'px; left: 0px; width: ' + $target.width() + 'px; opacity: 1; transform: matrix(1, 0, 0, 1, 0, 0); z-index: 1000;">' +
 					'<div class="animate-flip">' +
@@ -155,6 +163,7 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 			distance: 10,
 			start: function (event, ui) {
 				$rootScope.$broadcast('startEditTileEvent', [{
+					tileId: $scope.id,
 					actionName: 'drag'
 				}]);
 
@@ -173,10 +182,24 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 			drag: function (event, ui) {
 				var $flippies = $scope.$parent.getTileContainer().find('.animate-flip > .flippy-front, .animate-flip > .flippy-back');
 				var $helper = ui.helper;
+				var helperPos = $helper.position();
+
+				// move tile shadow
+				var x = Math.round(helperPos.left / $scope.$parent.tileWidth) * $scope.$parent.tileWidth;
+				var y = Math.round(helperPos.top / $scope.$parent.tileHeight) * $scope.$parent.tileHeight;
+				$scope.$parent.showTileGridShadow({
+					x: x,
+					y: y,
+					width: $helper.width(),
+					height: $helper.height()
+				}, false);
+
+				// check underlying tile
 				$flippies.css('background-color', '#fff');
 				$helper.find('.flippy-front, .flippy-back').css('background-color', 'rgba(50,205,50, 0.3)');
 				var $target = $scope.$parent.getUnderlyingTile(event.pageX, event.pageY, $scope);
 				if ($target != null) {
+					$scope.$parent.hideTileGridShadow();
 					$target.find('.flippy-front, .flippy-back').css('background-color', 'rgba(50,205,50, 1)');
 				} else {
 					if ($scope.$parent.checkTileIntersects($scope, $helper) || $scope.$parent.checkTileMovedToOuterSpace($helper, 10)) {
@@ -185,10 +208,57 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 				}
 			},
 			stop: function (event, ui) {
+				var $flippies = $scope.$parent.getTileContainer().find('.animate-flip > .flippy-front, .animate-flip > .flippy-back');
+				var $helper = ui.helper;
+				var $source = angular.element(event.target);
+				var $target = $scope.$parent.getUnderlyingTile(event.pageX, event.pageY, $scope);
+				$flippies.css('background-color', '#fff');
 
-				$rootScope.$broadcast('stopEditTileEvent', [{
-					actionName: 'drag'
-				}]);
+				// swap tile:
+				if ($target != null) {
+					$scope.$parent.swapTiles($source, $target).then(function (swappedTiles) {
+						var $swappedTile1 = swappedTiles[0],
+						    $swappedTile2 = swappedTiles[1];
+						$swappedTile1.find('.frame').show();
+						$swappedTile2.find('.frame').show();
+						var tileSizeChanged = Math.abs($swappedTile1.width() - $swappedTile2.width()) > 5
+									|| Math.abs($swappedTile1.height() - $swappedTile2.height()) > 5;
+						if (tileSizeChanged) {
+							var id1 = $scope.$parent.getTile$Id($swappedTile1),
+							    id2 = $scope.$parent.getTile$Id($swappedTile2);
+							$rootScope.$broadcast('stopEditTileEvent', [{
+								tileId: [id1, id2],
+								refresh: true,
+								actionName: 'drag'
+							}]);
+						}
+					});
+					return;
+				}
+
+				// cancel drag if have intersections or tile is out of dashboard space:
+				if ($scope.$parent.checkTileIntersects($scope, $helper) || $scope.$parent.checkTileMovedToOuterSpace($helper, 10)) {
+					$rootScope.$broadcast('stopEditTileEvent', [{
+						tileId: $scope.id,
+						refresh: false,
+						actionName: 'drag'
+					}]);
+					return;
+				}
+				
+				// move tile to new location:
+				var pos = $helper.position();
+				var $t = $scope.$parent.getTile$ByInnerEl($source);
+				$t.animate({
+					left: Math.round(pos.left / $scope.$parent.tileWidth) * $scope.$parent.tileWidth,
+					top: Math.round(pos.top / $scope.$parent.tileHeight) * $scope.$parent.tileHeight
+				}, 500, function () {
+					$rootScope.$broadcast('stopEditTileEvent', [{
+						tileId: $scope.id,
+						refresh: false,
+						actionName: 'drag'
+					}]);
+				});
 			}
 		});
 	}
@@ -204,9 +274,10 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 			handles: 'n, e, s, w, se',
 			start: function (event, ui) {
 				$rootScope.$broadcast('startEditTileEvent', [{
+					tileId: $scope.id,
 					actionName: 'resize'
 				}]);
-
+				$animates = $scope.$parent.getTileContainer().find('.animate-flip');
 				var $target = angular.element(event.target);
 				$target.find('.flippy-front, .flippy-back').removeClass('flipInY');
 				$target.find('.flippy-front, .flippy-back').css('background-color', 'rgba(50,205,50, 0.3)');
@@ -241,13 +312,16 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 						width: ui.originalSize.width,
 						height: ui.originalSize.height
 					}, 200, function () {
+						// no need to update tile:
 						$rootScope.$broadcast('stopEditTileEvent', [{
 							actionName: 'resize'
 						}]);
 					});
 				} else {
 					$rootScope.$broadcast('stopEditTileEvent', [{
-						actionName: 'resize'
+						tileId: $scope.id,
+						actionName: 'resize',
+						refresh: true
 					}]);
 				}
 				$t.find('.flippy-front .report, .flippy-back .report').removeClass('hidden');

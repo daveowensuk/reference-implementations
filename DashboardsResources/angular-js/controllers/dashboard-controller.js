@@ -1,5 +1,5 @@
-﻿angular.module('izendaDashboard').controller('IzendaDashboardController', ['$rootScope', '$scope', '$animate', '$timeout', '$injector', '$izendaUrl', '$izendaDashboardQuery',
-function IzendaDashboardController($rootScope, $scope, $animate, $timeout, $injector, $izendaUrl, $izendaDashboardQuery) {
+﻿angular.module('izendaDashboard').controller('IzendaDashboardController', ['$rootScope', '$scope', '$q', '$animate', '$timeout', '$injector', '$izendaUrl', '$izendaDashboardQuery',
+function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $injector, $izendaUrl, $izendaDashboardQuery) {
 	'use strict';
 
 	// dashboard options
@@ -38,7 +38,6 @@ function IzendaDashboardController($rootScope, $scope, $animate, $timeout, $inje
 		$scope.isChangingNow = true;
 		if (!$scope.$$phase)
 			$scope.$apply();
-
 		// update dashboard tile sizes
 		updateDashboardSize();
 
@@ -142,7 +141,7 @@ function IzendaDashboardController($rootScope, $scope, $animate, $timeout, $inje
 		return null;
 	};
 	$scope.getTileByTile$ = function(tile$) {
-		return $scope.getTileById(tile$.attr('tileid'));
+		return $scope.getTileById($scope.getTile$Id(tile$));
 	};
 	$scope.getOtherTiles = function(tiles, tile) {
 		if (tile == null)
@@ -157,11 +156,14 @@ function IzendaDashboardController($rootScope, $scope, $animate, $timeout, $inje
 	$scope.getTile$ById = function(tileId) {
 		return $scope.getTileContainer().find('.iz-dash-tile[tileid="' + tileId + '"]');
 	};
+	$scope.getTile$Id = function($tile) {
+		return $tile.attr('tileid');
+	};
 	$scope.getTile$ByInnerEl = function(el) {
 		var $el = angular.element(el);
 		return angular.element($el.closest('.iz-dash-tile'));
 	};
-
+	
 	////////////////////////////////////////////////////////
 	// scope functions:
 	////////////////////////////////////////////////////////
@@ -213,6 +215,51 @@ function IzendaDashboardController($rootScope, $scope, $animate, $timeout, $inje
 		if (angular.isUndefined($scope.$grid) || $scope.$grid == null)
 			return;
 		$scope.$grid.hide();
+		$scope.hideTileGridShadow();
+	};
+
+	/**
+	 * Show tile grid shadow
+	 */
+	$scope.showTileGridShadow = function(shadowBbox, showPlusButton) {
+		var $gridPlaceholder = $scope.getTileContainer();
+		if (angular.isUndefined($scope.$grid) || $scope.$grid == null) {
+			throw 'Can\'t show shadow without grid';
+		}
+		var $shadow = $gridPlaceholder.find('.tile-grid-cell.shadow');
+		if ($shadow.length == 0) {
+			$shadow = angular.element('<div class="tile-grid-cell shadow"></div>').css({
+				'opacity': 0.2,
+				'background-color': '#000'
+			});
+			if (showPlusButton) {
+				var $plus = $('<div class="iz-dash-select-report-front-container">' +
+				  '<button type="button" class="iz-dash-select-report-front-btn2 btn" title="Select Report">' +
+				  '<span class="glyphicon glyphicon-plus"></span>' +
+				  '</button>' +
+				  '</div>');
+				$shadow.append($plus);
+			}
+			$gridPlaceholder.prepend($shadow);
+		}
+
+		// move shadow
+		$shadow.css({
+			'left': shadowBbox.x,
+			'top': shadowBbox.y,
+			'width': shadowBbox.width,
+			'height': shadowBbox.height
+		});
+		$shadow.show();
+	};
+
+	/**
+	 * Hide tile grid shadow
+	 */
+	$scope.hideTileGridShadow = function() {
+		var $gridPlaceholder = $scope.getTileContainer();
+		var $shadow = $gridPlaceholder.find('.tile-grid-cell.shadow');
+		$shadow.hide();
 	};
 
 	/**
@@ -292,6 +339,49 @@ function IzendaDashboardController($rootScope, $scope, $animate, $timeout, $inje
 		return $target;
 	};
 
+	/**
+	 * Swap 2 tiles. Return promise after complete swap.
+	 */
+	$scope.swapTiles = function ($tile1, $tile2) {
+		return $q(function (resolve) {
+			var t1O = $tile1.position(),
+				t2O = $tile2.position(),
+				w1 = $tile1.width(),
+				h1 = $tile1.height(),
+				w2 = $tile2.width(),
+				h2 = $tile2.height();
+
+			$tile1.find('.frame').hide();
+			$tile2.find('.frame').hide();
+
+			var completeCount = 0;
+			$tile1.animate({
+				left: t2O.left,
+				top: t2O.top,
+				width: w2,
+				height: h2
+			}, 500, function () {
+				if (completeCount == 0)
+					completeCount++;
+				else {
+					resolve([$tile1, $tile2]);
+				}
+			});
+			$tile2.animate({
+				left: t1O.left,
+				top: t1O.top,
+				width: w1,
+				height: h1
+			}, 500, function () {
+				if (completeCount == 0)
+					completeCount++;
+				else {
+					resolve([$tile1, $tile2]);
+				}
+			});
+		});
+	};
+	
 	////////////////////////////////////////////////////////
 	// dashboard functions:
 	////////////////////////////////////////////////////////
