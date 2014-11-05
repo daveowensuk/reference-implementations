@@ -7,6 +7,8 @@ angular.module('izendaQuery').factory('$izendaRsQuery', ['$http', '$q', '$izenda
 
 	var rsQueryBaseUrl = $izendaUrl.urlSettings.urlRsPage;
 
+	var rsQueryLog = {};
+
 	// PUBLIC API:
 	return {
 		query: query
@@ -44,6 +46,7 @@ angular.module('izendaQuery').factory('$izendaRsQuery', ['$http', '$q', '$izenda
 
 		// uncomment if want to trace queries
 		//console.log('>>> ' + url);
+		rsQueryLog[url] = new Date();
 
 		// make request
 		var request = $http({
@@ -66,6 +69,7 @@ angular.module('izendaQuery').factory('$izendaRsQuery', ['$http', '$q', '$izenda
 	}
 
 	function handleSuccess(response) {
+		console.log('<<< ' + ((new Date()).getTime() - rsQueryLog[response.config.url].getTime()) + 'ms: ' + response.config.url);
 		if (typeof(response.data) == 'string') {
 			return response.data;
 		}

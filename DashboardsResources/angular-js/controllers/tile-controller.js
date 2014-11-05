@@ -138,6 +138,34 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 		clearTileContent();
 	};
 
+	/**
+	 * Set scroll to tile.
+	 */
+	$scope.setScroll = function() {
+		var $tile = angular.element($element);
+		$tile.find('.report').css('overflow', 'hidden');
+		var $front = $tile.find('.flippy-front .frame .report');
+		console.log($scope.top);
+		if ($scope.top != -999) {
+			if ($front.hasClass('ps-container')) {
+				$front.perfectScrollbar('update');
+			} else {
+				$front.perfectScrollbar();
+			}
+		} else {
+			if ($front.hasClass('ps-container')) {
+				$front.perfectScrollbar('destroy');
+			}
+		}
+		// add back scroll
+		var $back = $tile.find('.flippy-back .frame');
+		if ($back.hasClass('ps-container')) {
+			$back.perfectScrollbar('update');
+		} else {
+			$back.perfectScrollbar();
+		}
+	};
+
 	////////////////////////////////////////////////////////
 	// tile functions:
 	////////////////////////////////////////////////////////
@@ -403,33 +431,49 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 	 * Refresh tile content
 	 */
 	function refreshTile(updateFromSourceReport) {
-		var $body = angular.element($element).find('.report');
-		$body.empty();
 		var loadingHtml = '<div class="iz-dash-tile-vcentered-container">' +
 			'<div class="iz-dash-tile-vcentered-item">' +
 			'<img class="img-responsive" src="' + $izendaUrl.urlSettings.urlRsPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
 			'</div>' +
 			'</div>';
+		var $body = angular.element($element).find('.report');
 		$body.html(loadingHtml);
-		$izendaDashboardQuery
-			.loadTileReport(updateFromSourceReport, $izendaUrl.getReportInfo().fullName, $scope.reportFullName, $scope.top,
-						($scope.width * $scope.$parent.tileWidth) - 20, ($scope.height * $scope.$parent.tileHeight) - 80)
-			.then(function (htmlData) {
-				clearTileContent();
 
-				var $b = angular.element($element).find('.report');
-				ReportScripting.loadReportResponse(htmlData, $b);
+		if ($scope.preloadStarted) {
+			$scope.preloadDataHandler.then(function(htmlData) {
+				applyTileHtml(htmlData);
+			});
+		} else {
+			if ($scope.preloadData !== null) {
+				console.log('!!! preloadData used');
+				applyTileHtml($scope.preloadData);
+			} else {
+				$izendaDashboardQuery.loadTileReport(updateFromSourceReport, $izendaUrl.getReportInfo().fullName, $scope.reportFullName, $scope.top,
+							($scope.width * $scope.$parent.tileWidth) - 20, ($scope.height * $scope.$parent.tileHeight) - 80)
+				.then(function (htmlData) {
+					applyTileHtml(htmlData);
+				});
+			}
+		}
+	}
 
-				var divs$ = $b.find('div.DashPartBody, div.DashPartBodyNoScroll');
-				var $zerochartResults = divs$.find('.iz-zero-chart-results');
-				if ($zerochartResults.length > 0) {
-					$zerochartResults.closest('table').css('height', '100%');
-					divs$.css('height', '100%');
-				}
-				if (!angular.isUndefined(AdHoc) && !angular.isUndefined(AdHoc.Utility)
-					&& typeof (AdHoc.Utility.DocumentReady) == 'function') {
-					AdHoc.Utility.DocumentReady();
-				}
-		});
+	/**
+	 * Set tile inner html
+	 */
+	function applyTileHtml(htmlData) {
+		clearTileContent();
+		var $b = angular.element($element).find('.report');
+		if (!angular.isUndefined(ReportScripting))
+			ReportScripting.loadReportResponse(htmlData, $b);
+		var divs$ = $b.find('div.DashPartBody, div.DashPartBodyNoScroll');
+		var $zerochartResults = divs$.find('.iz-zero-chart-results');
+		if ($zerochartResults.length > 0) {
+			$zerochartResults.closest('table').css('height', '100%');
+			divs$.css('height', '100%');
+		}
+		if (!angular.isUndefined(AdHoc) && !angular.isUndefined(AdHoc.Utility) && typeof (AdHoc.Utility.DocumentReady) == 'function') {
+			AdHoc.Utility.DocumentReady();
+		}
+		$scope.setScroll();
 	}
 }]);

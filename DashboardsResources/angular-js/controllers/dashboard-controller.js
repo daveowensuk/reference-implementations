@@ -102,7 +102,7 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 	/**
 	 * Dashboard tile changes event
 	 */
-	$scope.$on('dashboardLayoutChanged', function (event, args) {
+	$scope.$on('dashboardLayoutLoaded', function (event, args) {
 		if (!angular.isUndefined(args) && !angular.isUndefined(args[0]))
 			updateTileContainerSize(args[0]);
 		else
@@ -411,42 +411,51 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 		}
 		var startTime = (new Date()).getTime();
 		$izendaDashboardQuery.loadDashboardLayout($scope.options.reportInfo.fullName).then(function (data) {
+			// collect tiles information:
+			var tilesToAdd = [];
+			var maxHeight = 0;
+			if (data == null || data.Rows == null || data.Rows.length == 0) {
+				tilesToAdd.push(
+					angular.extend({}, $injector.get('tileDefaults'), {
+						id: 'IzendaDashboardTile0',
+						isNew: true,
+						width: 12,
+						height: 4
+					}));
+			} else {
+				var cells = data.Rows[0].Cells;
+				for (var i = 0; i < cells.length; i++) {
+					var cell = cells[i];
+					var obj = angular.extend({}, $injector.get('tileDefaults'), $izendaUrl.extractReportPartNames(cell.ReportFullName), {
+						id: 'IzendaDashboardTile' + i,
+						x: cell.X,
+						y: cell.Y,
+						width: cell.Width,
+						height: cell.Height,
+						top: cell.RecordsCount
+					});
+					if (maxHeight < cell.Y + cell.Height)
+						maxHeight = cell.Y + cell.Height;
+					tilesToAdd.push(obj);
+				}
+			}
+
+			for (var i = 0; i < tilesToAdd.length; i++) {
+				loadTileReport(tilesToAdd[i]);
+			}
+
+			// start adding tiles to ui:
 			var timeElapsed = (new Date()).getTime() - startTime;
 			var timeout = 1000 - timeElapsed;
 			if (timeout <= 0) timeout = 1;
 			$timeout(function () {
-				var maxHeight = 0;
-				if (data == null || data.Rows == null || data.Rows.length == 0) {
-					// if there is no data - create new empty tile
-					$scope.tiles.push(
-						angular.extend({}, $injector.get('tileDefaults'), {
-							id: 'IzendaDashboardTile0',
-							isNew: true,
-							width: 12,
-							height: 4
-						})
-					);
-					maxHeight = 4;
-				} else {
-					var cells = data.Rows[0].Cells;
-					for (var i = 0; i < cells.length; i++) {
-						var cell = cells[i];
-						var obj = angular.extend({}, $injector.get('tileDefaults'), $izendaUrl.extractReportPartNames(cell.ReportFullName), {
-							id: 'IzendaDashboardTile' + i,
-							x: cell.X,
-							y: cell.Y,
-							width: cell.Width,
-							height: cell.Height,
-							top: cell.RecordsCount
-						});
-						if (maxHeight < cell.Y + cell.Height)
-							maxHeight = cell.Y + cell.Height;
-						$scope.tiles.push(obj);
-					}
+				$scope.tiles.length = 0;
+				for (var i = 0; i < tilesToAdd.length; i++) {
+					$scope.tiles.push(tilesToAdd[i]);
 				}
 
 				// raise dashboard layout change event
-				$scope.$broadcast('dashboardLayoutChanged', [{
+				$scope.$broadcast('dashboardLayoutLoaded', [{
 					top: 0,
 					left: 0,
 					height: (maxHeight) * $scope.tileHeight,
@@ -455,6 +464,24 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 			}, timeout);
 		});
 	};
+
+	/**
+	 * Start preloading report
+	 */
+	function loadTileReport(tileObj) {
+		tileObj.preloadStarted = true;
+		tileObj.preloadData = null;
+		tileObj.preloadDataHandler = $q(function(resolve) {
+			$izendaDashboardQuery.loadTileReport(false, $izendaUrl.getReportInfo().fullName, tileObj.reportFullName, tileObj.top,
+					(tileObj.width * $scope.tileWidth) - 20, (tileObj.height * $scope.tileHeight) - 80)
+			.then(function (htmlData) {
+				tileObj.preloadStarted = false;
+				tileObj.preloadData = htmlData;
+				resolve(htmlData);
+				tileObj.preloadData = null;
+			});
+		});
+	}
 
 	/**
 	 * Refresh all tiles
