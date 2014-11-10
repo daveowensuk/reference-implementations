@@ -10,7 +10,7 @@
         return;
       //Initialize System
       AdHocSettings.LicenseKey = "Dev +DASH +FUSION +VISION +HTMLCHARTS +FORMS +PREVIEW +LANG +ETL +MAPS|Enterprise|8|1/1/2014|100|100|100|M|QWOJDST";
-      AdHocSettings.SqlServerConnectionString = @"server=PCPCPC;database=Northwind;User Id=sa;Password=iddqd;";
+      AdHocSettings.SqlServerConnectionString = @"server=localhost;database=Northwind;User Id=sa;Password=iddqd;";
       AdHocSettings.GenerateThumbnails = true;
       AdHocSettings.ChartingEngine = ChartingEngine.HtmlChart;
       AdHocSettings.DashboardViewer = "Dashboards.aspx";

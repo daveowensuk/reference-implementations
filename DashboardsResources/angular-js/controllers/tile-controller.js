@@ -111,8 +111,8 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 			y = Math.round($tile.position().top / $scope.$parent.tileHeight),
 			width = Math.round($tile.width() / $scope.$parent.tileWidth),
 			height = Math.round($tile.height() / $scope.$parent.tileHeight);
-		$scope.x = x;
-		$scope.y = y;
+		$scope.x = x > 0 ? x : 0;
+		$scope.y = y > 0 ? y : 0;
 		$scope.width = width;
 		$scope.height = height;
 	};
@@ -145,7 +145,6 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 		var $tile = angular.element($element);
 		$tile.find('.report').css('overflow', 'hidden');
 		var $front = $tile.find('.flippy-front .frame .report');
-		console.log($scope.top);
 		if ($scope.top != -999) {
 			if ($front.hasClass('ps-container')) {
 				$front.perfectScrollbar('update');
@@ -278,8 +277,8 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 				var pos = $helper.position();
 				var $t = $scope.$parent.getTile$ByInnerEl($source);
 				$t.animate({
-					left: Math.round(pos.left / $scope.$parent.tileWidth) * $scope.$parent.tileWidth,
-					top: Math.round(pos.top / $scope.$parent.tileHeight) * $scope.$parent.tileHeight
+				    left: Math.round(pos.left / $scope.$parent.tileWidth) * $scope.$parent.tileWidth,
+				    top: Math.round(pos.top / $scope.$parent.tileHeight) * $scope.$parent.tileHeight
 				}, 500, function () {
 					$rootScope.$broadcast('stopEditTileEvent', [{
 						tileId: $scope.id,
@@ -359,7 +358,7 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 		$scope.state.resizableHandlerStarted = true;
 	}
 
-	/**
+    /**
 	 * Tile changed handler
 	 */
 	function changeTileSizeHandler() {
