@@ -6,6 +6,11 @@
 
 #dashboardsDiv {
 	position: relative;
+	-moz-user-select: -moz-none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+   -ms-user-select: none;
+   user-select: none;
 }
 
 .white-background {
@@ -50,9 +55,15 @@
 /*TILE*/
 /**************************************************************************************/
 
+.iz-dash-tile-description {
+	height: 30px;
+	font-size: 16px;
+	padding: 0 10px;
+	color: #999999;
+}
+
 .iz-dash-tile-vcentered-container {
 	height: 100%;
-	position: relative;
 }
 
 .iz-dash-tile-vcentered-item {
@@ -126,6 +137,83 @@
 .iz-dash-select-report-front-btn:hover {
 	color: #fff;
 	background-color: #666;
+}
+
+/**************************************************************************************/
+/*New back tile design*/
+/**************************************************************************************/
+
+.iz-dash-tile-fb-main {
+	padding: 15px;
+	padding-top: 5px;
+}
+
+.iz-dash-tile-fb-toolbar {
+	position: absolute;
+	bottom: 0px;
+	height: 70px;
+	overflow: hidden;
+	left: 0px;
+	right: 0px;
+	background-color: #006699;
+	padding-left: 300px;
+}
+
+.iz-dash-tile-fb-label {
+	min-width: 80px;
+	line-height: 2;
+}
+
+.iz-dash-tile-fb-update-btn {
+	color: #3C7CA7; 
+	background-color: #DFDFE1; 
+	margin-top: 10px;
+}
+
+.iz-dash-tile-fb-rcount {
+	position: absolute;
+	left: 5px;
+	top: 5px;
+	bottom: 5px;
+	width: 75px;
+	font-size: 40px;
+	color: #006699;
+	background-color: #DFDFE1;
+	text-align: center;
+}
+
+.iz-dash-tile-fb-rcount-label {
+	position: absolute; 
+	left: 80px; 
+	top: 5px; 
+	width: 200px;
+	font-size: 18px; 
+	color: #DFDFE1;
+	background-color: #006699;
+	padding-left: 10px;
+}
+
+.iz-dash-tile-fb-rcount-slider {
+	width: 200px;
+	position: absolute;
+	left: 80px;
+	top: 30px;
+	bottom: 5px;
+	background-color: #006699;
+	padding-left: 10px;
+}
+
+.iz-dash-tile-fb-toolbtn {
+	float: right;
+	width: 48px;
+}
+
+.iz-dash-tile-fb-toolbtn > a > img {
+	width: 36px;
+	height: 36px;
+	cursor: pointer;
+	line-height: 0px;
+	margin: 16px 5px;
 }
 
 /**************************************************************************************/
@@ -280,6 +368,7 @@
 	-webkit-border-radius: 5px;
 	-khtml-border-radius: 5px;
 	border-radius: 5px;
+	overflow: auto;
 }
 
 .animate-flip .frame {
@@ -294,13 +383,12 @@
 	-webkit-border-radius: 0 0 3px 3px;
 	-khtml-border-radius: 0 0 3px 3px;
 	border-radius: 0 0 3px 3px;
-	overflow: hidden;
+	overflow: auto;
 }
 
 	.animate-flip .frame .report {
-		height: 100%;
 		text-align: center;
-		overflow: auto;
+		min-height: 100%;
 	}
 
 /*title*/
@@ -370,117 +458,97 @@
 	box-shadow: 0 4px 8px -4px #aaa;
 }
 
-.title-hide {
-	width: 0px;
+/*.title-hide {
 	-moz-transition: width 0.2s ease;
 	-o-transition: width 0.2s ease;
 	-webkit-transition: width 0.2s ease;
 	transition: width 0.2s ease;
-	height: 24px;
+	top: 0;
+	bottom: 0;
+	right: 0;
 	position: absolute;
-	margin: 6px 0;
-	right: 0px;
-	background-color: #fff;
+	background-color: red;
+	height: 100%;
+	width: 0;
 }
 
 .iz-dash-tile:hover .title-hide {
 	width: 70px;
-}
+}*/
 
-.flip-trigger-remove, .flip-trigger, .flip-trigger-view, .flip-trigger-refresh, .flip-trigger-confirm-delete {
+.title-button {
 	position: absolute;
-	cursor: pointer;
-	width: 24px;
-	height: 24px;
-	margin: 6px 0;
+	font-size: 14px;
+	color: #666;
 	background-color: #fff;
+	right: -32px;
+	top: 0;
+	bottom: 0;
+	height: 100%;
+	width: 32px;
+	-moz-transition: right 0.2s ease;
+	-o-transition: right 0.2s ease;
+	-webkit-transition: right 0.2s ease;
+	transition: right 0.2s ease;
 }
 
-	.flip-trigger:hover, .flip-trigger-remove:hover, .flip-trigger-view:hover, .flip-trigger-refresh:hover {
-		opacity: .75;
+.title-button:hover {
+	color: #666;
+	text-decoration: none;
+}
+
+	.iz-dash-tile:hover .title-button.button1 {
+		right: 0;
 	}
 
-.flip-trigger {
-	right: 40px;
-}
+	.iz-dash-tile:hover .title-button.button2 {
+		right: 32px;
+	}
 
-.flippy-front .flip-trigger-view {
-	right: 40px;
-	display: none;
-	background: url("../images/view-18-white.png") 3px 3px no-repeat;
-}
+	.iz-dash-tile:hover .title-button.title-button-confirm-remove {
+		right: 120px;
+	}
 
-.flippy-front .flip-trigger-refresh {
-	right: 40px;
-	display: none;
-	background: url("../images/refresh-18.png") 3px 3px no-repeat;
-}
+	.iz-dash-tile:hover .title-button.title-button-cancel-remove {
+		right: 0;
+	}
 
-.flippy-back .flip-trigger-view {
-	display: none;
-}
-
-.flippy-front .flip-trigger-remove {
-	right: 10px;
-	background: url("../images/remove-18.png") 3px 3px no-repeat;
-}
-
-.flippy-back .flip-trigger-remove {
-	right: 10px;
-	background: url("../images/remove-18.png") 3px 3px no-repeat;
-}
-
-.flip-trigger-confirm-delete {
-	right: 10px;
-	display: none;
-	width: 0;
-	line-height: 24px;
-	background-color: #fff;
-	padding-left: 20px;
-}
-
-.flip-trigger-confirm-delete > .confirm,
-.flip-trigger-confirm-delete > .cancel {
-	font-size: 14px;
-	position: relative;
-	top: -5px;
-}
-
-.flip-trigger-confirm-delete > .confirm > .glyphicon,
-.flip-trigger-confirm-delete > .cancel > .glyphicon {
-	top: 5px;
-	font-size: 20px;
-	padding-right: 5px;
-	padding-left: 5px;
-}
-
-.flip-trigger-confirm-delete > .confirm > .glyphicon {
-	color: #228b22;
-}
-
-.flip-trigger-confirm-delete > .cancel > .glyphicon {
-	color: #dc143c;
-}
-
-.flippy-front .flip-trigger > .bar {
+.title-button > .bar {
 	height: 2px;
 	border-radius: 1px;
 	background-color: #666;
 	position: relative;
 	display: block;
-	width: 70%;
-	margin-left: 15%;
-	margin-right: 15%;
+	width: 50%;
+	margin-left: 25%;
+	margin-right: 25%;
 	margin-bottom: 3px;
 }
 
-	.flippy-front .flip-trigger > .bar:first-child {
-		margin-top: 7px;
-	}
+.title-button > .bar:first-child {
+	margin-top: 12px;
+}
 
-.flippy-back .flip-trigger {
-	right: 40px;
-	background: url("../images/turn-18.png") 3px 3px no-repeat;
+.title-button.title-button-remove > img {
+	margin: 9px auto;
+}
+
+.title-button.title-button-confirm-remove {
+	right: -120px;
+	width: 120px;
+}
+
+.title-button.title-button-cancel-remove {
+	right: -120px;
+	width: 120px;
+}
+
+.title-button.hidden-btn {
+	right: -32px !important;
+}
+
+.title-button.hidden-confirm-btn {
+	right: -120px !important;
 }
 
 /**************************************************************************************/

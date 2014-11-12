@@ -1,5 +1,7 @@
 ﻿angular.module('izendaDashboard').constant('tileDefaults', {
 	id: null,
+	title: null,
+	description: null,
 	reportFullName: null,
 	reportPartName: null,
 	reportSetName: null,
@@ -13,8 +15,8 @@
 	top: 100
 });
 
-angular.module('izendaDashboard').controller('IzendaTileController', ['$element', '$rootScope', '$scope', '$injector', '$izendaUrl', '$izendaDashboardQuery',
-function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUrl, $izendaDashboardQuery) {
+angular.module('izendaDashboard').controller('IzendaTileController', ['$window', '$element', '$rootScope', '$scope', '$injector', '$izendaUrl', '$izendaDashboardQuery',
+function IzendaTileController($window, $element, $rootScope, $scope, $injector, $izendaUrl, $izendaDashboardQuery) {
 	'use strict';
 
 	$scope.isHidden = false;
@@ -23,6 +25,10 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 		resizableHandlerStarted: false
 	};
 
+	// delete tile button classes
+	$scope.deleteClass = 'title-button';
+	$scope.deleteConfirmClass = 'title-button hidden-confirm-btn';
+	
 	/**
 	 * Tile refresh event handler
 	 */
@@ -82,17 +88,65 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 		$scope.reportNameWithCategory = $scope.reportName;
 		if ($scope.reportCategory != null)
 			$scope.reportNameWithCategory = $scope.reportCategory + '\\' + $scope.reportNameWithCategory;
-
+		
 		initializeDraggable();
 		initializeResizable();
-
-		/**
-		 * Change size handler
-		 */
+		initializeTopSlider();
 		$scope.$watch(['width', 'height'], function () {
 			changeTileSizeHandler();
 		});
+	};
 
+	/**
+	 * Select report part for tile
+	 */
+	$scope.selectReportPart = function() {
+		alert('select tile report isn\'t comleted yet');
+	};
+
+	/**
+	 * Get source report name
+	 */
+	$scope.getSourceReportName = function() {
+		var result = $scope.reportName;
+		if ($scope.reportCategory && $scope.reportCategory != 'Uncategorized') {
+			result = $scope.reportCategory + '\\' + result;
+		}
+		return result;
+	};
+
+	/**
+	 * Show confirm delete dialog in title
+	 */
+	$scope.showConfirmDelete = function () {
+		$scope.deleteClass = 'title-button hidden-btn';
+		$scope.deleteConfirmClass = 'title-button';
+	};
+
+	/**
+	 * Hide confirm delete dialog in title
+	 */
+	$scope.hideConfirmDelete = function () {
+		$scope.deleteClass = 'title-button';
+		$scope.deleteConfirmClass = 'title-button hidden-confirm-btn';
+	};
+
+	/**
+	 * Get top string value for select top control.
+	 */ 
+	$scope.getTopString = function () {
+		if ($scope.top == 101 || $scope.top == -999)
+			return 'ALL';
+		return $scope.top;
+	};
+
+	/**
+	 * Delete tile handler
+	 */
+	$scope.deleteTile = function() {
+		$rootScope.$broadcast('deleteTileEvent', [{
+			tileId: $scope.id
+		}]);
 	};
 
 	/**
@@ -118,6 +172,13 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 	};
 
 	/**
+	 * Fit tile back side items
+	 */
+	$scope.updateTileBackSide = function() {
+
+	};
+
+	/**s
 	 * Flip tile back
 	 */
 	$scope.flipBack = function() {
@@ -141,10 +202,10 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 	/**
 	 * Set scroll to tile.
 	 */
-	$scope.setScroll = function() {
+	$scope.setScroll = function () {
 		var $tile = angular.element($element);
-		$tile.find('.report').css('overflow', 'hidden');
-		var $front = $tile.find('.flippy-front .frame .report');
+		$tile.find('.frame').css('overflow', 'hidden');
+		var $front = $tile.find('.flippy-front .frame');
 		if ($scope.top != -999) {
 			if ($front.hasClass('ps-container')) {
 				$front.perfectScrollbar('update');
@@ -297,7 +358,7 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 		var $animates = $scope.$parent.getTileContainer().find('.animate-flip');
 		$element.resizable({
 			grid: [$scope.$parent.tileWidth, $scope.$parent.tileHeight],
-			containment: 'parent',
+			/*containment: 'parent',*/
 			handles: 'n, e, s, w, se',
 			start: function (event, ui) {
 				$rootScope.$broadcast('startEditTileEvent', [{
@@ -363,6 +424,24 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 	 */
 	function changeTileSizeHandler() {
 		refreshTile(false);
+	}
+
+	/**
+	 * Initialize select report top records count slider control
+	 */
+	function initializeTopSlider() {
+		var $tile = angular.element($element);
+		var $slider = $tile.find('.slider');
+		$slider.bootstrapSlider().on('slide', function (ev) {
+			$scope.top = ev.value;
+			if (!$scope.$$phase)
+				$scope.$apply();
+		}).on('slideStop', function (ev) {
+			$scope.top = ev.value;
+			if (!$scope.$$phase)
+				$scope.$apply();
+			flipTileFront(true);
+		});
 	}
 
 	/**
@@ -439,16 +518,17 @@ function IzendaTileController($element, $rootScope, $scope, $injector, $izendaUr
 		$body.html(loadingHtml);
 
 		if ($scope.preloadStarted) {
-			$scope.preloadDataHandler.then(function(htmlData) {
+			$scope.preloadDataHandler.then(function (htmlData) {
+				$scope.preloadStarted = false;
 				applyTileHtml(htmlData);
 			});
 		} else {
 			if ($scope.preloadData !== null) {
-				console.log('!!! preloadData used');
 				applyTileHtml($scope.preloadData);
 			} else {
+				var heightDelta = $scope.description != null && $scope.description != '' ? 110 : 80;
 				$izendaDashboardQuery.loadTileReport(updateFromSourceReport, $izendaUrl.getReportInfo().fullName, $scope.reportFullName, $scope.top,
-							($scope.width * $scope.$parent.tileWidth) - 20, ($scope.height * $scope.$parent.tileHeight) - 80)
+							($scope.width * $scope.$parent.tileWidth) - 20, ($scope.height * $scope.$parent.tileHeight) - heightDelta)
 				.then(function (htmlData) {
 					applyTileHtml(htmlData);
 				});

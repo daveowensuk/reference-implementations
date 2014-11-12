@@ -106,76 +106,93 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 		if (!angular.isUndefined(args) && !angular.isUndefined(args[0]))
 			updateTileContainerSize(args[0]);
 		else
-		    updateTileContainerSize();
-	    setAddTileHandler();
+			updateTileContainerSize();
+		setAddTileHandler();
 	});
 
 	/**
 	 * Start tile edit event handler
 	 */
 	$scope.$on('startEditTileEvent', function (event, args) {
-	    var options = args.length > 0 ? args[0] : {};
-	    $scope.editTileEvent = $scope.editTileEvent || { actionName: null };
-	    var isMouseMove = options.actionName == 'addtile';
-	    var isInEdit = $scope.editTileEvent.actionName != null && $scope.editTileEvent.actionName != 'addtile';
+		var options = args.length > 0 ? args[0] : {};
+		$scope.editTileEvent = $scope.editTileEvent || { actionName: null };
+		var isMouseMove = options.actionName == 'addtile';
+		var isInEdit = $scope.editTileEvent.actionName != null && $scope.editTileEvent.actionName != 'addtile';
 
-	    $scope.showTileGrid();
-	    if (isMouseMove) {
-	        if (!isInEdit) {
-	            $scope.showTileGridShadow({
-	                x: options.shadowX,
-	                y: options.shadowY,
-	                width: $scope.tileWidth,
-	                height: $scope.tileHeight
-	            }, false);
-	            $scope.editTileEvent.actionName = options.actionName;
-	        }
-	    } else {
-	        $scope.editTileEvent.actionName = options.actionName;
-	    }
+		$scope.showTileGrid();
+		if (isMouseMove) {
+			if (!isInEdit) {
+				$scope.showTileGridShadow({
+					x: options.shadowX,
+					y: options.shadowY,
+					width: $scope.tileWidth,
+					height: $scope.tileHeight
+				}, true);
+				$scope.editTileEvent.actionName = options.actionName;
+			}
+		} else {
+			$scope.editTileEvent.actionName = options.actionName;
+		}
 	});
 
 	/**
 	 * Tile edit completed event handler
 	 */
 	$scope.$on('stopEditTileEvent', function (event, args) {
-	    var options = args.length > 0 ? args[0] : {};
-	    $scope.editTileEvent = $scope.editTileEvent || { actionName: null };
-	    var isMouseMove = options.actionName == 'addtile';
-	    var isInEdit = $scope.editTileEvent.actionName != null && $scope.editTileEvent.actionName != 'addtile';
+		var options = args.length > 0 ? args[0] : {};
+		$scope.editTileEvent = $scope.editTileEvent || { actionName: null };
+		var isMouseMove = options.actionName == 'addtile';
+		var isInEdit = $scope.editTileEvent.actionName != null && $scope.editTileEvent.actionName != 'addtile';
 
-	    if (isMouseMove) {
-	        if (!isInEdit) {
-	            $scope.hideTileGrid();
-	            $scope.editTileEvent.actionName = null;
-	        }
-	    } else {
-	        $scope.hideTileGrid();
-	        $scope.editTileEvent.actionName = null;
-	    }
+		if (isMouseMove) {
+			if (!isInEdit) {
+				$scope.hideTileGrid();
+				$scope.editTileEvent.actionName = null;
+			}
+		} else {
+			$scope.hideTileGrid();
+			$scope.editTileEvent.actionName = null;
+		}
+	});
+
+	/**
+	 * Delete tile event handler
+	 */
+	$scope.$on('deleteTileEvent', function (event, args) {
+		if (angular.isUndefined(args) || angular.isUndefined(args[0]))
+			throw 'Should be 1 argument with object: { tileId: <tileid> }';
+		var tileid = args[0].tileId;
+		var tile = $scope.getTileById(tileid);
+		if (tile == null)
+			throw 'Tile "' + tileid + '" not found';
+		var idx = -1;
+		for (var i = 0; i < $scope.tiles.length; i++)
+			if ($scope.tiles[i].id == tileid)
+				idx = i;
+		$scope.tiles.splice(idx, 1);
 	});
 
 	////////////////////////////////////////////////////////
 	// scope helper functions:
 	////////////////////////////////////////////////////////
 
-	$scope.getRoot = function() {
+	$scope.getRoot = function () {
 		return angular.element('#dashboardsDiv');
 	};
-	$scope.getTileContainer = function() {
+	$scope.getTileContainer = function () {
 		return angular.element('#dashboardBodyContainer');
 	};
-	$scope.getTileById = function(tileId) {
+	$scope.getTileById = function (tileId) {
 		for (var i = 0; i < $scope.tiles.length; i++) {
 			if ($scope.tiles[i].id == tileId)
 				return $scope.tiles[i];
 		}
 		return null;
 	};
-	$scope.getTileByTile$ = function(tile$) {
+	$scope.getTileByTile$ = function (tile$) {
 		return $scope.getTileById($scope.getTile$Id(tile$));
 	};
-	$scope.getOtherTiles = function(tiles, tile) {
+	$scope.getOtherTiles = function (tiles, tile) {
 		if (tile == null)
 			return tiles;
 		var otherTiles = [];
@@ -185,25 +202,25 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 		}
 		return otherTiles;
 	};
-	$scope.getTile$ById = function(tileId) {
+	$scope.getTile$ById = function (tileId) {
 		return $scope.getTileContainer().find('.iz-dash-tile[tileid="' + tileId + '"]');
 	};
-	$scope.getTile$Id = function($tile) {
+	$scope.getTile$Id = function ($tile) {
 		return $tile.attr('tileid');
 	};
-	$scope.getTile$ByInnerEl = function(el) {
+	$scope.getTile$ByInnerEl = function (el) {
 		var $el = angular.element(el);
 		return angular.element($el.closest('.iz-dash-tile'));
 	};
-    $scope.isTile$ = function(el) {
-        var $el = angular.element(el);
-        return $el.closest('.iz-dash-tile').length > 0;
-    };
-	
+	$scope.isTile$ = function (el) {
+		var $el = angular.element(el);
+		return $el.closest('.iz-dash-tile').length > 0;
+	};
+
 	////////////////////////////////////////////////////////
 	// scope functions:
 	////////////////////////////////////////////////////////
-
+	
 	/**
 	 * Initialize dashboard
 	 */
@@ -244,7 +261,7 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 		$scope.$grid.show();
 	};
 
-    /**
+	/**
 	 * Hide editor grid 
 	 */
 	$scope.hideTileGrid = function () {
@@ -257,7 +274,7 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 	/**
 	 * Show tile grid shadow
 	 */
-	$scope.showTileGridShadow = function(shadowBbox, showPlusButton) {
+	$scope.showTileGridShadow = function (shadowBbox, showPlusButton) {
 		var $gridPlaceholder = $scope.getTileContainer();
 		if (angular.isUndefined($scope.$grid) || $scope.$grid == null) {
 			throw 'Can\'t show shadow without grid';
@@ -269,7 +286,7 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 				'background-color': '#000'
 			});
 			if (showPlusButton) {
-				var $plus = $('<div class="iz-dash-select-report-front-container">' +
+				var $plus = angular.element('<div class="iz-dash-select-report-front-container">' +
 				  '<button type="button" class="iz-dash-select-report-front-btn2 btn" title="Select Report">' +
 				  '<span class="glyphicon glyphicon-plus"></span>' +
 				  '</button>' +
@@ -292,7 +309,7 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 	/**
 	 * Hide tile grid shadow
 	 */
-	$scope.hideTileGridShadow = function() {
+	$scope.hideTileGridShadow = function () {
 		var $gridPlaceholder = $scope.getTileContainer();
 		var $shadow = $gridPlaceholder.find('.tile-grid-cell.shadow');
 		$shadow.hide();
@@ -354,7 +371,7 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 	/**
 	 * Get tile which lie under testing tile.
 	 */
-	$scope.getUnderlyingTile = function(x, y, testingTile) {
+	$scope.getUnderlyingTile = function (x, y, testingTile) {
 		var $target = null;
 		var targetTile;
 		var $tiles = $scope.getRoot().find('.iz-dash-tile');
@@ -417,7 +434,7 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 			});
 		});
 	};
-	
+
 	////////////////////////////////////////////////////////
 	// dashboard functions:
 	////////////////////////////////////////////////////////
@@ -432,46 +449,140 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 
 		updateDashboardSize();
 	}
-    
-    /**
+
+	/**
+	 * Get addtile context object
+	 */
+	function ensureAddTile() {
+		$scope.addtile = $scope.addtile || {
+			count: 0,
+			started: false,
+			startedDraw: false,
+			tile: null,
+			relativeX: 0,
+			relativeY: 0,
+			x: 0,
+			y: 0
+		};
+	}
+
+	/**
      * Add tile handler initialize
      */
 	function setAddTileHandler() {
-	    var $tileContainer = $scope.getTileContainer();
-	    $scope.addtile = {
-	        count: 0
-	    };
-	    $tileContainer.mousedown(function (e) {
-	        var $target = angular.element(e.target);
-	    });
-	    $tileContainer.mousemove(function (e) {
-	        var $target = angular.element(e.target);
-	        var isTile = $scope.isTile$($target);
-	        if (isTile) {
-	            $scope.addtile.count = 0;
-	            $rootScope.$broadcast('stopEditTileEvent', [{
-	                tileId: null,
-	                actionName: 'addtile'
-	            }]);
-	        } else {
-	            $scope.addtile.count++;
-	            var relativeX = e.pageX - $tileContainer.offset().left;
-	            var relativeY = e.pageY - $tileContainer.offset().top;
-	            var x = Math.floor(relativeX / $scope.tileWidth) * $scope.tileWidth;
-	            var y = Math.floor(relativeY / $scope.tileHeight) * $scope.tileHeight;
-	            if ($scope.addtile.count > 5) {
-	                $rootScope.$broadcast('startEditTileEvent', [{
-	                    tileId: $scope.id,
-	                    shadowX: x,
-	                    shadowY: y,
-                        actionName: 'addtile'
-                    }]);
-                }
-	        }
-	    });
-	    $tileContainer.mouseup(function (e) {
-	        var $target = angular.element(e.target);
-	    });
+
+		var addNewPixelTile = function(x, y) {
+			$scope.addtile.tile = angular.extend({}, $injector.get('tileDefaults'), {
+				id: 'IzendaDashboardTileNew',
+				isNew: true,
+				width: 1,
+				height: 1,
+				x: x,
+				y: y
+			});
+			$scope.tiles.push($scope.addtile.tile);
+			if (!$scope.$$phase)
+				$scope.$apply();
+		};
+
+		// mouse down
+		$scope.getTileContainer().mousedown(function (e) {
+			ensureAddTile();
+			var $tileContainer = $scope.getTileContainer();
+			var $target = angular.element(e.target);
+			if ($scope.isTile$($target) || $scope.addtile.started)
+				return;
+			angular.extend($scope.addtile, {
+				count: 0,
+				started: true,
+				startedDraw: false,
+				x: e.pageX,
+				y: e.pageY,
+				relativeX: e.pageX - $tileContainer.offset().left,
+				relativeY: e.pageY - $tileContainer.offset().top,
+				tile: null
+			});
+		});
+
+		// move mouse over the dashboard
+		$scope.getTileContainer().mousemove(function (e) {
+			ensureAddTile();
+			var $tileContainer = $scope.getTileContainer();
+			var $target = angular.element(e.target);
+			var relativeX = e.pageX - $tileContainer.offset().left;
+			var relativeY = e.pageY - $tileContainer.offset().top;
+			var x = Math.floor(relativeX / $scope.tileWidth);
+			var y = Math.floor(relativeY / $scope.tileHeight);
+
+			if (!$scope.addtile.started) {
+				var isTile = $scope.isTile$($target);
+				if (isTile) {
+					$scope.addtile.count = 0;
+					$rootScope.$broadcast('stopEditTileEvent', [{
+						tileId: null,
+						actionName: 'addtile'
+					}]);
+				} else {
+					$scope.addtile.count++;
+					if ($scope.addtile.count > 5) {
+						$rootScope.$broadcast('startEditTileEvent', [{
+							tileId: $scope.id,
+							shadowX: x * $scope.tileWidth,
+							shadowY: y * $scope.tileHeight,
+							actionName: 'addtile'
+						}]);
+					}
+				}
+				return;
+			}
+
+			// add new tile if needed
+			if ($scope.addtile.count > 5) {
+				if ($scope.addtile.tile == null) {
+					addNewPixelTile(x, y);
+				} else {
+					var tile = $scope.getTileById('IzendaDashboardTileNew');
+
+				}
+			}
+			$scope.addtile.count++;
+		});
+
+		// mouseup
+		$scope.getTileContainer().mouseup(function (e) {
+			ensureAddTile();
+			var $tileContainer = $scope.getTileContainer();
+			var $target = angular.element(e.target);
+			var relativeX = e.pageX - $tileContainer.offset().left;
+			var relativeY = e.pageY - $tileContainer.offset().top;
+			var x = Math.floor(relativeX / $scope.tileWidth);
+			var y = Math.floor(relativeY / $scope.tileHeight);
+
+			if (!$scope.addtile.started) {
+				return;
+			}
+			if ($scope.addtile.tile == null) {
+				addNewPixelTile(x, y);
+			}
+
+			$rootScope.$broadcast('stopEditTileEvent', [{
+				tileId: null,
+				actionName: 'addtile'
+			}]);
+		});
+
+		// mouseout
+		$scope.getTileContainer().mouseout(function (e) {
+			ensureAddTile();
+			var $tileContainer = $scope.getTileContainer();
+			$scope.addtile.started = false;
+			$scope.addtile.startedDraw = false;
+			$scope.addtile.tile = null;
+			$rootScope.$broadcast('stopEditTileEvent', [{
+				tileId: null,
+				actionName: 'addtile'
+			}]);
+		});
 	}
 
 	////////////////////////////////////////////////////////
@@ -497,7 +608,8 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 						id: 'IzendaDashboardTile0',
 						isNew: true,
 						width: 12,
-						height: 4
+						height: 4,
+						options: $scope.options
 					}));
 			} else {
 				var cells = data.Rows[0].Cells;
@@ -509,7 +621,8 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 						y: cell.Y,
 						width: cell.Width,
 						height: cell.Height,
-						top: cell.RecordsCount
+						top: cell.RecordsCount,
+						options: $scope.options
 					});
 					if (maxHeight < cell.Y + cell.Height)
 						maxHeight = cell.Y + cell.Height;
@@ -548,9 +661,9 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 	function loadTileReport(tileObj) {
 		tileObj.preloadStarted = true;
 		tileObj.preloadData = null;
-		tileObj.preloadDataHandler = $q(function(resolve) {
+		tileObj.preloadDataHandler = $q(function (resolve) {
 			$izendaDashboardQuery.loadTileReport(false, $izendaUrl.getReportInfo().fullName, tileObj.reportFullName, tileObj.top,
-					(tileObj.width * $scope.tileWidth) - 20, (tileObj.height * $scope.tileHeight) - 80)
+					(tileObj.width * $scope.tileWidth) - 20, (tileObj.height * $scope.tileHeight) - 90)
 			.then(function (htmlData) {
 				tileObj.preloadStarted = false;
 				tileObj.preloadData = htmlData;
