@@ -58,7 +58,7 @@
 	/**
 	 * Extract report name, category, report set name for report part.
 	 */
-	function extractReportPartNames(reportFullName) {
+	function extractReportPartNames(reportFullName, isPartNameAtRight) {
 		if (reportFullName == null)
 			throw 'full name is null';
 		var parseReportSetName = function (rsName) {
@@ -76,19 +76,26 @@
 		};
 
 		var result = {
+			reportPartName: null,
 			reportFullName: reportFullName
 		};
 		var reportSetName = reportFullName;
 		if (reportFullName.indexOf('@') >= 0) {
 			var parts = reportFullName.split('@');
-			result.reportPartName = parts[0];
-			reportSetName = parts[1];
+			if (!angular.isUndefined(isPartNameAtRight) && isPartNameAtRight) {
+				result.reportPartName = parts[1];
+				reportSetName = parts[0];
+			} else {
+				result.reportPartName = parts[0];
+				reportSetName = parts[1];
+			}
 		}
 
 		var reportNameObj = parseReportSetName(reportSetName);
 		result.reportSetName = reportSetName;
 		result.reportName = reportNameObj.reportName;
 		result.reportCategory = reportNameObj.reportCategory;
+		result.reportFullName = (result.reportPartName != null ? result.reportPartName + '@' : '') + result.reportSetName;
 		return result;
 	}
 

@@ -7,7 +7,9 @@ angular.module('izendaQuery').factory('$izendaCommonQuery', ['$izendaRsQuery', f
 
 	// PUBLIC API
 	return {
-		checkReportSetExist: checkReportSetExist
+		checkReportSetExist: checkReportSetExist,
+		getReportSetCategory: getReportSetCategory	,
+		getReportParts: getReportParts
 	};
 
 	/**
@@ -20,4 +22,15 @@ angular.module('izendaQuery').factory('$izendaCommonQuery', ['$izendaRsQuery', f
 		});
 	}
 
+	function getReportSetCategory(category) {
+		return $izendaRsQuery.query('reportlistdatalite', [category.toLowerCase() == 'uncategorized' ? '' : category], {
+			dataType: 'json'
+		});
+	}
+
+	function getReportParts(reportFullName) {
+		return $izendaRsQuery.query('reportdata', [reportFullName], {
+			dataType: 'json'
+		});
+	}
 }]);

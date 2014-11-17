@@ -50,7 +50,7 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 			} else {
 				$scope.windowResizeOptions.timeout = false;
 				$scope.isChangingNow = false;
-				$rootScope.$broadcast('windowResized', []);
+				$rootScope.$broadcast('windowResizedEvent', []);
 				$scope.refreshAllTiles();
 			}
 		};
@@ -102,7 +102,7 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 	/**
 	 * Dashboard tile changes event
 	 */
-	$scope.$on('dashboardLayoutLoaded', function (event, args) {
+	$scope.$on('dashboardLayoutLoadedEvent', function (event, args) {
 		if (!angular.isUndefined(args) && !angular.isUndefined(args[0]))
 			updateTileContainerSize(args[0]);
 		else
@@ -645,7 +645,7 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 				}
 
 				// raise dashboard layout change event
-				$scope.$broadcast('dashboardLayoutLoaded', [{
+				$scope.$broadcast('dashboardLayoutLoadedEvent', [{
 					top: 0,
 					left: 0,
 					height: (maxHeight) * $scope.tileHeight,

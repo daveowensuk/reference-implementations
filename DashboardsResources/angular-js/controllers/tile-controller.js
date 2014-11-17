@@ -15,8 +15,9 @@
 	top: 100
 });
 
-angular.module('izendaDashboard').controller('IzendaTileController', ['$window', '$element', '$rootScope', '$scope', '$injector', '$izendaUrl', '$izendaDashboardQuery',
-function IzendaTileController($window, $element, $rootScope, $scope, $injector, $izendaUrl, $izendaDashboardQuery) {
+angular.module('izendaDashboard').controller('IzendaTileController', ['$window', '$element', '$rootScope', '$scope', '$injector',
+	'$izendaUrl', '$izendaCommonQuery', '$izendaDashboardQuery',
+function IzendaTileController($window, $element, $rootScope, $scope, $injector, $izendaUrl, $izendaCommonQuery, $izendaDashboardQuery) {
 	'use strict';
 
 	$scope.isHidden = false;
@@ -42,7 +43,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
 	/**
 	 * Update tile after completing window resize
 	 */
-	$scope.$on('windowResized', function(event, args) {
+	$scope.$on('windowResizedEvent', function(event, args) {
 		var $tile = $scope.$parent.getTile$ById($scope.id);
 		if ($scope.state.resizableHandlerStarted)
 			$tile.resizable('option', 'grid', [$scope.$parent.tileWidth, $scope.$parent.tileHeight]);
@@ -73,6 +74,26 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
 		}
 	});
 
+	/**
+	 * Report selected handler
+	 */
+	$scope.$on('selectedReportPartEvent', function(event, args) {
+		var tileId = args[0];
+		if (tileId != $scope.id)
+			return;
+		var rpInfo = args[1];
+		var fName = rpInfo.Name;
+		if (rpInfo.Category != null && rpInfo.Category != '')
+			fName = rpInfo.Category + '\\' + fName;
+		// update report parameters
+		angular.extend($scope, $izendaUrl.extractReportPartNames(fName, true));
+		$scope.reportNameWithCategory = $scope.reportName;
+		if ($scope.reportCategory != null)
+			$scope.reportNameWithCategory = $scope.reportCategory + '\\' + $scope.reportNameWithCategory;
+		$scope.top = 100;
+		$scope.flipFront(true, true);
+	});
+
 	////////////////////////////////////////////////////////
 	// scope functions:
 	////////////////////////////////////////////////////////
@@ -101,7 +122,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
 	 * Select report part for tile
 	 */
 	$scope.selectReportPart = function() {
-		alert('select tile report isn\'t comleted yet');
+		$rootScope.$broadcast('openSelectPartModalEvent', [$scope.id]);
 	};
 
 	/**
@@ -516,6 +537,8 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
 			'</div>';
 		var $body = angular.element($element).find('.report');
 		$body.html(loadingHtml);
+
+		console.log('!!! ' + $scope.reportFullName);
 
 		if ($scope.preloadStarted) {
 			$scope.preloadDataHandler.then(function (htmlData) {

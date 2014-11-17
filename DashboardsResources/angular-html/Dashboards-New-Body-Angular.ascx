@@ -31,6 +31,57 @@
 			</a>
 		</span>
 	</script>
+	
+	<!-- select report part -->
+	<div id="selectPartModal" class="modal" ng-controller="IzendaSelectReportController">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<div class="row">
+						<div class="col-md-2">
+							<h4 style="margin-top: 5px;" class="pull-right">Category:</h4>
+						</div>
+						<div class="col-md-8">
+							<select class="form-control" ng-model="category" 
+								ng-options="category for category in categories"
+								ng-change="categoryChangedHandler()">
+							</select>
+						</div>
+						<div class="col-md-2">
+							<button type="button" class="close" style="margin-left: 50px;" data-dismiss="modal" aria-hidden="true">&times;</button>
+						</div>
+					</div>
+				</div>
+				<div class="modal-body" style="min-height: 300px;">
+					<div class="iz-dash-tile-vcentered-container" ng-if="noReportsFound">
+						<div class="iz-dash-tile-vcentered-item">
+							No reports found!
+						</div>
+					</div>
+					<div class="iz-dash-tile-vcentered-container" ng-if="!noReportsFound && groups.length == 0">
+						<div class="iz-dash-tile-vcentered-item">
+							<img class="img-responsive" ng-src="{{$izendaUrl.urlSettings.urlRsPage}}?image=ModernImages.loading-grid.gif" alt="Loading..." />
+						</div>
+					</div>
+					<div ng-if="!noReportsFound && groups.length > 0">
+						<div ng-repeat="group in groups" class="row">
+							<div class="col-md-3" ng-repeat="item in group">
+								<div class="thumb" ng-click="itemSelectedHandler(item)">
+									<div class="thumb-container" style="background-color: white; width: 170px; height: 220px;">
+										<img class="img-responsive" ng-src="{{item.ImgUrl}}" />
+									</div>
+									<div class="thumb-title">{{item.Name}}</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<!-- dashboard toolbar -->
 	<header ng-controller="IzendaToolbarController" ng-cloak>
@@ -297,6 +348,7 @@
 <script type="text/javascript" src="DashboardsResources/angular-js/controllers/toolbar-controller.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/controllers/tile-controller.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/controllers/dashboard-controller.js"></script>
+<script type="text/javascript" src="DashboardsResources/angular-js/controllers/select-report-controller.js"></script>
 
 <script>
 	// Hue rotate function
