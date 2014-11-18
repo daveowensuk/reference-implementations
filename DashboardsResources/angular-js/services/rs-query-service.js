@@ -29,7 +29,10 @@ angular.module('izendaQuery').factory('$izendaRsQuery', ['$http', '$q', '$izenda
 			if (!angular.isArray(wsArgs))
 				throw 'wsArgs parameter should be array.';
 			for (var i = 0; i < wsArgs.length; i++) {
-				wsArgsString += '&wsArg' + i + '=' + encodeURIComponent(wsArgs[i]);
+				if (wsArgs[i] != null)
+					wsArgsString += '&wsArg' + i + '=' + encodeURIComponent(wsArgs[i]);
+				else
+					wsArgsString += '&wsArg' + i + '=';
 			}
 		} else {
 			throw 'wsArgs parameter should be defined.';

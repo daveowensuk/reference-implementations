@@ -23,9 +23,9 @@ angular.module('izendaQuery').factory('$izendaDashboardQuery', ['$izendaRsQuery'
 	/**
 	 * Load tile report html
 	 */
-	function loadTileReport(updateFromSourceReport, dashboardFullName, reportFullName, top, contentWidth, contentHeight) {
-		return $izendaRsQuery.query(updateFromSourceReport ? 'updateandgetreportpartpreview' : 'getreportpartpreview',
-			[dashboardFullName, reportFullName, 1, top, contentWidth, contentHeight, 'forceSize'], {
+	function loadTileReport(updateFromSourceReport, dashboardFullName, reportFullName, reportPreviousFullName, top, contentWidth, contentHeight) {
+		return $izendaRsQuery.query(updateFromSourceReport ? 'getReportPartPreviewAndUpdate' : 'getReportPartPreview',
+			[dashboardFullName, reportFullName, reportPreviousFullName, 1, top, contentWidth, contentHeight, 'forceSize'], {
 				dataType: 'text',
 				headers: {
 					'Content-Type': 'text/html'

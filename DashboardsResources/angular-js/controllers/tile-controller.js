@@ -8,6 +8,7 @@
 	reportName: null,
 	reportCategory: null,
 	reportNameWithCategory: null,
+	previousReportFullName: null,
 	x: 0,
 	y: 0,
 	width: 1,
@@ -86,6 +87,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
 		if (rpInfo.Category != null && rpInfo.Category != '')
 			fName = rpInfo.Category + '\\' + fName;
 		// update report parameters
+		$scope.previousReportFullName = $scope.reportFullName;
 		angular.extend($scope, $izendaUrl.extractReportPartNames(fName, true));
 		$scope.reportNameWithCategory = $scope.reportName;
 		if ($scope.reportCategory != null)
@@ -109,7 +111,6 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
 		$scope.reportNameWithCategory = $scope.reportName;
 		if ($scope.reportCategory != null)
 			$scope.reportNameWithCategory = $scope.reportCategory + '\\' + $scope.reportNameWithCategory;
-		
 		initializeDraggable();
 		initializeResizable();
 		initializeTopSlider();
@@ -245,6 +246,18 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
 		} else {
 			$back.perfectScrollbar();
 		}
+	};
+
+	$scope.getConfirmDeleteClass = function() {
+		if ($scope.width <= 1)
+			return 'title-button-confirm-remove short';
+		return 'title-button-confirm-remove';
+	};
+
+	$scope.getCancelDeleteClass = function() {
+		if ($scope.width <= 1)
+			return 'title-button-cancel-remove short';
+		return 'title-button-cancel-remove';
 	};
 
 	////////////////////////////////////////////////////////
@@ -530,6 +543,9 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
 	 * Refresh tile content
 	 */
 	function refreshTile(updateFromSourceReport) {
+		if ($scope.reportFullName == null || $scope.reportFullName == '') {
+			return;
+		}
 		var loadingHtml = '<div class="iz-dash-tile-vcentered-container">' +
 			'<div class="iz-dash-tile-vcentered-item">' +
 			'<img class="img-responsive" src="' + $izendaUrl.urlSettings.urlRsPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
@@ -538,8 +554,8 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
 		var $body = angular.element($element).find('.report');
 		$body.html(loadingHtml);
 
-		console.log('!!! ' + $scope.reportFullName);
-
+		var previousReportName = $scope.previousReportFullName;
+		$scope.previousReportFullName = null;
 		if ($scope.preloadStarted) {
 			$scope.preloadDataHandler.then(function (htmlData) {
 				$scope.preloadStarted = false;
@@ -548,10 +564,17 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
 		} else {
 			if ($scope.preloadData !== null) {
 				applyTileHtml($scope.preloadData);
+				$scope.preloadData = null;
 			} else {
 				var heightDelta = $scope.description != null && $scope.description != '' ? 110 : 80;
-				$izendaDashboardQuery.loadTileReport(updateFromSourceReport, $izendaUrl.getReportInfo().fullName, $scope.reportFullName, $scope.top,
-							($scope.width * $scope.$parent.tileWidth) - 20, ($scope.height * $scope.$parent.tileHeight) - heightDelta)
+				$izendaDashboardQuery.loadTileReport(
+					updateFromSourceReport,
+					$izendaUrl.getReportInfo().fullName,
+					$scope.reportFullName,
+					previousReportName,
+					$scope.top,
+					($scope.width * $scope.$parent.tileWidth) - 20,
+					($scope.height * $scope.$parent.tileHeight) - heightDelta)
 				.then(function (htmlData) {
 					applyTileHtml(htmlData);
 				});

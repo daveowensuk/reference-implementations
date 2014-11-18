@@ -220,7 +220,7 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 	////////////////////////////////////////////////////////
 	// scope functions:
 	////////////////////////////////////////////////////////
-	
+
 	/**
 	 * Initialize dashboard
 	 */
@@ -471,7 +471,7 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
      */
 	function setAddTileHandler() {
 
-		var addNewPixelTile = function(x, y) {
+		var addNewPixelTile = function (x, y) {
 			$scope.addtile.tile = angular.extend({}, $injector.get('tileDefaults'), {
 				id: 'IzendaDashboardTileNew',
 				isNew: true,
@@ -662,8 +662,14 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 		tileObj.preloadStarted = true;
 		tileObj.preloadData = null;
 		tileObj.preloadDataHandler = $q(function (resolve) {
-			$izendaDashboardQuery.loadTileReport(false, $izendaUrl.getReportInfo().fullName, tileObj.reportFullName, tileObj.top,
-					(tileObj.width * $scope.tileWidth) - 20, (tileObj.height * $scope.tileHeight) - 90)
+			$izendaDashboardQuery.loadTileReport(
+				false,
+				$izendaUrl.getReportInfo().fullName,
+				tileObj.reportFullName,
+				null,
+				tileObj.top,
+				(tileObj.width * $scope.tileWidth) - 20,
+				(tileObj.height * $scope.tileHeight) - 90)
 			.then(function (htmlData) {
 				tileObj.preloadStarted = false;
 				tileObj.preloadData = htmlData;

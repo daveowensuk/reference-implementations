@@ -207,7 +207,14 @@
 						<div class="flippy-front animated fast">
 							<div class="frame">
 								<div ng-if="description != null && description != ''" class="iz-dash-tile-description">{{description}}</div>
-								<div class="report" name="preview_control_container" ng-hide="$parent.isChangingNow"></div>
+								<div style="cursor: pointer;" class="iz-dash-select-report-front-container" ng-hide="reportFullName != null" 
+									title="Select report part" ng-click="selectReportPart()">
+									<a class="btn btn-default iz-dash-select-report-front-btn">
+										<span class="glyphicon glyphicon-plus"></span>
+									</a>
+								</div>
+								<div class="report" name="preview_control_container" ng-hide="reportFullName == null || $parent.isChangingNow">
+								</div>
 							</div>
 							<div class="title-container-background glyphicon" title="Tile actions">
 								<span class="bar"></span>
@@ -226,13 +233,13 @@
 												ng-click="showConfirmDelete()">
 										<img src="DashboardsResources/images/remove-18.png" class="img-responsive"/>
 									</a>
-									<a title="Confirm delete" ng-class="deleteConfirmClass" class="title-button-confirm-remove"
+									<a title="Confirm delete" ng-class="deleteConfirmClass + ' ' + getConfirmDeleteClass()"
 												ng-click="deleteTile()">
-										<img src="DashboardsResources/images/tile/confirm-delete.png"/>remove tile
+										<img src="DashboardsResources/images/tile/confirm-delete.png"/><span ng-if="width > 1">remove tile</span>
 									</a>
-									<a title="Cancel delete" ng-class="deleteConfirmClass" class="title-button-cancel-remove" 
+									<a title="Cancel delete" ng-class="deleteConfirmClass + ' ' + getCancelDeleteClass()"
 												ng-click="hideConfirmDelete()">
-										<img src="DashboardsResources/images/tile/turn-back.png"/>undo request
+										<img src="DashboardsResources/images/tile/turn-back.png"/><span ng-if="width > 1">undo request</span>
 									</a>
 								</div>
 							</div>
@@ -313,13 +320,13 @@
 												ng-click="showConfirmDelete()">
 										<img src="DashboardsResources/images/remove-18.png" class="img-responsive"/>
 									</a>
-									<a title="Confirm delete" ng-class="deleteConfirmClass" class="title-button-confirm-remove"
+									<a title="Confirm delete" ng-class="deleteConfirmClass + ' ' + getConfirmDeleteClass()"
 												ng-click="deleteTile()">
-										<img src="DashboardsResources/images/tile/confirm-delete.png"/>remove tile
+										<img src="DashboardsResources/images/tile/confirm-delete.png"/><span ng-if="width > 1">remove tile</span>
 									</a>
-									<a title="Cancel delete" ng-class="deleteConfirmClass" class="title-button-cancel-remove" 
+									<a title="Cancel delete" ng-class="deleteConfirmClass + ' ' + getCancelDeleteClass()"
 												ng-click="hideConfirmDelete()">
-										<img src="DashboardsResources/images/tile/turn-back.png"/>undo request
+										<img src="DashboardsResources/images/tile/turn-back.png"/><span ng-if="width > 1">undo request</span>
 									</a>
 								</div>
 							</div>
