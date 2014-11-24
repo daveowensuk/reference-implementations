@@ -32,8 +32,54 @@
 		</span>
 	</script>
 	
-	<!-- select report part -->
-	<div id="selectPartModal" class="modal" ng-controller="IzendaSelectReportController">
+	<!-- select report name modal dialog -->
+	<div id="izendaSelectReportNameModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true"
+		ng-controller="IzendaSelectReportNameController">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-body">
+					<form class="form-horizontal" role="form">
+						<div class="form-group">
+							<div class="alert alert-danger" role="alert" ng-hide="errorMessages.length === 0">
+								<div ng-repeat="errorMessage in errorMessages">
+									{{errorMessage}}
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="izendaDashboardNameModalName" class="col-sm-2 control-label">Name</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="izendaDashboardNameModalName"
+									ng-model="reportName" placeholder="Report Name">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="izendaDashboardNameModalCategory" class="col-sm-2 control-label">Category</label>
+							<div class="col-sm-10" ng-hide="!isCreatingNewCategory">
+								<input id="izendaDashboardNameModalCategoryName" type="text" class="form-control" placeholder="Category Name" 
+									ng-model="newCategoryName"/>
+							</div>
+							<div class="col-sm-10" ng-hide="isCreatingNewCategory">
+								<select id="izendaDashboardNameModalCategory" class="form-control"
+									ng-options="category.id as category.name for category in categories"
+									ng-model="selectedCategoryId"
+									ng-init="selectedCategoryId = 1"
+									ng-change="categorySelectedHandler()"></select>
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button id="izendaDashboardNameModalOk" type="button" class="btn btn-primary" 
+						ng-click="completeHandler()">OK</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- select report part modal dialog -->
+	<div id="izendaSelectPartModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true" ng-controller="IzendaSelectReportController">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -110,8 +156,20 @@
 				<!-- (hidden: xs, sm) -->
 				<div id="izendaDashboardToolbar" class="collapse navbar-collapse hidden-xs hidden-sm">
 					<!-- button bar -->
-					<ul id="izendaDashboardButtonsPanel" class="nav navbar-nav">
+					<ul ng-class="buttonbarCollapsedClass">
+						<li><a class="navbar-toggle" style="border-color: transparent; margin-top: 5px; margin-bottom: 5px;"
+								ng-click="showButtonBar()">
+							<span class="sr-only">Toggle na	vigation</span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+						  </a></li>
+					</ul>
+					<ul ng-class="buttonbarClass">
 						<!-- create new -->
+						<li><a ng-click="hideButtonBar()" title="Hide buttons" style="border-right: 1px solid #ddd;">
+							<span class="glyphicon glyphicon-chevron-left"></span>
+						</a></li>
 						<li><a id="izendaDashboardCreateDash" title="Create New Dashboard"
 							ng-click="createNewDashboardHandler()">
 							<span class="glyphicon glyphicon-plus"></span>
@@ -124,7 +182,7 @@
 						<!-- save -->
 						<li class="dropdown">
 							<a class="dropdown-toggle" data-toggle="dropdown" title="Save Dashboard">
-								<span class="glyphicon glyphicon-floppy-disk"><b class="caret"></b></span>
+								<span class="glyphicon glyphicon-floppy-disk">&nbsp;<b class="caret"></b></span>
 							</a>
 							<ul class="dropdown-menu">
 								<li class="iz-dash-menu-item">
@@ -139,10 +197,21 @@
 								</a></li>
 							</ul>
 						</li>
-						<li><a class="hue-rotate-btn" title="Toggle background hue rotate" style="margin-top: -2px;"
-							ng-hide="!isToggleHueRotateEnabled();" ng-click="toggleHueRotateHandler();">
-							<img class="icon" src="Resources/images/hue-rotate-inactive.png" style="width: 16px; height: 16px;" alt="Hue rotate" />
-						</a></li>
+						<li class="dropdown">
+							<a class="hue-rotate-btn dropdown-toggle" data-toggle="dropdown"
+								title="Toggle background hue rotate" ng-style="backgroundColorStyle"
+								<%--ng-hide="!isToggleHueRotateEnabled();" ng-click="toggleHueRotateHandler();"--%>>
+								<img class="icon" src="DashboardsResources/images/color-bw.png" style="width: 16px; height: 16px;" alt="Hue rotate" />
+								&nbsp;<b class="caret"></b>
+							</a>
+							<div class="dropdown-menu dropdown-no-close-on-click">
+								<input type="text" id="izendaDashboardColorPicker" class="form-control" data-inline="true" value="#4fc8db">
+								<div>
+									Color hue rotate
+									<span class="hue-rotate-switcher">OFF</span>
+								</div>
+							</div>
+						</li>
 					</ul>
 					<!-- navbar "folder" dropdown -->
 					<ul class="nav navbar-nav navbar-right"
@@ -198,7 +267,7 @@
 		<div id="dashboardsDiv">
 			<div id="dashboardBodyContainer" class="iz-dash-body-container" ng-style="tileContainerStyle">
 				<!-- repeat tiles -->
-				<div ng-repeat="tile in tiles" class="iz-dash-tile fx-bounce-down fx-speed-200 fx-trigger fx-easing-quint" tileid="{{tile.id}}"
+				<div ng-repeat="tile in tiles" class="iz-dash-tile fx-fade-down fx-speed-500 fx-trigger fx-easing-quint" tileid="{{tile.id}}"
 					ng-style="{'top': ($parent.tileHeight * y) + 'px', 'height': ($parent.tileHeight * height) + 'px', 'left': ($parent.tileWidth * x) + 'px', 'width': ($parent.tileWidth * width) + 'px'}" 
 					ng-controller="IzendaTileController"
 					ng-init="initialize(tile)" ng-hide="isHidden" ng-cloak>
@@ -339,12 +408,6 @@
 	</div>
 </div>
 
-<script type="text/javascript" src="DashboardsResources/angular-js/legacy/bootstrap-slider.min.js"></script>
-<script type="text/javascript" src="DashboardsResources/angular-js/legacy/perfect-scrollbar.js"></script>
-<script type="text/javascript" src="DashboardsResources/angular-js/legacy/izenda-trace.js"></script>
-<script type="text/javascript" src="DashboardsResources/angular-js/legacy/izenda-query.js"></script>
-<script type="text/javascript" src="DashboardsResources/angular-js/legacy/izenda-filters.js"></script>
-<script type="text/javascript" src="DashboardsResources/angular-js/legacy/izenda-dashboards.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/modules/module-definition.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/services/url-service.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/services/rs-query-service.js"></script>
@@ -356,7 +419,14 @@
 <script type="text/javascript" src="DashboardsResources/angular-js/controllers/tile-controller.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/controllers/dashboard-controller.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/controllers/select-report-controller.js"></script>
+<script type="text/javascript" src="DashboardsResources/angular-js/controllers/select-report-name-controller.js"></script>
 
+
+<script type="text/javascript">
+	jq$('.dropdown-no-close-on-click.dropdown-menu .hue-rotate-switcher').click(function (e) {
+		e.stopPropagation();
+	});
+</script>
 <script>
 	// Hue rotate function
 	var urlSettings = new UrlSettings();

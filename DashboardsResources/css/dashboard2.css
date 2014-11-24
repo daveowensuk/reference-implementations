@@ -52,6 +52,53 @@
 }
 
 /**************************************************************************************/
+/* Toolbar */
+/**************************************************************************************/
+
+.left-transition {
+	-moz-transition: left 0.2s ease;
+	-o-transition: left 0.2s ease;
+	-webkit-transition: left 0.2s ease;
+	transition: left 0.2s ease;
+}
+
+.iz-dash-collapsed-toolbtn-panel {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: -200px;
+}
+
+	.iz-dash-collapsed-toolbtn-panel.opened {
+		left: 0;
+	}
+
+.iz-dash-toolbtn-panel {
+	position: absolute;
+	top: 10px;
+	bottom: 10px;
+	left: -300px;
+	background-color: #666;
+	-moz-box-shadow: 0px 2px 4px rgba(0,0,0,.5);
+	-webkit-box-shadow: 0px 2px 4px rgba(0,0,0,.5);
+	-o-box-shadow: 0px 2px 4px rgba(0,0,0,.5);
+	box-shadow: 0px 2px 4px rgba(0,0,0,.5);
+}
+	.iz-dash-toolbtn-panel.opened {
+		left: -1px;
+	}
+
+.iz-dash-toolbtn-panel > li > a {
+	padding-top: 8px;
+	padding-bottom: 4px;
+	color: #ddd !important;
+}
+
+.iz-dash-toolbtn-panel > li > a:hover {
+	color: #fff !important;
+}
+
+/**************************************************************************************/
 /*TILE*/
 /**************************************************************************************/
 
@@ -617,12 +664,12 @@
 /**************************************************************************************/
 /*Add report modal styles*/
 /**************************************************************************************/
-#selectPartModal .modal .modal-body {
+#izendaSelectPartModal .modal .modal-body {
 	max-height: 620px;
 	overflow-y: auto;
 }
 
-#selectPartModal .thumb {
+#izendaSelectPartModal .thumb {
 	cursor: pointer;
 	position: relative;
 	display: inline-block;
@@ -631,19 +678,19 @@
 	vertical-align: top;
 }
 
-	#selectPartModal .thumb:hover {
+	#izendaSelectPartModal .thumb:hover {
 		outline: 8px solid #cddbf6;
 		background-color: #cddbf6;
 	}
 
-	#selectPartModal .thumb img {
+	#izendaSelectPartModal .thumb img {
 		width: 170px;
 		height: 220px;
 		outline: 1px solid #cecece;
 		background-color: #fff;
 	}
 
-#selectPartModal .thumb-title {
+#izendaSelectPartModal .thumb-title {
 	color: #000;
 	display: inline-block;
 	font-family: "Droid Sans", Tahoma, "Segoe UI", sans-serif !important;
@@ -653,14 +700,6 @@
 	padding: 2px 0 0 6px;
 	position: relative;
 	word-break: break-all;
-}
-
-#selectPartModalSplash {
-	background-color: #fff;
-	text-align: center;
-	position: absolute;
-	top: 0;
-	left: 0;
 }
 
 .DashPartHeaderThird {

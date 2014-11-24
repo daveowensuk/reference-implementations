@@ -90,13 +90,11 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 	 * Listen dashboard "save/save as" event
 	 */
 	$scope.$on('dashboardSaveEvent', function (event, args) {
-		/*if (!$scope.dashboard)
-			return;
-		var useSaveAs = args[0];
-		if (useSaveAs)
-			$scope.dashboard.saveDashboard();
-		else
-			$scope.dashboard.saveDashboardAs();*/
+		if (args[0]) {
+			$rootScope.$broadcast('openSelectReportNameModalEvent', []);
+		} else {
+			alert('SAVE DASHBOARD. Use name dialog: ' + args[0]);
+		}
 	});
 
 	/**
@@ -434,7 +432,7 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 			});
 		});
 	};
-
+	
 	////////////////////////////////////////////////////////
 	// dashboard functions:
 	////////////////////////////////////////////////////////
@@ -443,10 +441,6 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 	 * Calculate and set main dashboard parameters
 	 */
 	function prepareDashboard() {
-		// add background
-		if (angular.element('body').children('.iz-dash-background').length == 0)
-			angular.element('body').prepend(angular.element('<div class="iz-dash-background"></div>'));
-
 		updateDashboardSize();
 	}
 
@@ -589,6 +583,14 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 	// tiles functions:
 	////////////////////////////////////////////////////////
 
+	function sortTilesByPosition(tilesArray) {
+		return tilesArray.sort(function(a, b) {
+			if (a.y != b.y)
+				return a.y - b.y;
+			return a.x - b.x;
+		});
+	}
+
 	/**
 	 * Load dashboard layout
 	 */
@@ -629,29 +631,37 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 					tilesToAdd.push(obj);
 				}
 			}
-
+			tilesToAdd = sortTilesByPosition(tilesToAdd);
 			for (var i = 0; i < tilesToAdd.length; i++) {
 				loadTileReport(tilesToAdd[i]);
 			}
 
-			// start adding tiles to ui:
-			var timeElapsed = (new Date()).getTime() - startTime;
-			var timeout = 1000 - timeElapsed;
-			if (timeout <= 0) timeout = 1;
-			$timeout(function () {
-				$scope.tiles.length = 0;
-				for (var i = 0; i < tilesToAdd.length; i++) {
-					$scope.tiles.push(tilesToAdd[i]);
-				}
+			var tilesCount = tilesToAdd.length;
 
-				// raise dashboard layout change event
-				$scope.$broadcast('dashboardLayoutLoadedEvent', [{
-					top: 0,
-					left: 0,
-					height: (maxHeight) * $scope.tileHeight,
-					width: 12 * $scope.tileWidth
-				}]);
-			}, timeout);
+			// start loading tiles:
+			$scope.$broadcast('dashboardLayoutLoadedEvent', [{
+				top: 0,
+				left: 0,
+				height: (maxHeight) * $scope.tileHeight,
+				width: 12 * $scope.tileWidth
+			}]);
+			var animationSpeed = 100;
+			var refreshIntervalId = null;
+			$scope.tiles.length = 0;
+			var index = 0;
+			function nextTile() {
+				if (index >= tilesToAdd.length && refreshIntervalId != null) {
+					clearInterval(refreshIntervalId);
+					return;
+				}
+				var tile = tilesToAdd[index];
+				$scope.tiles.push(tile);
+				if (!$scope.$$phase)
+					$scope.$apply();
+				index++;
+			}
+			nextTile();
+			refreshIntervalId = window.setInterval(nextTile, animationSpeed);
 		});
 	};
 

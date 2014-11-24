@@ -1,6 +1,6 @@
 ﻿angular.module('izendaDashboard').controller('IzendaSelectReportController',
-	['$rootScope', '$scope', '$q', '$izendaUrl', '$izendaCommonQuery',
-	function IzendaSelectReportController($rootScope, $scope, $q, $izendaUrl, $izendaCommonQuery) {
+	['$rootScope', '$scope', '$q', '$element', '$izendaUrl', '$izendaCommonQuery',
+	function IzendaSelectReportController($rootScope, $scope, $q, $element, $izendaUrl, $izendaCommonQuery) {
 		'use strict';
 
 		$scope.$izendaUrl = $izendaUrl;
@@ -22,7 +22,7 @@
 		 * Select report part modal
 		 */
 		$scope.show = function () {
-			var $modal = angular.element('#selectPartModal');
+			var $modal = angular.element($element);
 			$modal.modal();
 			$scope.categories.length = 0;
 			setModalBodyLoading();
@@ -61,7 +61,7 @@
 				});
 			} else {
 				// if report part selected
-				var $modal = angular.element('#selectPartModal');
+				var $modal = angular.element('#izendaSelectPartModal');
 				$modal.modal('hide');
 				$rootScope.$broadcast('selectedReportPartEvent', [$scope.tileId, item]);
 			}

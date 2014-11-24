@@ -1,15 +1,29 @@
-﻿angular.module('izendaDashboard').controller('IzendaToolbarController', ['$scope', '$rootScope', '$window', '$location',
-	'$izendaDashboardToolbarQuery', '$izendaUrl',
-	function IzendaToolbarController($scope, $rootScope, $window, $location, $izendaDashboardToolbarQuery, $izendaUrl) {
+﻿angular.module('izendaDashboard').controller('IzendaToolbarController', ['$scope', '$rootScope', '$window', '$location', '$cookies',
+	'$izendaRsQuery', '$izendaDashboardToolbarQuery', '$izendaUrl',
+	function IzendaToolbarController($scope, $rootScope, $window, $location, $cookies, $izendaRsQuery, $izendaDashboardToolbarQuery, $izendaUrl) {
 		'use strict';
 
-		$scope.$izendaUrl = $izendaUrl;
+		$scope.backgroundColorStyle = {
+			'background-color': getCookie('izendaDashboardBackgroundColor') ? getCookie('izendaDashboardBackgroundColor') : '#1c8fd6'
+		};
 
+		$scope.$izendaUrl = $izendaUrl;
 		$scope.dashboardCategoriesLoading = true;
 		$scope.dashboardCategories = [];
 		$scope.dashboardsInCurrentCategory = [];
 		$scope.leftDashboards = [];
 		$scope.rightDashboards = [];
+
+		$scope.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition';
+		$scope.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition opened';
+		$scope.showButtonBar = function() {
+			$scope.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition opened';
+			$scope.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition';
+		};
+		$scope.hideButtonBar = function() {
+			$scope.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition';
+			$scope.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition opened';
+		};
 
 		//////////////////////////////////////////////////////
 		// EVENT HANDLERS
@@ -52,13 +66,13 @@
 		 */
 		$scope.toggleHueRotateHandler = function () {
 			if (window.hueRotateTimeOut == null) {
-				angular.element('.hue-rotate-btn').children('img').attr('src', 'Resources/images/hue-rotate.png');
+				angular.element('.hue-rotate-btn').children('img').attr('src', 'DashboardsResources/images/color.png');
 				var e = angular.element('.iz-dash-background');
 				if (window.chrome) {
 					rotate(e);
 				}
 			} else {
-				angular.element('.hue-rotate-btn').children('img').attr('src', 'Resources/images/hue-rotate-inactive.png');
+				angular.element('.hue-rotate-btn').children('img').attr('src', 'DashboardsResources/images/color-bw.png');
 				clearTimeout(hueRotateTimeOut);
 				window.hueRotateTimeOut = null;
 			}
@@ -102,6 +116,29 @@
 			angular.element($window).off('resize.dashboard');
 		};
 
+		/**
+		 * Initialize background color picker control.
+		 */
+		$scope.initializeColorPicker = function () {
+			var $colorPickerInput = angular.element('#izendaDashboardColorPicker');
+			$colorPickerInput.minicolors({
+				inline: true,
+				control: 'hue',
+				change: function (hex) {
+					angular.element('.hue-rotate-btn, .iz-dash-background').css('background-color', hex);
+					$cookies.izendaBackgroundColor = hex;
+					document.cookie = "izendaDashboardBackgroundColor=" + hex;
+					$scope.backgroundColorStyle = {
+						'background-color': hex
+					};
+				}
+			});
+			// prevent closing dropdown menu:
+			angular.element('.dropdown-no-close-on-click.dropdown-menu .minicolors-grid, .dropdown-no-close-on-click.dropdown-menu .minicolors-slider').click(function (e) {
+				e.stopPropagation();
+			});
+		};
+
 		// initialize dashboard method
 		initialize();
 
@@ -109,10 +146,28 @@
 		// PRIVATE
 		//////////////////////////////////////////////////////
 
+		function getCookie(name) {
+			var nameEq = name + "=";
+			//alert(document.cookie);
+			var ca = document.cookie.split(';');
+			for (var i = 0; i < ca.length; i++) {
+				var c = ca[i];
+				while (c.charAt(0) == ' ') c = c.substring(1);
+				if (c.indexOf(nameEq) != -1) return c.substring(nameEq.length, c.length);
+			}
+			return null;
+		}
+
 		/**
 		 * Initialize dashboard navigation
 		 */
 		function initialize() {
+			if (angular.element('body > .iz-dash-background').length == 0) {
+				angular.element('body').prepend(angular.element('<div class="iz-dash-background" style="background-color: ' +
+					$scope.backgroundColorStyle['background-color'] + '"></div>'));
+			}
+
+
 			// start window resize handler
 			$scope.turnOnWindowResizeHandler();
 
@@ -120,8 +175,10 @@
 			$izendaDashboardToolbarQuery.loadDashboardNavigation().then(function (data) {
 				dashboardNavigationLoaded(data);
 			});
-		}
 
+			$scope.initializeColorPicker();
+		}
+		
 		/**
 		 * Update toolbar dashboard tabs.
 		 */
@@ -222,6 +279,11 @@
 			console.log(' ');
 			console.log('>>>>> Set current dashboard: "' + dashboardFullName + '"');
 			console.log(' ');
+
+			// cancel all current queries
+			$izendaRsQuery.cancelAllQueries('Starting load next dashboard.');
+
+			angular.element('.iz-dash-tile').css('display', 'none');
 
 			// notify dashboard to start
 			$rootScope.$broadcast('dashboardSetEvent', [{}]);
