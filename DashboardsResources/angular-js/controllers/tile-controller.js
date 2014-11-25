@@ -73,12 +73,14 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
 			if (eventOptions.refresh)
 				$scope.refreshTile(false);
 		}
+
+		$scope.$parent.isChangingNow = false;
 	});
 
 	/**
 	 * Report selected handler
 	 */
-	$scope.$on('selectedReportPartEvent', function(event, args) {
+	$scope.$on('selectedReportPartEvent', function (event, args) {
 		var tileId = args[0];
 		if (tileId != $scope.id)
 			return;
@@ -135,6 +137,13 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
 			result = $scope.reportCategory + '\\' + result;
 		}
 		return result;
+	};
+
+	/**
+	 * Is tile content should be hidden now.
+	 */
+	$scope.isReportDivHidden = function() {
+		return /*$scope.reportFullName == null || */$scope.$parent.isChangingNow;
 	};
 
 	/**
@@ -562,7 +571,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
 				applyTileHtml(htmlData);
 			});
 		} else {
-			if ($scope.preloadData !== null) {
+			if (!angular.isUndefined($scope.preloadData) && $scope.preloadData !== null) {
 				applyTileHtml($scope.preloadData);
 				$scope.preloadData = null;
 			} else {

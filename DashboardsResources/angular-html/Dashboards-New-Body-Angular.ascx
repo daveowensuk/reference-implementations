@@ -131,7 +131,7 @@
 
 	<!-- dashboard toolbar -->
 	<header ng-controller="IzendaToolbarController" ng-cloak>
-		<nav class="navbar navbar-default" role="navigation">
+		<nav class="navbar navbar-default" role="navigation" style="max-height: 50px;">
 			<div class="container-fluid">
 				<!-- navbar header (visible: xs, sm) -->
 				<div class="navbar-header hidden-sm hidden-md hidden-lg">
@@ -199,16 +199,24 @@
 						</li>
 						<li class="dropdown">
 							<a class="hue-rotate-btn dropdown-toggle" data-toggle="dropdown"
-								title="Toggle background hue rotate" ng-style="backgroundColorStyle"
-								<%--ng-hide="!isToggleHueRotateEnabled();" ng-click="toggleHueRotateHandler();"--%>>
-								<img class="icon" src="DashboardsResources/images/color-bw.png" style="width: 16px; height: 16px;" alt="Hue rotate" />
+								title="Toggle background hue rotate" ng-style="backgroundColorStyle" style="padding-top: 2px;">
+								<img class="icon" src="DashboardsResources/images/color-bw.png" style="width: 16px; height: 16px; padding-top: 2px;" alt="Hue rotate" />
 								&nbsp;<b class="caret"></b>
 							</a>
-							<div class="dropdown-menu dropdown-no-close-on-click">
-								<input type="text" id="izendaDashboardColorPicker" class="form-control" data-inline="true" value="#4fc8db">
-								<div>
-									Color hue rotate
-									<span class="hue-rotate-switcher">OFF</span>
+							<div class="dropdown-menu dropdown-no-close-on-click" style="min-width: 200px; text-align: center;">
+								<div class="iz-dash-color-preview-container">
+									<span ng-style="backgroundColorStyle" class="iz-dash-color-preview">&nbsp;</span>
+									<span class="iz-dash-color-preview">{{izendaBackgroundColor}}</span>
+								</div>
+								<input type="text" id="izendaDashboardColorPicker" class="form-control" data-inline="true" ng-value="izendaBackgroundColor">
+								<div style="padding: 5px;" ng-hide="!isToggleHueRotateEnabled()">
+									<hr style="margin-top: 5px; margin-bottom: 10px;"/>
+									<span class="iz-dash-switcher-label">Color hue rotate</span>
+									<span id="izendaDashboardHueRotateSwitcher" class="iz-dash-switcher" ng-click="toggleHueRotateHandler()">
+										<span class="iz-dash-switcher-text-off">OFF</span>
+										<span class="iz-dash-switcher-item"></span>
+										<span class="iz-dash-switcher-text-on">ON</span>
+									</span>
 								</div>
 							</div>
 						</li>
@@ -282,7 +290,7 @@
 										<span class="glyphicon glyphicon-plus"></span>
 									</a>
 								</div>
-								<div class="report" name="preview_control_container" ng-hide="reportFullName == null || $parent.isChangingNow">
+								<div class="report" name="preview_control_container" ng-hide="isReportDivHidden()">
 								</div>
 							</div>
 							<div class="title-container-background glyphicon" title="Tile actions">
@@ -434,6 +442,7 @@
 	var oldMouseY = 0;
 	var degree = 0;
 	var hueRotateTimeOut = null;
+
 	function rotate(e) {
 		e.css({ 'filter': 'hue-rotate(' + degree + 'deg)' });
 		e.css({ '-webkit-filter': 'hue-rotate(' + degree + 'deg)' });

@@ -2,6 +2,8 @@
 function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $injector, $izendaUrl, $izendaDashboardQuery) {
 	'use strict';
 
+	var newTileIndex = 1;
+
 	// dashboard options
 	$scope.options = {
 		dashboardFullName: null,
@@ -51,7 +53,7 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 				$scope.windowResizeOptions.timeout = false;
 				$scope.isChangingNow = false;
 				$rootScope.$broadcast('windowResizedEvent', []);
-				$scope.refreshAllTiles();
+				//$scope.refreshAllTiles();
 			}
 		};
 		$scope.windowResizeOptions.rtime = new Date();
@@ -461,13 +463,13 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 	}
 
 	/**
-     * Add tile handler initialize
-     */
+	 * Add tile handler initialize
+	 */
 	function setAddTileHandler() {
 
 		var addNewPixelTile = function (x, y) {
 			$scope.addtile.tile = angular.extend({}, $injector.get('tileDefaults'), {
-				id: 'IzendaDashboardTileNew',
+				id: 'IzendaDashboardTileNew' + (newTileIndex++),
 				isNew: true,
 				width: 1,
 				height: 1,
@@ -535,8 +537,7 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 				if ($scope.addtile.tile == null) {
 					addNewPixelTile(x, y);
 				} else {
-					var tile = $scope.getTileById('IzendaDashboardTileNew');
-
+					//var tile = $scope.getTileById('IzendaDashboardTileNew');
 				}
 			}
 			$scope.addtile.count++;
@@ -599,7 +600,6 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 		if ($scope.tiles.length > 0) {
 			$scope.tiles.length = 0;
 		}
-		var startTime = (new Date()).getTime();
 		$izendaDashboardQuery.loadDashboardLayout($scope.options.reportInfo.fullName).then(function (data) {
 			// collect tiles information:
 			var tilesToAdd = [];
@@ -645,7 +645,7 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 				height: (maxHeight) * $scope.tileHeight,
 				width: 12 * $scope.tileWidth
 			}]);
-			var animationSpeed = 100;
+			var animationSpeed = 200;
 			var refreshIntervalId = null;
 			$scope.tiles.length = 0;
 			var index = 0;

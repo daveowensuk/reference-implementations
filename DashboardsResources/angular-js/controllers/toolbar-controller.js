@@ -6,6 +6,7 @@
 		$scope.backgroundColorStyle = {
 			'background-color': getCookie('izendaDashboardBackgroundColor') ? getCookie('izendaDashboardBackgroundColor') : '#1c8fd6'
 		};
+		$scope.izendaBackgroundColor = getCookie('izendaDashboardBackgroundColor') ? getCookie('izendaDashboardBackgroundColor') : '#1c8fd6';
 
 		$scope.$izendaUrl = $izendaUrl;
 		$scope.dashboardCategoriesLoading = true;
@@ -62,23 +63,6 @@
 		};
 
 		/**
-		 * Turn off/on hue rotate effect handler
-		 */
-		$scope.toggleHueRotateHandler = function () {
-			if (window.hueRotateTimeOut == null) {
-				angular.element('.hue-rotate-btn').children('img').attr('src', 'DashboardsResources/images/color.png');
-				var e = angular.element('.iz-dash-background');
-				if (window.chrome) {
-					rotate(e);
-				}
-			} else {
-				angular.element('.hue-rotate-btn').children('img').attr('src', 'DashboardsResources/images/color-bw.png');
-				clearTimeout(hueRotateTimeOut);
-				window.hueRotateTimeOut = null;
-			}
-		};
-
-		/**
 		 * Create new dashboard button handler.
 		 */
 		$scope.createNewDashboardHandler = function () {
@@ -117,6 +101,19 @@
 		};
 
 		/**
+		 * Toggle hue rotate switcher control handler.
+		 */
+		$scope.toggleHueRotateHandler = function() {
+			var $hueRotateControl = angular.element('#izendaDashboardHueRotateSwitcher');
+			var turnedOn = $hueRotateControl.hasClass('on');
+			var text = turnedOn ? 'OFF' : 'ON';
+			$hueRotateControl.find('.iz-dash-switcher-text').text(text);
+			$hueRotateControl.toggleClass('on');
+			resetRotate();
+			toggleHueRotate();
+		};
+
+		/**
 		 * Initialize background color picker control.
 		 */
 		$scope.initializeColorPicker = function () {
@@ -131,10 +128,13 @@
 					$scope.backgroundColorStyle = {
 						'background-color': hex
 					};
+					$scope.izendaBackgroundColor = hex;
 				}
 			});
+			$colorPickerInput.minicolors('value', [$scope.izendaBackgroundColor]);
+
 			// prevent closing dropdown menu:
-			angular.element('.dropdown-no-close-on-click.dropdown-menu .minicolors-grid, .dropdown-no-close-on-click.dropdown-menu .minicolors-slider').click(function (e) {
+			angular.element('.dropdown-no-close-on-click.dropdown-menu .minicolors-grid, .dropdown-no-close-on-click.dropdown-menu .minicolors-slider, #izendaDashboardHueRotateSwitcher').click(function (e) {
 				e.stopPropagation();
 			});
 		};
@@ -156,6 +156,32 @@
 				if (c.indexOf(nameEq) != -1) return c.substring(nameEq.length, c.length);
 			}
 			return null;
+		}
+
+		function resetRotate() {
+			var e = angular.element('.iz-dash-background');
+			e.css({ 'filter': 'hue-rotate(' + '0' + 'deg)' });
+			e.css({ '-webkit-filter': 'hue-rotate(' + '0' + 'deg)' });
+			e.css({ '-moz-filter': 'hue-rotate(' + '0' + 'deg)' });
+			e.css({ '-o-filter': 'hue-rotate(' + '0' + 'deg)' });
+			e.css({ '-ms-filter': 'hue-rotate(' + '0' + 'deg)' });
+		}
+
+		/**
+		 * Turn off/on hue rotate effect handler
+		 */
+		function toggleHueRotate() {
+			if (window.hueRotateTimeOut == null) {
+				angular.element('.hue-rotate-btn').children('img').attr('src', 'DashboardsResources/images/color.png');
+				var e = angular.element('.iz-dash-background');
+				if (window.chrome) {
+					rotate(e);
+				}
+			} else {
+				angular.element('.hue-rotate-btn').children('img').attr('src', 'DashboardsResources/images/color-bw.png');
+				clearTimeout(hueRotateTimeOut);
+				window.hueRotateTimeOut = null;
+			}
 		}
 
 		/**

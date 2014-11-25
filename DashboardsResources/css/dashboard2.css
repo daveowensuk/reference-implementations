@@ -5,6 +5,7 @@
 }
 
 #dashboardsDiv {
+	font-family: 'Open Sans', sans-serif;
 	position: relative;
 	-moz-user-select: -moz-none;
 	-khtml-user-select: none;
@@ -84,19 +85,125 @@
 	-o-box-shadow: 0px 2px 4px rgba(0,0,0,.5);
 	box-shadow: 0px 2px 4px rgba(0,0,0,.5);
 }
+
 	.iz-dash-toolbtn-panel.opened {
 		left: -1px;
 	}
 
-.iz-dash-toolbtn-panel > li > a {
-	padding-top: 8px;
-	padding-bottom: 4px;
-	color: #ddd !important;
+	.iz-dash-toolbtn-panel > li > a {
+		padding-top: 4px;
+		padding-bottom: 4px;
+		color: #ddd !important;
+	}
+
+		.iz-dash-toolbtn-panel > li > a:hover {
+			color: #fff !important;
+		}
+
+/* color preview */
+
+.iz-dash-color-preview-container {
+	margin: 10px;
+	text-align: left;
 }
 
-.iz-dash-toolbtn-panel > li > a:hover {
-	color: #fff !important;
+.iz-dash-color-preview {
+	display: inline-block;
+	width: 24px;
+	height: 24px;
 }
+
+/* hue switcher */
+
+.iz-dash-switcher-label {
+	display: inline-block;
+	height: 24px;
+	line-height: 26px;
+	font-size: 16px;
+	position: relative;
+	top: -7px;
+}
+
+.iz-dash-switcher {
+	display: inline-block;
+	position: relative;
+	width: 64px;
+	height: 24px;
+	-ms-border-radius: 12px;
+	border-radius: 12px;
+	background-color: #AB0000;
+	border: 1px solid #ccc;
+	border: 1px solid rgba(0,0,0,0.2);
+	-webkit-box-shadow: inset 0 0 3px 2px rgba(0,0,0,0.1);
+	box-shadow: inset 0 0 3px 2px rgba(0,0,0,0.1);
+	-webkit-transition: background-color 0.5s ease;
+	-moz-transition: background-color 0.5s ease;
+	-ms-transition: background-color 0.5s ease;
+	-o-transition: background-color 0.5s ease;
+	transition: background-color 0.5s ease;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+	.iz-dash-switcher.on {
+		background-color: #62c462;
+	}
+
+	.iz-dash-switcher > .iz-dash-switcher-text-off,
+	.iz-dash-switcher > .iz-dash-switcher-text-on {
+		position: absolute;
+		line-height: 22px;
+		text-align: center;
+		width: 40px;
+		font-size: 16px;
+		font-weight: bold;
+		text-shadow: 0 0 3px rgba(0,0,0,0.5);
+		color: #ddd;
+		-webkit-transition: left 0.5s ease;
+		-moz-transition: left 0.5s ease;
+		-ms-transition: left 0.5s ease;
+		-o-transition: left 0.5s ease;
+		transition: left 0.5s ease;
+	}
+
+	.iz-dash-switcher > .iz-dash-switcher-text-on {
+		left: 64px;
+	}
+
+	.iz-dash-switcher.on > .iz-dash-switcher-text-on {
+		left: 24px;
+	}
+
+	.iz-dash-switcher > .iz-dash-switcher-text-off {
+		left: 0;
+	}
+
+	.iz-dash-switcher.on > .iz-dash-switcher-text-off {
+		left: -40px;
+	}
+
+	.iz-dash-switcher > .iz-dash-switcher-item {
+		position: absolute;
+		left: 40px;
+		width: 22px;
+		height: 22px;
+		-ms-border-radius: 12px;
+		border-radius: 12px;
+		border: 1px solid #ccc;
+		border: 1px solid rgba(0,0,0,0.2);
+		background-color: #d3d3d3;
+		-webkit-box-shadow: inset 0 0 3px 2px #E6E6E6;
+		box-shadow: inset 0 0 3px 2px #E6E6E6;
+		-webkit-transition: left 0.5s ease;
+		-moz-transition: left 0.5s ease;
+		-ms-transition: left 0.5s ease;
+		-o-transition: left 0.5s ease;
+		transition: left 0.5s ease;
+	}
+
+	.iz-dash-switcher.on > .iz-dash-switcher-item {
+		left: 0;
+	}
 
 /**************************************************************************************/
 /*TILE*/
@@ -162,6 +269,7 @@
 	top: 50%;
 	left: 50%;
 	margin: -32px -20px;
+	-ms-border-radius: 18px;
 	border-radius: 18px;
 	width: 40px;
 	color: #fff;
@@ -693,7 +801,6 @@
 #izendaSelectPartModal .thumb-title {
 	color: #000;
 	display: inline-block;
-	font-family: "Droid Sans", Tahoma, "Segoe UI", sans-serif !important;
 	font-size: 14.5px;
 	letter-spacing: 0px;
 	line-height: 20px;
@@ -740,17 +847,17 @@
 		}
 
 #izendaDashboardLinksPanel > li.iz-dash-menu-item {
-	border-bottom: 4px solid transparent !important;
+	border-bottom: 5px solid transparent !important;
 }
 
 	#izendaDashboardLinksPanel > li.iz-dash-menu-item:hover,
 	#izendaDashboardLinksPanel > li.iz-dash-menu-item:focus {
 		background-color: #f3f3f3 !important;
-		border-bottom: 4px solid #cee5fb !important;
+		border-bottom: 5px solid #cee5fb !important;
 	}
 
 	#izendaDashboardLinksPanel > li.iz-dash-menu-item.active {
-		border-bottom: 4px solid #0d70cd !important;
+		border-bottom: 5px solid #0d70cd !important;
 	}
 
 .iz-dash-filters {
