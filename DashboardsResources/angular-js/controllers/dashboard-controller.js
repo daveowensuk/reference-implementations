@@ -736,6 +736,6 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
 				maxHeight = additionalBox.top + additionalBox.height;
 			}
 		}
-		$scope.tileContainerStyle.height = (maxHeight + $scope.tileHeight) + 'px';
+		$scope.tileContainerStyle.height = (maxHeight + $scope.tileHeight + 1) + 'px';
 	};
 }]);

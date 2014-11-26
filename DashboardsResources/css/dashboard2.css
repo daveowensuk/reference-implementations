@@ -56,6 +56,13 @@
 /* Toolbar */
 /**************************************************************************************/
 
+.iz-dash-navbar {
+	max-height: 51px;
+	-webkit-box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
+	-moz-box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
+	box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
+}
+
 .left-transition {
 	-moz-transition: left 0.2s ease;
 	-o-transition: left 0.2s ease;
@@ -127,15 +134,15 @@
 .iz-dash-switcher {
 	display: inline-block;
 	position: relative;
-	width: 64px;
+	width: 50px;
 	height: 24px;
 	-ms-border-radius: 12px;
-	border-radius: 12px;
+	border-radius: 3px;
 	background-color: #AB0000;
 	border: 1px solid #ccc;
-	border: 1px solid rgba(0,0,0,0.2);
-	-webkit-box-shadow: inset 0 0 3px 2px rgba(0,0,0,0.1);
-	box-shadow: inset 0 0 3px 2px rgba(0,0,0,0.1);
+	border: 1px solid rgba(0,0,0,0.4);
+	-webkit-box-shadow: inset 0 0 3px 2px rgba(0,0,0,0.2);
+	box-shadow: inset 0 0 3px 2px rgba(0,0,0,0.2);
 	-webkit-transition: background-color 0.5s ease;
 	-moz-transition: background-color 0.5s ease;
 	-ms-transition: background-color 0.5s ease;
@@ -154,7 +161,7 @@
 		position: absolute;
 		line-height: 22px;
 		text-align: center;
-		width: 40px;
+		width: 28px;
 		font-size: 16px;
 		font-weight: bold;
 		text-shadow: 0 0 3px rgba(0,0,0,0.5);
@@ -167,11 +174,11 @@
 	}
 
 	.iz-dash-switcher > .iz-dash-switcher-text-on {
-		left: 64px;
+		left: 50px;
 	}
 
 	.iz-dash-switcher.on > .iz-dash-switcher-text-on {
-		left: 24px;
+		left: 20px;
 	}
 
 	.iz-dash-switcher > .iz-dash-switcher-text-off {
@@ -179,21 +186,20 @@
 	}
 
 	.iz-dash-switcher.on > .iz-dash-switcher-text-off {
-		left: -40px;
+		left: -28px;
 	}
 
 	.iz-dash-switcher > .iz-dash-switcher-item {
 		position: absolute;
-		left: 40px;
-		width: 22px;
-		height: 22px;
+		top: 2px;
+		left: 28px;
+		width: 18px;
+		height: 18px;
 		-ms-border-radius: 12px;
-		border-radius: 12px;
+		border-radius: 3px;
 		border: 1px solid #ccc;
 		border: 1px solid rgba(0,0,0,0.2);
-		background-color: #d3d3d3;
-		-webkit-box-shadow: inset 0 0 3px 2px #E6E6E6;
-		box-shadow: inset 0 0 3px 2px #E6E6E6;
+		background-color: #fff;
 		-webkit-transition: left 0.5s ease;
 		-moz-transition: left 0.5s ease;
 		-ms-transition: left 0.5s ease;
@@ -202,7 +208,7 @@
 	}
 
 	.iz-dash-switcher.on > .iz-dash-switcher-item {
-		left: 0;
+		left: 2px;
 	}
 
 /**************************************************************************************/
@@ -468,7 +474,9 @@
 	background-image: linear-gradient(rgba(255,255,255,.3), transparent 2px), linear-gradient(90deg, rgba(255,255,255,.3) 1px, transparent 1px), linear-gradient(rgba(255,255,255,.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.3) 1px, transparent 1px);
 	background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
 	background-position: -1px -1px, -1px -1px, -1px -1px, -1px -1px;
-	border-top: 1px solid #fff;
+	border-top: 1px solid rgba(255, 255, 255, .3);
+	border-left: 1px solid rgba(255, 255, 255, .3);
+	border-right: 1px solid rgba(255, 255, 255, .3);
 }
 
 .tile-grid-cell {
@@ -489,7 +497,6 @@
 
 	.animate-flip .flippy-front, .animate-flip .flippy-back {
 		background-color: #ffffff;
-		/*background-color: rgba(255,255,255,.3);*/
 		padding: 5px;
 		height: 100%;
 		-moz-box-shadow: 0px 2px 4px rgba(0,0,0,.5);

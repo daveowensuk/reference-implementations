@@ -131,7 +131,7 @@
 
 	<!-- dashboard toolbar -->
 	<header ng-controller="IzendaToolbarController" ng-cloak>
-		<nav class="navbar navbar-default" role="navigation" style="max-height: 50px;">
+		<nav class="navbar navbar-default iz-dash-navbar" role="navigation">
 			<div class="container-fluid">
 				<!-- navbar header (visible: xs, sm) -->
 				<div class="navbar-header hidden-sm hidden-md hidden-lg">
@@ -213,9 +213,9 @@
 									<hr style="margin-top: 5px; margin-bottom: 10px;"/>
 									<span class="iz-dash-switcher-label">Color hue rotate</span>
 									<span id="izendaDashboardHueRotateSwitcher" class="iz-dash-switcher" ng-click="toggleHueRotateHandler()">
-										<span class="iz-dash-switcher-text-off">OFF</span>
+										<span class="iz-dash-switcher-text-off">O</span>
 										<span class="iz-dash-switcher-item"></span>
-										<span class="iz-dash-switcher-text-on">ON</span>
+										<span class="iz-dash-switcher-text-on">I</span>
 									</span>
 								</div>
 							</div>

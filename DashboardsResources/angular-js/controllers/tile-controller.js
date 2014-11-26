@@ -599,6 +599,9 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
 		var $b = angular.element($element).find('.report');
 		if (!angular.isUndefined(ReportScripting))
 			ReportScripting.loadReportResponse(htmlData, $b);
+		if (!angular.isUndefined(AdHoc.Utility) && typeof AdHoc.Utility.DocumentReadyHandler == 'function') {
+			AdHoc.Utility.DocumentReadyHandler();
+		}
 		var divs$ = $b.find('div.DashPartBody, div.DashPartBodyNoScroll');
 		var $zerochartResults = divs$.find('.iz-zero-chart-results');
 		if ($zerochartResults.length > 0) {
