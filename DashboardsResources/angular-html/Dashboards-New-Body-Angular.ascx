@@ -209,6 +209,8 @@
 									<span class="iz-dash-color-preview">{{izendaBackgroundColor}}</span>
 								</div>
 								<input type="text" id="izendaDashboardColorPicker" class="form-control" data-inline="true" ng-value="izendaBackgroundColor">
+								<input id="izendaDashboardBackground" type="file" name="file" 
+									onchange="angular.element(this).scope().backgroundFileChangedHandler(arguments)"/>
 								<div style="padding: 5px;" ng-hide="!isToggleHueRotateEnabled()">
 									<hr style="margin-top: 5px; margin-bottom: 10px;"/>
 									<span class="iz-dash-switcher-label">Color hue rotate</span>
@@ -249,7 +251,7 @@
 							</ul>
 						</li>
 						<li class="iz-dash-menu-item"
-							ng-class="{active: dashboard == $izendaUrl.getReportInfo().fullName}"
+							ng-style="getToolItemStyle(dashboard)"
 							ng-repeat="dashboard in dashboardsInCurrentCategory">
 							<a href="#{{dashboard}}">{{$izendaUrl.extractReportName(dashboard)}}</a>
 						</li>

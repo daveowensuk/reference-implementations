@@ -7,6 +7,10 @@
 			'background-color': getCookie('izendaDashboardBackgroundColor') ? getCookie('izendaDashboardBackgroundColor') : '#1c8fd6'
 		};
 		$scope.izendaBackgroundColor = getCookie('izendaDashboardBackgroundColor') ? getCookie('izendaDashboardBackgroundColor') : '#1c8fd6';
+		$scope.izendaBackgroundImageSrc = getImgFromStorage();
+		$scope.backgroundFileChangedHandler = function () {
+			console.log(arguments);
+		};
 
 		$scope.$izendaUrl = $izendaUrl;
 		$scope.dashboardCategoriesLoading = true;
@@ -24,6 +28,127 @@
 		$scope.hideButtonBar = function() {
 			$scope.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition';
 			$scope.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition opened';
+		};
+
+		/**
+		 * Create style object for toolbar item
+		 */
+		$scope.getToolItemStyle = function (dashboard) {
+			var parseRgb = function (s) {
+				if (!s) return null;
+				if (s.indexOf('#') == 0) {
+					var r = s.substr(1, 2),
+						g = s.substr(3, 2),
+						b = s.substr(5, 2);
+					return [parseInt(r, 16), parseInt(g, 16), parseInt(b, 16)];
+				}
+				return null;
+			};
+			var rgb2hsv = function(colorArray) {
+				var rr,
+					gg,
+					bb,
+					r = colorArray[0] / 255,
+					g = colorArray[1] / 255,
+					b = colorArray[2] / 255,
+					h,
+					s,
+					v = Math.max(r, g, b),
+					diff = v - Math.min(r, g, b),
+					diffc = function(c) {
+						return (v - c) / 6 / diff + 1 / 2;
+					};
+
+				if (diff == 0) {
+					h = s = 0;
+				} else {
+					s = diff / v;
+					rr = diffc(r);
+					gg = diffc(g);
+					bb = diffc(b);
+
+					if (r === v) {
+						h = bb - gg;
+					} else if (g === v) {
+						h = (1 / 3) + rr - bb;
+					} else if (b === v) {
+						h = (2 / 3) + gg - rr;
+					}
+					if (h < 0) {
+						h += 1;
+					} else if (h > 1) {
+						h -= 1;
+					}
+				}
+				return [Math.round(h * 360), Math.round(s * 100), Math.round(v * 100)];
+			};
+			var hsv2rgb = function (colorArray)	{
+				var h = colorArray[0],
+					s = colorArray[1],
+					v = colorArray[2];
+				var r, g, b;
+				var i;
+				var f, p, q, t;
+				h = Math.max(0, Math.min(360, h));
+				s = Math.max(0, Math.min(100, s));
+				v = Math.max(0, Math.min(100, v));
+				s /= 100;
+				v /= 100;
+				if (s == 0) {
+					r = g = b = v;
+					return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+				}
+				h /= 60;
+				i = Math.floor(h);
+				f = h - i;
+				p = v * (1 - s);
+				q = v * (1 - s * f);
+				t = v * (1 - s * (1 - f));
+				switch (i) {
+					case 0:
+						r = v;g = t;b = p;break;
+					case 1:
+						r = q;g = v;b = p;break;
+					case 2:
+						r = p;g = v;b = t;break;
+					case 3:
+						r = p;g = q;b = v;break;
+					case 4:
+						r = t;g = p;b = v;break;
+					default: // case 5:
+						r = v;g = p;b = q;
+				}
+				return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+			};
+			var getContrastHsvColor = function (hsvArray) {
+				var s = hsvArray[1];
+				var l = hsvArray[2];
+				if (l < 80)
+					l = 80;
+				if (s < 80)
+					s = 80;
+				return [(hsvArray[0] + 180) % 360, s, l];
+			};
+			var ensureColorComp = function(colorInt) {
+				var v = colorInt.toString(16);
+				if (v.length == 1)
+					v = '0' + v;
+				return v;
+			};
+
+			var isActive = dashboard == $izendaUrl.getReportInfo().fullName;
+			var style = {
+				'border-bottom': '4px solid transparent'
+			};
+			if (isActive) {
+				var c = parseRgb($scope.izendaBackgroundColor);
+				var contrast = hsv2rgb(getContrastHsvColor(rgb2hsv(c)));
+				var res = '#' + ensureColorComp(contrast[0]) + ensureColorComp(contrast[1]) + ensureColorComp(contrast[2]);
+				style['background-color'] = '#f3f3f3';
+				style['border-bottom'] = '4px solid ' + res + '';
+				style['font-weight'] = 'bold';
+			}
+			return style;
 		};
 
 		//////////////////////////////////////////////////////
@@ -145,6 +270,34 @@
 		//////////////////////////////////////////////////////
 		// PRIVATE
 		//////////////////////////////////////////////////////
+
+		function setImgToStorage(img) {
+			var imgData = getBase64Image(img);
+			localStorage.setItem('izendaDashboardBackgroundImg', imgData);
+		}
+
+		function getImgFromStorage() {
+			var dataImage = localStorage.getItem('izendaDashboardBackgroundImg');
+			return 'data:image/png;base64,' + dataImage;
+		}
+
+		function getBase64Image(img) {
+			// Create an empty canvas element
+			var canvas = document.createElement("canvas");
+			canvas.width = img.width;
+			canvas.height = img.height;
+
+			// Copy the image contents to the canvas
+			var ctx = canvas.getContext("2d");
+			ctx.drawImage(img, 0, 0);
+
+			// Get the data-URL formatted image
+			// Firefox supports PNG and JPEG. You could check img.src to guess the
+			// original format, but be aware the using "image/jpg" will re-encode the image.
+			var dataURL = canvas.toDataURL("image/png");
+
+			return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+		}
 
 		function getCookie(name) {
 			var nameEq = name + "=";
