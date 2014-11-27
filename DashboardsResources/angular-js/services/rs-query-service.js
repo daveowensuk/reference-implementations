@@ -89,7 +89,7 @@ angular.module('izendaQuery').factory('$izendaRsQuery', ['$http', '$q', '$izenda
 
 	function handleSuccess(response) {
 		delete requestList[response.config.url];
-		console.log('<<< ' + ((new Date()).getTime() - rsQueryLog[response.config.url].getTime()) + 'ms: ' + response.config.url);
+		//console.log('<<< ' + ((new Date()).getTime() - rsQueryLog[response.config.url].getTime()) + 'ms: ' + response.config.url);
 		if (typeof(response.data) == 'string') {
 			return response.data;
 		}

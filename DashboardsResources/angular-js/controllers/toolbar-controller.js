@@ -1,6 +1,6 @@
-﻿angular.module('izendaDashboard').controller('IzendaToolbarController', ['$scope', '$rootScope', '$window', '$location', '$cookies',
+﻿angular.module('izendaDashboard').controller('IzendaToolbarController', ['$scope', '$rootScope', '$compile', '$window', '$location', '$cookies',
 	'$izendaRsQuery', '$izendaDashboardToolbarQuery', '$izendaUrl',
-	function IzendaToolbarController($scope, $rootScope, $window, $location, $cookies, $izendaRsQuery, $izendaDashboardToolbarQuery, $izendaUrl) {
+	function IzendaToolbarController($scope, $rootScope, $compile, $window, $location, $cookies, $izendaRsQuery, $izendaDashboardToolbarQuery, $izendaUrl) {
 		'use strict';
 
 		$scope.backgroundColorStyle = {
@@ -24,10 +24,12 @@
 		$scope.showButtonBar = function() {
 			$scope.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition opened';
 			$scope.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition';
+			angular.element('#izendaDashboardLinksPanel').fadeOut(200);
 		};
 		$scope.hideButtonBar = function() {
 			$scope.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition';
 			$scope.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition opened';
+			angular.element('#izendaDashboardLinksPanel').fadeIn(200);
 		};
 
 		/**
@@ -138,7 +140,9 @@
 
 			var isActive = dashboard == $izendaUrl.getReportInfo().fullName;
 			var style = {
-				'border-bottom': '4px solid transparent'
+				'border-bottom': '4px solid transparent',
+				'background-color': '',
+				'font-weight': ''
 			};
 			if (isActive) {
 				var c = parseRgb($scope.izendaBackgroundColor);
@@ -213,7 +217,7 @@
 		 */
 		$scope.turnOnWindowResizeHandler = function () {
 			angular.element($window).on('resize.dashboard', function () {
-				updateToolbarItems();
+				$scope.updateToolbarItems();
 				$rootScope.$broadcast('dashboardResizeEvent', [{}]);
 			});
 		};
@@ -254,6 +258,7 @@
 						'background-color': hex
 					};
 					$scope.izendaBackgroundColor = hex;
+					$scope.updateToolbarItems(true);
 				}
 			});
 			$colorPickerInput.minicolors('value', [$scope.izendaBackgroundColor]);
@@ -262,6 +267,128 @@
 			angular.element('.dropdown-no-close-on-click.dropdown-menu .minicolors-grid, .dropdown-no-close-on-click.dropdown-menu .minicolors-slider, #izendaDashboardHueRotateSwitcher').click(function (e) {
 				e.stopPropagation();
 			});
+		};
+
+		/**
+		 * Is tabs shift button hidden
+		 */
+		$scope.hiddenShiftTabs = function (direction) {
+			var $linksPanel = angular.element('#izendaDashboardLinksPanel');
+			var $ul = $linksPanel.children('ul.iz-dash-nav-tabs');
+			if ($ul.children().length == 0)
+				return true;
+			if (direction > 0) {
+				return $ul.children().first().css('visibility') != 'hidden'; 
+			} else {
+				return $ul.children().last().css('visibility') != 'hidden';
+			}
+		};
+
+		/**
+		 * Move tabs
+		 */
+		$scope.shiftTabs = function(direction) {
+			var $tool = angular.element('#izendaDashboardToolbar');
+			var $linksPanel = angular.element('#izendaDashboardLinksPanel');
+			var $ul = $linksPanel.children('ul.iz-dash-nav-tabs');
+			var availableSpace = $tool.width() - 150;
+			for (var i = 0; i < $ul.children().length; i++) {
+				var $li = angular.element($ul.children()[i]);
+				var delta = direction * 100;
+				$li.css('left', $li.position().left + delta);
+				console.log($li.position().left + delta);
+				if ($li.position().left + delta > 50 && $li.position().left + delta + $li.width() < availableSpace)
+					$li.css('visibility', 'visible');
+				else
+					$li.css('visibility', 'hidden');
+			}
+		};
+
+		/**
+		 * Update toolbar dashboard tabs.
+		 */
+		$scope.updateToolbarItems = function (updateActiveDashboard) {
+			var hideInactiveItems = function ($menuContainer) {
+				var space = $menuContainer.width();
+				var spaceCenter = $menuContainer.width() / 2;
+				var $ulItems = $menuContainer.children('ul.iz-dash-nav-tabs');
+				$ulItems.width(space);
+				var $liItems = $ulItems.children('li');
+				var itemsLeft = $liItems.length;
+				$liItems.css('visibility', 'hidden');
+				var activeIndex = -1;
+				$liItems.each(function(iLi, li) {
+					if (angular.element(li).data('dashboard') == $izendaUrl.getReportInfo().fullName)
+						activeIndex = iLi;
+				});
+				if (activeIndex >= 0) {
+					var $activeLi = angular.element($liItems[activeIndex]);
+					$activeLi.css('left', spaceCenter - $activeLi.width() / 2);
+					$activeLi.css($scope.getToolItemStyle($activeLi.data('dashboard')));
+					$activeLi.css('visibility', 'visible');
+					itemsLeft--;
+					var leftIndex = activeIndex - 1;
+					var leftBound = spaceCenter - $activeLi.width() / 2;
+					var rightIndex = activeIndex + 1;
+					var rightBound = spaceCenter + $activeLi.width() / 2;
+					var isLeft = true;
+					while (itemsLeft > 0) {
+						if (isLeft) {
+							if (leftIndex >= 0) {
+								$activeLi = angular.element($liItems[leftIndex]);
+								leftBound -= $activeLi.width();
+								$activeLi.css('left', leftBound);
+								$activeLi.css($scope.getToolItemStyle($activeLi.data('dashboard')));
+								if (leftBound > 50)
+									$activeLi.css('visibility', 'visible');
+								leftIndex--;
+								itemsLeft--;
+							}
+						} else {
+							if (rightIndex < $liItems.length) {
+								$activeLi = angular.element($liItems[rightIndex]);
+								$activeLi.css('left', rightBound);
+								rightBound += $activeLi.width();
+								$activeLi.css($scope.getToolItemStyle($activeLi.data('dashboard')));
+								if (rightBound < space)
+									$activeLi.css('visibility', 'visible');
+								rightIndex++;
+								itemsLeft--;
+							}
+						}
+						isLeft = !isLeft;
+					}
+				}
+			};
+
+			// set current dashboard menu items
+			var $tool = angular.element('#izendaDashboardToolbar');
+			var $linksPanel = angular.element('#izendaDashboardLinksPanel');
+			var $ul = $linksPanel.children('ul.iz-dash-nav-tabs');
+			var availableSpace = $tool.width() - 150;
+			$linksPanel.width(availableSpace);
+			if ($ul.children().length == 0) {
+				for (var i = 0; i < $scope.dashboardCategories.length; i++) {
+					if ($scope.dashboardCategories[i].name == $izendaUrl.getReportInfo().category) {
+						var dashboards = $scope.dashboardCategories[i].dashboards;
+						$ul.empty();
+						for (var j = 0; j < dashboards.length; j++) {
+							var dashboard = dashboards[j];
+							var $dashboardLi = angular.element('<li class="iz-dash-menu-item">' +
+									'<a href="#' + dashboard + '">' + $izendaUrl.extractReportName(dashboard) + '</a>' +
+									'</li>')
+								.css($scope.getToolItemStyle(dashboard))
+								.css('visibility', 'hidden')
+								.css('position', 'absolute')
+								.data('dashboard', dashboard);
+							$ul.append($dashboardLi);
+						}
+						hideInactiveItems($linksPanel);
+					}
+				}
+			} else {
+				hideInactiveItems($linksPanel);
+			}
 		};
 
 		// initialize dashboard method
@@ -357,64 +484,6 @@
 
 			$scope.initializeColorPicker();
 		}
-		
-		/**
-		 * Update toolbar dashboard tabs.
-		 */
-		function updateToolbarItems() {
-			// set current dashboard menu items
-			$scope.dashboardsInCurrentCategory.length = 0;
-			$scope.leftDashboards.length = 0;
-			$scope.rightDashboards.length = 0;
-			for (var i = 0; i < $scope.dashboardCategories.length; i++) {
-				if ($scope.dashboardCategories[i].name == $izendaUrl.getReportInfo().category) {
-					var dashboards = $scope.dashboardCategories[i].dashboards;
-					var activeIndex = dashboards.indexOf($izendaUrl.getReportInfo().fullName);
-					var countAdded = 0;
-					var leftIndex = activeIndex - 1;
-					var rightIndex = activeIndex + 1;
-
-					var $w = angular.element($window);
-					var othersMaximumCount = 4;
-					if ($w.width() < 1280) {
-						othersMaximumCount = 0;
-					} else if ($w.width() >= 1280 && $w.width < 1680) {
-						othersMaximumCount = 2;
-					} else if ($w.width() >= 1680 && $w.width < 1920) {
-						othersMaximumCount = 6;
-					} else if ($w.width() >= 1920) {
-						othersMaximumCount = 8;
-					}
-					if (activeIndex >= 0) {
-						var result = [];
-						result.push(dashboards[activeIndex]);
-						while (countAdded < othersMaximumCount && countAdded < dashboards.length) {
-							if (leftIndex >= 0) {
-								result.splice(0, 0, dashboards[leftIndex]);
-								leftIndex--;
-								countAdded++;
-							}
-							if (rightIndex < dashboards.length) {
-								result.push(dashboards[rightIndex]);
-								rightIndex++;
-								countAdded++;
-							}
-							if (leftIndex < 0 && rightIndex >= dashboards.length)
-								break;
-						}
-						if (leftIndex >= -1)
-							$scope.leftDashboards.push.apply($scope.leftDashboards, dashboards.slice(0, leftIndex + 1).reverse());
-						$scope.dashboardsInCurrentCategory.push.apply($scope.dashboardsInCurrentCategory, result);
-						if (rightIndex < dashboards.length)
-							$scope.rightDashboards.push.apply($scope.rightDashboards, dashboards.slice(rightIndex));
-					} else if ($izendaUrl.getReportInfo().isNew || !$izendaUrl.getReportInfo().fullName) {
-						// keep toolbar tabs unchanged when isNew
-					} else {
-						throw $izendaUrl.getReportInfo().fullName + ' not found in ' + dashboards;
-					}
-				}
-			}
-		}
 
 		/**
 		 * Dashboard categories loaded. Now we have to update it.
@@ -434,7 +503,7 @@
 						$scope.dashboardCategories.push(item);
 					}
 				}
-				updateToolbarItems();
+				$scope.updateToolbarItems();
 			}
 
 			// check dashboard parameter is defined
@@ -468,6 +537,6 @@
 			$rootScope.$broadcast('dashboardSetEvent', [{}]);
 
 			// update toolbar items
-			updateToolbarItems();
+			$scope.updateToolbarItems(true);
 		}
 	}]);

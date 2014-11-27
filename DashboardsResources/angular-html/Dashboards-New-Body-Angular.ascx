@@ -209,7 +209,7 @@
 									<span class="iz-dash-color-preview">{{izendaBackgroundColor}}</span>
 								</div>
 								<input type="text" id="izendaDashboardColorPicker" class="form-control" data-inline="true" ng-value="izendaBackgroundColor">
-								<input id="izendaDashboardBackground" type="file" name="file" 
+								<input id="izendaDashboardBackground" type="file" name="file" style="display: none;" 
 									onchange="angular.element(this).scope().backgroundFileChangedHandler(arguments)"/>
 								<div style="padding: 5px;" ng-hide="!isToggleHueRotateEnabled()">
 									<hr style="margin-top: 5px; margin-bottom: 10px;"/>
@@ -224,8 +224,7 @@
 						</li>
 					</ul>
 					<!-- navbar "folder" dropdown -->
-					<ul class="nav navbar-nav navbar-right"
-						ng-show="dashboardCategories.length">
+					<ul id="izendaDashboardLinksDropdown" class="nav navbar-nav navbar-right" ng-show="dashboardCategories.length">
 						<li class="dropdown">
 							<a class="dropdown-toggle" data-toggle="dropdown" title="Open dashboard">
 								<span class="glyphicon glyphicon-folder-open">
@@ -238,7 +237,21 @@
 						</li>
 					</ul>
 					<!-- navbar dashboard tabs -->
-					<ul id="izendaDashboardLinksPanel" class="nav navbar-nav navbar-right">
+					<div id="izendaDashboardLinksPanel" style="display: inline-block; margin-left: 50px;">
+						<ul class="nav navbar-nav unselectable" style="position: absolute; left: 50px; top: 0;z-index: 1; background-color: #ddd;">
+							<li><a title="Show previous dashboards" ng-click="shiftTabs(-1)" ng-hide="hiddenShiftTabs(-1)">
+								<b style="font-size: 12px;" class="glyphicon glyphicon-chevron-left"></b>
+							</a></li>
+						</ul>
+						<ul class="unselectable nav navbar-nav iz-dash-nav-tabs">
+						</ul>
+						<ul class="nav navbar-nav unselectable" style="position: absolute; right: 100px; top: 0; z-index: 1; background-color: #ddd;">
+							<li><a title="Show next dashboards" ng-click="shiftTabs(1)" ng-hide="hiddenShiftTabs(1)">
+								<b style="font-size: 12px;" class="glyphicon glyphicon-chevron-right"></b>
+							</a></li>
+						</ul>
+					</div>
+					<%--<ul id="izendaDashboardLinksPanel" class="nav navbar-nav navbar-right">
 						<li class="dropdown" ng-hide="leftDashboards.length == 0">
 							<a class="dropdown-toggle" data-toggle="dropdown" title="Show previous dashboards">
 								<b style="font-size: 12px;" class="glyphicon glyphicon-chevron-left"></b>
@@ -266,7 +279,7 @@
 								</li>
 							</ul>
 						</li>
-					</ul>
+					</ul>--%>
 				</div>
 			</div>
 		</nav>
