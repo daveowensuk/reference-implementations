@@ -143,8 +143,7 @@
 			var isActive = dashboard == $izendaUrl.getReportInfo().fullName;
 			var style = {
 				'border-bottom': '4px solid transparent',
-				'background-color': '',
-				'font-weight': ''
+				'background-color': ''
 			};
 			if (isActive) {
 				var c = parseRgb($scope.izendaBackgroundColor);
@@ -152,7 +151,6 @@
 				var res = '#' + ensureColorComp(contrast[0]) + ensureColorComp(contrast[1]) + ensureColorComp(contrast[2]);
 				style['background-color'] = '#f3f3f3';
 				style['border-bottom'] = '4px solid ' + res + '';
-				style['font-weight'] = 'bold';
 			}
 			return style;
 		};
@@ -275,14 +273,15 @@
 		 */
 		$scope.hiddenShiftTabs = function (direction) {
 			var $linksPanel = angular.element('#izendaDashboardLinksPanel');
-			var $ul = $linksPanel.children('ul.iz-dash-nav-tabs');
+			var $ul = $linksPanel.find('ul.iz-dash-nav-tabs');
 			if ($ul.children().length == 0)
 				return true;
-			if (direction > 0) {
+			/*if (direction > 0) {
 				return $ul.children().first().css('visibility') != 'hidden'; 
 			} else {
 				return $ul.children().last().css('visibility') != 'hidden';
-			}
+			}*/
+			return false;
 		};
 
 		/**
@@ -291,17 +290,17 @@
 		$scope.shiftTabs = function(direction) {
 			var $tool = angular.element('#izendaDashboardToolbar');
 			var $linksPanel = angular.element('#izendaDashboardLinksPanel');
-			var $ul = $linksPanel.children('ul.iz-dash-nav-tabs');
+			var $ul = $linksPanel.find('ul.iz-dash-nav-tabs');
 			var availableSpace = $tool.width() - 150;
 			for (var i = 0; i < $ul.children().length; i++) {
 				var $li = angular.element($ul.children()[i]);
-				var delta = direction * 100;
+				var delta = direction * 150;
 				$li.css('left', $li.position().left + delta);
 				console.log($li.position().left + delta);
-				if ($li.position().left + delta > 50 && $li.position().left + delta + $li.width() < availableSpace)
+				/*if ($li.position().left + delta > 70 && $li.position().left + delta + $li.width() < availableSpace)
 					$li.css('visibility', 'visible');
 				else
-					$li.css('visibility', 'hidden');
+					$li.css('visibility', 'hidden');*/
 			}
 		};
 
@@ -311,17 +310,17 @@
 		$scope.updateToolbarItems = function (updateActiveDashboard) {
 			var updateItemsUi = function ($menuContainer, li2left) {
 				var space = $menuContainer.width();
-				var $ulItems = $menuContainer.children('ul.iz-dash-nav-tabs');
+				var $ulItems = $menuContainer.find('ul.iz-dash-nav-tabs');
 				var $liItems = $ulItems.children('li');
 				$liItems.each(function (iLi, li) {
 					var $li = angular.element(li);
 					var dashboard = $li.data('dashboard');
 					$li.css($scope.getToolItemStyle(dashboard));
-					if (li2left[dashboard] < 0 || li2left[dashboard] + $li.width() > space) {
+					/*if (li2left[dashboard] < 0 || li2left[dashboard] + $li.width() > space) {
 						$li.css('visibility', 'hidden');
 					} else {
 						$li.css('visibility', 'visible');
-					}
+					}*/
 				});
 			};
 

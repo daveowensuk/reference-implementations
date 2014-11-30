@@ -243,8 +243,11 @@
 								<b style="font-size: 12px;" class="glyphicon glyphicon-chevron-left"></b>
 							</a></li>
 						</ul>
+						<div style="width: 100%;">
 						<ul class="unselectable nav navbar-nav iz-dash-nav-tabs">
 						</ul>
+						</div>
+						</div>
 						<ul class="nav navbar-nav unselectable" style="position: absolute; right: 100px; top: 0; z-index: 1; background-color: #ddd;">
 							<li><a title="Show next dashboards" ng-click="shiftTabs(1)" ng-hide="hiddenShiftTabs(1)">
 								<b style="font-size: 12px;" class="glyphicon glyphicon-chevron-right"></b>
