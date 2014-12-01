@@ -11,7 +11,7 @@
 			</div>
 		</li>
 	</script>
-	
+
 	<!-- IzendaTileController template: Tile title template -->
 	<script type="text/ng-template" id="tileTitleTemplate">
 		<span class="title-text">
@@ -31,7 +31,7 @@
 			</a>
 		</span>
 	</script>
-	
+
 	<!-- select report name modal dialog -->
 	<div id="izendaSelectReportNameModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true"
 		ng-controller="IzendaSelectReportNameController">
@@ -56,23 +56,25 @@
 						<div class="form-group">
 							<label for="izendaDashboardNameModalCategory" class="col-sm-2 control-label">Category</label>
 							<div class="col-sm-10" ng-hide="!isCreatingNewCategory">
-								<input id="izendaDashboardNameModalCategoryName" type="text" class="form-control" placeholder="Category Name" 
-									ng-model="newCategoryName"/>
+								<input id="izendaDashboardNameModalCategoryName" type="text" class="form-control" placeholder="Category Name"
+									ng-model="newCategoryName" />
 							</div>
 							<div class="col-sm-10" ng-hide="isCreatingNewCategory">
 								<select id="izendaDashboardNameModalCategory" class="form-control"
 									ng-options="category.id as category.name for category in categories"
 									ng-model="selectedCategoryId"
 									ng-init="selectedCategoryId = 1"
-									ng-change="categorySelectedHandler()"></select>
+									ng-change="categorySelectedHandler()">
+								</select>
 							</div>
 						</div>
 					</form>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-					<button id="izendaDashboardNameModalOk" type="button" class="btn btn-primary" 
-						ng-click="completeHandler()">OK</button>
+					<button id="izendaDashboardNameModalOk" type="button" class="btn btn-primary"
+						ng-click="completeHandler()">
+						OK</button>
 				</div>
 			</div>
 		</div>
@@ -88,7 +90,7 @@
 							<h4 style="margin-top: 5px;" class="pull-right">Category:</h4>
 						</div>
 						<div class="col-md-8">
-							<select class="form-control" ng-model="category" 
+							<select class="form-control" ng-model="category"
 								ng-options="category for category in categories"
 								ng-change="categoryChangedHandler()">
 							</select>
@@ -156,16 +158,16 @@
 				<!-- (hidden: xs, sm) -->
 				<div id="izendaDashboardToolbar" class="collapse navbar-collapse hidden-xs hidden-sm">
 					<!-- button bar -->
-					<ul ng-class="buttonbarCollapsedClass">
+					<ul ng-class="buttonbarCollapsedClass" class="nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition opened">
 						<li><a class="navbar-toggle" style="border-color: transparent; margin-top: 5px; margin-bottom: 5px;"
-								ng-click="showButtonBar()">
+							ng-click="showButtonBar()">
 							<span class="sr-only">Toggle na	vigation</span>
 							<span class="icon-bar"></span>
 							<span class="icon-bar"></span>
 							<span class="icon-bar"></span>
-						  </a></li>
+						</a></li>
 					</ul>
-					<ul ng-class="buttonbarClass">
+					<ul ng-class="buttonbarClass" class="nav navbar-nav iz-dash-toolbtn-panel left-transition">
 						<!-- create new -->
 						<li><a ng-click="hideButtonBar()" title="Hide buttons" style="border-right: 1px solid #ddd;">
 							<span class="glyphicon glyphicon-chevron-left"></span>
@@ -209,10 +211,10 @@
 									<span class="iz-dash-color-preview">{{izendaBackgroundColor}}</span>
 								</div>
 								<input type="text" id="izendaDashboardColorPicker" class="form-control" data-inline="true" ng-value="izendaBackgroundColor">
-								<input id="izendaDashboardBackground" type="file" name="file" style="display: none;" 
-									onchange="angular.element(this).scope().backgroundFileChangedHandler(arguments)"/>
+								<input id="izendaDashboardBackground" type="file" name="file" style="display: none;"
+									onchange="angular.element(this).scope().backgroundFileChangedHandler(arguments)" />
 								<div style="padding: 5px;" ng-hide="!isToggleHueRotateEnabled()">
-									<hr style="margin-top: 5px; margin-bottom: 10px;"/>
+									<hr style="margin-top: 5px; margin-bottom: 10px;" />
 									<span class="iz-dash-switcher-label">Color hue rotate</span>
 									<span id="izendaDashboardHueRotateSwitcher" class="iz-dash-switcher" ng-click="toggleHueRotateHandler()">
 										<span class="iz-dash-switcher-text-off">O</span>
@@ -224,7 +226,7 @@
 						</li>
 					</ul>
 					<!-- navbar "folder" dropdown -->
-					<ul id="izendaDashboardLinksDropdown" class="nav navbar-nav navbar-right" ng-show="dashboardCategories.length">
+					<ul class="nav navbar-nav iz-dash-dashboards-dropdown" ng-show="dashboardCategories.length">
 						<li class="dropdown">
 							<a class="dropdown-toggle" data-toggle="dropdown" title="Open dashboard">
 								<span class="glyphicon glyphicon-folder-open">
@@ -237,24 +239,23 @@
 						</li>
 					</ul>
 					<!-- navbar dashboard tabs -->
-					<div id="izendaDashboardLinksPanel" style="display: inline-block; margin-left: 50px;">
-						<ul class="nav navbar-nav unselectable" style="position: absolute; left: 50px; top: 0;z-index: 1; background-color: #ddd;">
-							<li><a title="Show previous dashboards" ng-click="shiftTabs(-1)" ng-hide="hiddenShiftTabs(-1)">
+					<div id="izendaDashboardLinksPanel">
+						<ul class="nav navbar-nav unselectable iz-dash-nav-tabs-left" 
+							style="position: absolute; left: 0; top: 0; background-color: #ddd; z-index: 1;">
+							<li><a title="Show previous dashboards" <%--ng-click="shiftTabs(-1)" ng-hide="hiddenShiftTabs(1)"--%>>
 								<b style="font-size: 12px;" class="glyphicon glyphicon-chevron-left"></b>
 							</a></li>
 						</ul>
-						<div style="width: 100%;">
-						<ul class="unselectable nav navbar-nav iz-dash-nav-tabs">
-						</ul>
-						</div>
-						</div>
-						<ul class="nav navbar-nav unselectable" style="position: absolute; right: 100px; top: 0; z-index: 1; background-color: #ddd;">
-							<li><a title="Show next dashboards" ng-click="shiftTabs(1)" ng-hide="hiddenShiftTabs(1)">
+						<ul class="unselectable nav navbar-nav iz-dash-nav-tabs"></ul>
+						<ul class="nav navbar-nav unselectable iz-dash-nav-tabs-right" 
+							style="position: absolute; right: 0; top: 0; background-color: #ddd; z-index: 1;">
+							<li><a title="Show next dashboards" <%--ng-click="shiftTabs(1)" ng-hide="hiddenShiftTabs(-1)"--%>>
 								<b style="font-size: 12px;" class="glyphicon glyphicon-chevron-right"></b>
 							</a></li>
 						</ul>
 					</div>
-					<%--<ul id="izendaDashboardLinksPanel" class="nav navbar-nav navbar-right">
+				</div>
+				<%--<ul id="izendaDashboardLinksPanel" class="nav navbar-nav navbar-right">
 						<li class="dropdown" ng-hide="leftDashboards.length == 0">
 							<a class="dropdown-toggle" data-toggle="dropdown" title="Show previous dashboards">
 								<b style="font-size: 12px;" class="glyphicon glyphicon-chevron-left"></b>
@@ -283,7 +284,6 @@
 							</ul>
 						</li>
 					</ul>--%>
-				</div>
 			</div>
 		</nav>
 	</header>
@@ -294,7 +294,7 @@
 			<div id="dashboardBodyContainer" class="iz-dash-body-container" ng-style="tileContainerStyle">
 				<!-- repeat tiles -->
 				<div ng-repeat="tile in tiles" class="iz-dash-tile fx-fade-down fx-speed-500 fx-trigger fx-easing-quint" tileid="{{tile.id}}"
-					ng-style="{'top': ($parent.tileHeight * y) + 'px', 'height': ($parent.tileHeight * height) + 'px', 'left': ($parent.tileWidth * x) + 'px', 'width': ($parent.tileWidth * width) + 'px'}" 
+					ng-style="{'top': ($parent.tileHeight * y) + 'px', 'height': ($parent.tileHeight * height) + 'px', 'left': ($parent.tileWidth * x) + 'px', 'width': ($parent.tileWidth * width) + 'px'}"
 					ng-controller="IzendaTileController"
 					ng-init="initialize(tile)" ng-hide="isHidden" ng-cloak>
 
@@ -302,7 +302,7 @@
 						<div class="flippy-front animated fast">
 							<div class="frame">
 								<div ng-if="description != null && description != ''" class="iz-dash-tile-description">{{description}}</div>
-								<div style="cursor: pointer;" class="iz-dash-select-report-front-container" ng-hide="reportFullName != null" 
+								<div style="cursor: pointer;" class="iz-dash-select-report-front-container" ng-hide="reportFullName != null"
 									title="Select report part" ng-click="selectReportPart()">
 									<a class="btn btn-default iz-dash-select-report-front-btn">
 										<span class="glyphicon glyphicon-plus"></span>
@@ -324,17 +324,17 @@
 										<span class="bar"></span>
 										<span class="bar"></span>
 									</a>
-									<a title="Delete tile" class="title-button title-button-remove button1" 
-												ng-click="showConfirmDelete()">
-										<img src="DashboardsResources/images/remove-18.png" class="img-responsive"/>
+									<a title="Delete tile" class="title-button title-button-remove button1"
+										ng-click="showConfirmDelete()">
+										<img src="DashboardsResources/images/remove-18.png" class="img-responsive" />
 									</a>
 									<a title="Confirm delete" ng-class="deleteConfirmClass + ' ' + getConfirmDeleteClass()"
-												ng-click="deleteTile()">
-										<img src="DashboardsResources/images/tile/confirm-delete.png"/><span ng-if="width > 1">remove tile</span>
+										ng-click="deleteTile()">
+										<img src="DashboardsResources/images/tile/confirm-delete.png" /><span ng-if="width > 1">remove tile</span>
 									</a>
 									<a title="Cancel delete" ng-class="deleteConfirmClass + ' ' + getCancelDeleteClass()"
-												ng-click="hideConfirmDelete()">
-										<img src="DashboardsResources/images/tile/turn-back.png"/><span ng-if="width > 1">undo request</span>
+										ng-click="hideConfirmDelete()">
+										<img src="DashboardsResources/images/tile/turn-back.png" /><span ng-if="width > 1">undo request</span>
 									</a>
 								</div>
 							</div>
@@ -362,7 +362,7 @@
 								<div class="iz-dash-tile-fb-toolbar">
 									<div class="iz-dash-tile-fb-toolbtn">
 										<a title="Print tile report" href="{{options.urlSettings.urlRsPage}}?rn={{getSourceReportName()}}&p=htmlreport&print=1">
-											<img class="img-responsive" src="DashboardsResources/images/back-tile/print.png"/>
+											<img class="img-responsive" src="DashboardsResources/images/back-tile/print.png" />
 										</a>
 									</div>
 									<div class="iz-dash-tile-fb-toolbtn">
@@ -409,19 +409,19 @@
 								<div class="title">
 									<ng-include src="'tileTitleTemplate'"></ng-include>
 									<a title="Show tile options" class="title-button title-button-remove button2" ng-click="flipFront(true)">
-										<img src="DashboardsResources/images/turn-18.png" class="img-responsive"/>
+										<img src="DashboardsResources/images/turn-18.png" class="img-responsive" />
 									</a>
-									<a title="Delete tile" class="title-button title-button-remove button1" 
-												ng-click="showConfirmDelete()">
-										<img src="DashboardsResources/images/remove-18.png" class="img-responsive"/>
+									<a title="Delete tile" class="title-button title-button-remove button1"
+										ng-click="showConfirmDelete()">
+										<img src="DashboardsResources/images/remove-18.png" class="img-responsive" />
 									</a>
 									<a title="Confirm delete" ng-class="deleteConfirmClass + ' ' + getConfirmDeleteClass()"
-												ng-click="deleteTile()">
-										<img src="DashboardsResources/images/tile/confirm-delete.png"/><span ng-if="width > 1">remove tile</span>
+										ng-click="deleteTile()">
+										<img src="DashboardsResources/images/tile/confirm-delete.png" /><span ng-if="width > 1">remove tile</span>
 									</a>
 									<a title="Cancel delete" ng-class="deleteConfirmClass + ' ' + getCancelDeleteClass()"
-												ng-click="hideConfirmDelete()">
-										<img src="DashboardsResources/images/tile/turn-back.png"/><span ng-if="width > 1">undo request</span>
+										ng-click="hideConfirmDelete()">
+										<img src="DashboardsResources/images/tile/turn-back.png" /><span ng-if="width > 1">undo request</span>
 									</a>
 								</div>
 							</div>
