@@ -242,14 +242,14 @@
 					<div id="izendaDashboardLinksPanel">
 						<ul class="nav navbar-nav unselectable iz-dash-nav-tabs-left" 
 							style="position: absolute; left: 0; top: 0; background-color: #ddd; z-index: 1;">
-							<li><a title="Show previous dashboards" <%--ng-click="shiftTabs(-1)" ng-hide="hiddenShiftTabs(1)"--%>>
+							<li><a title="Show previous dashboards" ng-click="shiftTabs(-1)" <%--ng-hide="hiddenShiftTabs(1)"--%>>
 								<b style="font-size: 12px;" class="glyphicon glyphicon-chevron-left"></b>
 							</a></li>
 						</ul>
 						<ul class="unselectable nav navbar-nav iz-dash-nav-tabs"></ul>
 						<ul class="nav navbar-nav unselectable iz-dash-nav-tabs-right" 
 							style="position: absolute; right: 0; top: 0; background-color: #ddd; z-index: 1;">
-							<li><a title="Show next dashboards" <%--ng-click="shiftTabs(1)" ng-hide="hiddenShiftTabs(-1)"--%>>
+							<li><a title="Show next dashboards" ng-click="shiftTabs(1)" <%--ng-hide="hiddenShiftTabs(-1)"--%>>
 								<b style="font-size: 12px;" class="glyphicon glyphicon-chevron-right"></b>
 							</a></li>
 						</ul>

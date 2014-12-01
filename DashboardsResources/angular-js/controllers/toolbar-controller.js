@@ -15,9 +15,12 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
   $scope.dashboardCategoriesLoading = true;
   $scope.dashboardCategories = [];
   $scope.dashboardsInCurrentCategory = [];
+  $scope.previousDashboardCategory = null;
   $scope.leftDashboards = [];
   $scope.rightDashboards = [];
+  $scope.liItems = null;
 
+  // triple bar button styles:
   $scope.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition';
   $scope.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition opened';
   $scope.showButtonBar = function () {
@@ -293,15 +296,18 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
    * Move tabs
    */
   $scope.shiftTabs = function (direction) {
-    var $tool = angular.element('#izendaDashboardToolbar');
     var $linksPanel = angular.element('#izendaDashboardLinksPanel');
-    var $ul = $linksPanel.find('ul.iz-dash-nav-tabs');
-    var availableSpace = $tool.width();
-    for (var i = 0; i < $ul.children().length; i++) {
-      var $li = angular.element($ul.children()[i]);
-      var delta = direction * 150;
-      $li.css('left', $li.position().left + delta);
-    }
+    var $liItems = $linksPanel.find('ul.iz-dash-nav-tabs > li');
+    $liItems.each(function (il, l) {
+      var $l = angular.element(l);
+      var d = $l.data('dashboard');
+      var oldRight = $scope.liItems == null ? 0 : $scope.liItems[d];
+      var newRight = oldRight + direction * 150;
+      if ($scope.liItems == null) $scope.liItems = {};
+      $scope.liItems[d] = newRight;
+      $l.css('right', newRight);
+    });
+    $scope.alignToolbarItems($scope.liItems);
   };
 
   /**
@@ -309,7 +315,7 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
    */
   $scope.getToolbarItemsAvailableSpace = function() {
     var $tool = angular.element('#izendaDashboardToolbar');
-    return $tool.width();
+    return $tool.find('.iz-dash-nav-tabs').width() - $tool.find('.iz-dash-nav-tabs-left').width() - $tool.find('.iz-dash-nav-tabs-right').width();
   };
 
   /**
@@ -333,12 +339,62 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
   };
 
   /**
+   * Align toobar item to right or left if free space is found
+   */
+  $scope.alignToolbarItems = function(li2right) {
+    var $linksPanel = angular.element('#izendaDashboardLinksPanel');
+    var $liItems = $linksPanel.find('ul.iz-dash-nav-tabs > li');
+    var space = $scope.getToolbarItemsAvailableSpace();
+
+    // check if there is some free space at left:
+    var leftDelta = 100000;
+    $liItems.each(function (il, l) {
+      var $l = angular.element(l);
+      var d = $l.data('dashboard');
+      var right = li2right[d];
+      var left = space - right - $l.width();
+      leftDelta = Math.min(leftDelta, left);
+    });
+    if (leftDelta > 0) {
+      // shift left:
+      $liItems.each(function (il, l) {
+        var $l = angular.element(l);
+        var d = $l.data('dashboard');
+        var newRight = li2right[d] + leftDelta + 42;
+        li2right[d] = newRight;
+        $l.css('right', newRight);
+      });
+    }
+
+    // check if there is some free space at right:
+    var rightDelta = 100000;
+    $liItems.each(function (il, l) {
+      var $l = angular.element(l);
+      var d = $l.data('dashboard');
+      var right = li2right[d];
+      rightDelta = Math.min(rightDelta, right);
+    });
+    if (rightDelta > 0) {
+      // shift right:
+      $liItems.each(function (il, l) {
+        var $l = angular.element(l);
+        var d = $l.data('dashboard');
+        var newRight = li2right[d] - rightDelta + 42;
+        li2right[d] = newRight;
+        $l.css('right', newRight);
+      });
+    }
+  };
+
+  /**
    * Update toolbar dashboard tabs.
    */
   $scope.updateToolbarItems = function (updateActiveDashboard) {
-    var updateItemsUi = function ($menuContainer) {
-      var $ulItems = $menuContainer.find('ul.iz-dash-nav-tabs');
-      var $liItems = $ulItems.children('li');
+
+    // update tab style
+    var updateItemsUi = function () {
+      var $lp = angular.element('#izendaDashboardLinksPanel');
+      var $liItems = $lp.find('ul.iz-dash-nav-tabs > li');
       $liItems.each(function (iLi, li) {
         var $li = angular.element(li);
         var d = $li.data('dashboard');
@@ -346,10 +402,11 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
       });
     };
 
-    var moveItemsToItsPlace = function ($menuContainer) {
+    // move tab to it's place
+    var moveItemsToItsPlace = function () {
       var li2right = {};
-      var $ulItems = $menuContainer.find('ul.iz-dash-nav-tabs');
-      var $liItems = $ulItems.children('li');
+      var $lp = angular.element('#izendaDashboardLinksPanel');
+      var $liItems = $lp.find('ul.iz-dash-nav-tabs > li');
 
       // move items to initial place
       var currentRight = 42;
@@ -386,92 +443,10 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
           $l.css('right', newRight);
         });
 
-        // check if there is some free space at left:
-        var leftDelta = 100000;
-        $liItems.each(function(il, l) {
-          var $l = angular.element(l);
-          var d = $l.data('dashboard');
-          var right = li2right[d];
-          var left = space - right - $l.width();
-          leftDelta = Math.min(leftDelta, left);
-        });
-        if (leftDelta > 0) {
-          // shift left:
-          console.log(leftDelta);
-          /*$liItems.each(function (il, l) {
-            var $l = angular.element(l);
-            var d = $l.data('dashboard');
-            var newRight = li2right[d] + leftDelta;
-            li2right[d] = newRight;
-            $l.css('right', newRight);
-          });*/
-        }
+        // align items to left or right
+        $scope.alignToolbarItems(li2right);
       }
       return li2right;
-      
-      /*var spaceCenter = $menuContainer.width() / 2;
-      var $ulItems = $menuContainer.find('ul.iz-dash-nav-tabs');
-      $ulItems.width(space);
-      var $liItems = $ulItems.children('li');
-      var itemsLeft = $liItems.length;
-
-      // calculate active index:
-      var activeIndex = -1;
-      var itemsWidth = 0;
-      $liItems.each(function (iLi, li) {
-        var $li = angular.element(li);
-        if ($li.data('dashboard') == $izendaUrl.getReportInfo().fullName)
-          activeIndex = iLi;
-        itemsWidth += $li.width();
-      });
-      if (itemsWidth < space) {
-        var currentLeft = space;
-        for (var iLi = $liItems.length - 1; iLi >= 0; iLi--) {
-          var $li = angular.element($liItems[iLi]);
-          var dash = $li.data('dashboard');
-          currentLeft -= $li.width();
-          $li.css('left', currentLeft);
-          li2left[dash] = leftBound;
-        };
-      } else {
-        if (activeIndex < 0)
-          activeIndex = 0;
-        var $activeLi = angular.element($liItems[activeIndex]);
-        $activeLi.css('left', spaceCenter - $activeLi.width() / 2);
-        $activeLi.css($scope.getToolItemStyle($activeLi.data('dashboard')));
-        li2left[$activeLi.data('dashboard')] = spaceCenter - $activeLi.width() / 2;
-        itemsLeft--;
-        var leftIndex = activeIndex - 1;
-        var leftBound = spaceCenter - $activeLi.width() / 2;
-        var rightIndex = activeIndex + 1;
-        var rightBound = spaceCenter + $activeLi.width() / 2;
-        var isLeft = true;
-        while (itemsLeft > 0) {
-          if (isLeft) {
-            if (leftIndex >= 0) {
-              $activeLi = angular.element($liItems[leftIndex]);
-              leftBound -= $activeLi.width();
-              $activeLi.css('left', leftBound);
-              $activeLi.css($scope.getToolItemStyle($activeLi.data('dashboard')));
-              li2left[$activeLi.data('dashboard')] = leftBound;
-              leftIndex--;
-              itemsLeft--;
-            }
-          } else {
-            if (rightIndex < $liItems.length) {
-              $activeLi = angular.element($liItems[rightIndex]);
-              $activeLi.css('left', rightBound);
-              li2left[$activeLi.data('dashboard')] = rightBound;
-              rightBound += $activeLi.width();
-              $activeLi.css($scope.getToolItemStyle($activeLi.data('dashboard')));
-              rightIndex++;
-              itemsLeft--;
-            }
-          }
-          isLeft = !isLeft;
-        }
-      }
-      return li2left;*/
     };
     
     // set current dashboard menu items
@@ -499,9 +474,13 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
         }
       }
     }
-    var liItems = moveItemsToItsPlace($linksPanel);
-    updateItemsUi($linksPanel, liItems);
+    $scope.liItems = moveItemsToItsPlace($linksPanel);
+    updateItemsUi();
   };
+
+  //////////////////////////////////////////////////////
+  // CONSTRUCTOR
+  //////////////////////////////////////////////////////
 
   // initialize dashboard method
   initialize();
@@ -640,15 +619,23 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
     console.log('>>>>> Set current dashboard: "' + dashboardFullName + '"');
     console.log(' ');
 
+    // check if category was changed
+    var newCat = $izendaUrl.extractReportCategory(dashboardFullName);
+    var prevCat = $scope.previousDashboardCategory;
+    if (prevCat == null)
+      prevCat = newCat;
+    var isCategoryChanged = prevCat !== newCat;
+    $scope.previousDashboardCategory = newCat;
+
     // cancel all current queries
     $izendaRsQuery.cancelAllQueries('Starting load next dashboard.');
 
     angular.element('.iz-dash-tile').css('display', 'none');
 
     // notify dashboard to start
-    /*$rootScope.$broadcast('dashboardSetEvent', [{}]);*/
+    $rootScope.$broadcast('dashboardSetEvent', [{}]);
 
     // update toolbar items
-    $scope.updateToolbarItems();
+    $scope.updateToolbarItems(isCategoryChanged);
   }
 }]);
