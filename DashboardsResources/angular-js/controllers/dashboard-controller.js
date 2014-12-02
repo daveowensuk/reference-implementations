@@ -25,11 +25,6 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
   $scope.tileWidth = 0;
   $scope.tileHeight = 0;
 
-  // dashboard resize
-  $scope.windowResizeOptions = {
-    timeout: false
-  };
-
   ////////////////////////////////////////////////////////
   // event handlers:
   ////////////////////////////////////////////////////////
@@ -38,32 +33,9 @@ function IzendaDashboardController($rootScope, $scope, $q, $animate, $timeout, $
    * Dashboard window resized handler
    */
   $scope.$on('dashboardResizeEvent', function () {
-    $scope.isChangingNow = true;
-    if (!$scope.$$phase)
-      $scope.$apply();
     // update dashboard tile sizes
     updateDashboardSize();
-
-    // update all tiles
-    var resizeEnd = function () {
-      if (new Date() - $scope.windowResizeOptions.rtime < 500) {
-        setTimeout(function () {
-          resizeEnd.apply();
-        }, 500);
-      } else {
-        $scope.windowResizeOptions.timeout = false;
-        $scope.isChangingNow = false;
-        $rootScope.$broadcast('windowResizedEvent', []);
-        //$scope.refreshAllTiles();
-      }
-    };
-    $scope.windowResizeOptions.rtime = new Date();
-    if ($scope.windowResizeOptions.timeout === false) {
-      $scope.windowResizeOptions.timeout = true;
-      setTimeout(function () {
-        resizeEnd.apply();
-      }, 500);
-    }
+    $rootScope.$broadcast('windowResizedEvent', []);
   });
 
   /**
