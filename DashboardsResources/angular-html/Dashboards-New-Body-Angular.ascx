@@ -211,8 +211,7 @@
 									<span class="iz-dash-color-preview">{{izendaBackgroundColor}}</span>
 								</div>
 								<input type="text" id="izendaDashboardColorPicker" class="form-control" data-inline="true" ng-value="izendaBackgroundColor">
-								<input id="izendaDashboardBackground" type="file" name="file" style="display: none;"
-									onchange="angular.element(this).scope().backgroundFileChangedHandler(arguments)" />
+								<input id="izendaDashboardBackground" type="file" name="files[]"/>
 								<div style="padding: 5px;" ng-hide="!isToggleHueRotateEnabled()">
 									<hr style="margin-top: 5px; margin-bottom: 10px;" />
 									<span class="iz-dash-switcher-label">Color hue rotate</span>

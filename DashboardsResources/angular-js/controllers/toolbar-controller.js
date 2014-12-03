@@ -2,23 +2,20 @@
 function IzendaToolbarController($scope, $rootScope, $compile, $window, $location, $cookies, $izendaRsQuery, $izendaDashboardToolbarQuery, $izendaUrl) {
   'use strict';
 
+  // background color
+  $scope.izendaBackgroundColor = getCookie('izendaDashboardBackgroundColor');
+  if (!angular.isString($scope.izendaBackgroundColor))
+    $scope.izendaBackgroundColor = '#1c8fd6';
   $scope.backgroundColorStyle = {
-    'background-color': getCookie('izendaDashboardBackgroundColor') ? getCookie('izendaDashboardBackgroundColor') : '#1c8fd6'
+    'background-color': $scope.izendaBackgroundColor
   };
-  $scope.izendaBackgroundColor = getCookie('izendaDashboardBackgroundColor') ? getCookie('izendaDashboardBackgroundColor') : '#1c8fd6';
+  
+  // background image
   $scope.izendaBackgroundImageSrc = getImgFromStorage();
-  $scope.backgroundFileChangedHandler = function () {
-    console.log(arguments);
+  console.log('background image src = ', $scope.izendaBackgroundImageSrc);
+  $scope.backgroundFileChangedHandler = function (event) {
+    debugger;
   };
-
-  $scope.$izendaUrl = $izendaUrl;
-  $scope.dashboardCategoriesLoading = true;
-  $scope.dashboardCategories = [];
-  $scope.dashboardsInCurrentCategory = [];
-  $scope.previousDashboardCategory = null;
-  $scope.leftDashboards = [];
-  $scope.rightDashboards = [];
-  $scope.liItems = null;
 
   // triple bar button styles:
   $scope.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition';
@@ -35,6 +32,16 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
       $scope.updateToolbarItems(true);
     });
   };
+
+  // other scope variables
+  $scope.$izendaUrl = $izendaUrl;
+  $scope.dashboardCategoriesLoading = true;
+  $scope.dashboardCategories = [];
+  $scope.dashboardsInCurrentCategory = [];
+  $scope.previousDashboardCategory = null;
+  $scope.leftDashboards = [];
+  $scope.rightDashboards = [];
+  $scope.liItems = null;
 
   /**
    * Create style object for toolbar item
@@ -295,6 +302,48 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
     angular.element('.dropdown-no-close-on-click.dropdown-menu .minicolors-grid, .dropdown-no-close-on-click.dropdown-menu .minicolors-slider, #izendaDashboardHueRotateSwitcher').click(function (e) {
       e.stopPropagation();
     });
+  };
+
+  /**
+   * Initialize select background color button
+   */
+  $scope.initializeBackgroundFilePicker = function () {
+    var $fileBtn = angular.element('#izendaDashboardBackground');
+    if (window.File && window.FileReader && window.FileList && window.Blob) {
+      // add file select handler:
+      $fileBtn.on('change', function () {
+        var file = angular.element(this)[0].files[0];
+
+        // test file information
+        if (!file.type.match('image.*')) {
+          alert('File should be image');
+          return;
+        }
+
+        // read the file:
+        var reader = new FileReader();
+        reader.onload = (function (theFile) {
+          return function (e) {
+            var bytes = e.target.result;
+            if (setImgToStorage(bytes))
+              $scope.updateDashboardBackgroundImage();
+          };
+        })(file);
+        // Read in the image file as a data URL.
+        reader.readAsDataURL(file);
+      });
+    } else {
+      alert('The File APIs are not fully supported in this browser.');
+    }
+  };
+
+  /**
+   * Update dashboard background
+   */
+  $scope.updateDashboardBackgroundImage = function() {
+    var backgroundImg = getImgFromStorage();
+    var $background = angular.element('.iz-dash-background');
+    $background.css('background-image', 'url(' + backgroundImg + ')');
   };
 
   /**
@@ -560,32 +609,24 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
   // PRIVATE
   //////////////////////////////////////////////////////
 
-  function setImgToStorage(img) {
-    var imgData = getBase64Image(img);
-    localStorage.setItem('izendaDashboardBackgroundImg', imgData);
+  function isStorageAvailable() {
+    return typeof (Storage) !== 'undefined';
+  };
+
+  function setImgToStorage(base64ImgString) {
+    if (!isStorageAvailable())
+      return false;
+    localStorage.setItem('izendaDashboardBackgroundImg', base64ImgString);
+    return true;
   }
 
   function getImgFromStorage() {
+    if (!isStorageAvailable())
+      return null;
     var dataImage = localStorage.getItem('izendaDashboardBackgroundImg');
-    return 'data:image/png;base64,' + dataImage;
-  }
-
-  function getBase64Image(img) {
-    // Create an empty canvas element
-    var canvas = document.createElement("canvas");
-    canvas.width = img.width;
-    canvas.height = img.height;
-
-    // Copy the image contents to the canvas
-    var ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0);
-
-    // Get the data-URL formatted image
-    // Firefox supports PNG and JPEG. You could check img.src to guess the
-    // original format, but be aware the using "image/jpg" will re-encode the image.
-    var dataURL = canvas.toDataURL("image/png");
-
-    return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+    if (!angular.isString(dataImage))
+      return null;
+    return dataImage;
   }
 
   function getCookie(name) {
@@ -630,14 +671,18 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
    * Initialize dashboard navigation
    */
   function initialize() {
+    // initialize background and background color:
     if (angular.element('body > .iz-dash-background').length == 0) {
       angular.element('body').prepend(angular.element('<div class="iz-dash-background" style="background-color: ' +
         $scope.backgroundColorStyle['background-color'] + '"></div>'));
     }
-
+    $scope.updateDashboardBackgroundImage();
 
     // start window resize handler
     $scope.turnOnWindowResizeHandler();
+
+    // initialize "select background image" button.
+    $scope.initializeBackgroundFilePicker();
 
     // load dashboard navigation
     $izendaDashboardToolbarQuery.loadDashboardNavigation().then(function (data) {
@@ -704,7 +749,7 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
     angular.element('.iz-dash-tile').css('display', 'none');
 
     // notify dashboard to start
-    $rootScope.$broadcast('dashboardSetEvent', [{}]);
+    //$rootScope.$broadcast('dashboardSetEvent', [{}]);
 
     // update toolbar items
     $scope.updateToolbarItems(isCategoryChanged);
