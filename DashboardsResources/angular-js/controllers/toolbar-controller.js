@@ -19,7 +19,12 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
   var setToStorage = function (stringValue) {
     if (!isStorageAvailable())
       return false;
-    localStorage.setItem('izendaDashboardBackgroundImg', stringValue);
+    if (stringValue != null)
+      localStorage.setItem('izendaDashboardBackgroundImg', stringValue);
+    else
+      localStorage.removeItem('izendaDashboardBackgroundImg');
+    if (!$scope.$$phase)
+      $scope.$apply();
     return true;
   };
 
@@ -193,6 +198,14 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
   };
 
   /**
+   * Remove background image link handler
+   */
+  $scope.removeBackgroundImageHandler = function() {
+    if (setToStorage(null))
+      $scope.updateDashboardBackgroundImage();
+  };
+
+  /**
    * Open dialog when user can set url to set background image.
    */
   $scope.selectBackgroundDialogHandler = function () {
@@ -306,12 +319,23 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
   };
 
   /**
+   * Check if background image set
+   */
+  $scope.isBackgroundImageSet = function() {
+    var backgroundImg = getFromStorage();
+    return backgroundImg != null;
+  };
+
+  /**
    * Update dashboard background
    */
   $scope.updateDashboardBackgroundImage = function () {
     var backgroundImg = getFromStorage();
     var $background = angular.element('.iz-dash-background');
-    $background.css('background-image', 'url(' + backgroundImg + ')');
+    if (backgroundImg != null)
+      $background.css('background-image', 'url(' + backgroundImg + ')');
+    else
+      $background.css('background-image', '');
   };
 
   /**

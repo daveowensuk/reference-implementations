@@ -252,7 +252,10 @@
 								</div>
 								<input type="text" id="izendaDashboardColorPicker" class="form-control" data-inline="true" ng-value="izendaBackgroundColor">
 								<div style="padding: 5px;">
-									<a ng-click="selectBackgroundDialogHandler()">Select background image</a>
+									<a class="small" ng-click="selectBackgroundDialogHandler()">Select background image</a>
+									<br ng-hide="!isBackgroundImageSet()"/>
+									<a class="small" ng-click="removeBackgroundImageHandler()"
+										ng-hide="!isBackgroundImageSet()" style="color: #8b0000;">Remove background image</a>
 								</div>
 								<div style="padding: 5px;" ng-hide="!isToggleHueRotateEnabled()">
 									<hr style="margin-top: 5px; margin-bottom: 10px;" />
