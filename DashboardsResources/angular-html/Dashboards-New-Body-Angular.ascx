@@ -255,35 +255,6 @@
 						</ul>
 					</div>
 				</div>
-				<%--<ul id="izendaDashboardLinksPanel" class="nav navbar-nav navbar-right">
-						<li class="dropdown" ng-hide="leftDashboards.length == 0">
-							<a class="dropdown-toggle" data-toggle="dropdown" title="Show previous dashboards">
-								<b style="font-size: 12px;" class="glyphicon glyphicon-chevron-left"></b>
-							</a>
-							<ul class="dropdown-menu pull-right" role="menu">
-								<li class="iz-dash-menu-item"
-									ng-repeat="dashboard in leftDashboards">
-									<a href="#{{dashboard}}">{{$izendaUrl.extractReportName(dashboard)}}</a>
-								</li>
-							</ul>
-						</li>
-						<li class="iz-dash-menu-item"
-							ng-style="getToolItemStyle(dashboard)"
-							ng-repeat="dashboard in dashboardsInCurrentCategory">
-							<a href="#{{dashboard}}">{{$izendaUrl.extractReportName(dashboard)}}</a>
-						</li>
-						<li class="dropdown" ng-hide="rightDashboards.length == 0">
-							<a class="dropdown-toggle" data-toggle="dropdown" title="Show next dashboards">
-								<b style="font-size: 12px;" class="glyphicon glyphicon-chevron-right"></b>
-							</a>
-							<ul class="dropdown-menu pull-right" role="menu">
-								<li class="iz-dash-menu-item"
-									ng-repeat="dashboard in rightDashboards">
-									<a href="#{{dashboard}}">{{$izendaUrl.extractReportName(dashboard)}}</a>
-								</li>
-							</ul>
-						</li>
-					</ul>--%>
 			</div>
 		</nav>
 	</header>

@@ -16,8 +16,6 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
   $scope.dashboardCategories = [];
   $scope.dashboardsInCurrentCategory = [];
   $scope.previousDashboardCategory = null;
-  $scope.leftDashboards = [];
-  $scope.rightDashboards = [];
   $scope.liItems = null;
 
   // triple bar button styles:
