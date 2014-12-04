@@ -133,6 +133,46 @@
 
 	<!-- dashboard toolbar -->
 	<header ng-controller="IzendaToolbarController" ng-cloak>
+		<div id="izendaOpenImageModal" class="modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-body">
+						<div class="alert alert-info small" role="alert">
+							Background will be visible only in this browser
+						</div>
+						
+						<div class="radio" 
+							ng-hide="!isStorageAvailable()">
+							<label>
+								<input type="radio" name="backgroundTypeRadios" value="url" checked
+									ng-model="backgroundModalRadio">
+								Image Url
+							</label>
+						</div>
+						<input type="text" class="form-control" 
+							placeholder="Type URL here..." 
+							ng-model="izendaBackgroundImageUrl"
+							ng-disabled="backgroundModalRadio === 'file'"/>
+						<br/>
+						<div class="radio" 
+							ng-hide="!isStorageAvailable()">
+							<label>
+								<input type="radio" name="backgroundTypeRadios" value="file"
+									ng-model="backgroundModalRadio">
+								Open file in your computer
+							</label>
+						</div>
+						<input id="izendaDashboardBackground" type="file" name="files[]" 
+							ng-disabled="backgroundModalRadio === 'url'"
+							ng-hide="!isStorageAvailable()"/>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" ng-click="okBackgroundDialogHandler()">OK</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
 		<nav class="navbar navbar-default iz-dash-navbar" role="navigation">
 			<div class="container-fluid">
 				<!-- navbar header (visible: xs, sm) -->
@@ -211,8 +251,9 @@
 									<span class="iz-dash-color-preview">{{izendaBackgroundColor}}</span>
 								</div>
 								<input type="text" id="izendaDashboardColorPicker" class="form-control" data-inline="true" ng-value="izendaBackgroundColor">
-								<input id="izendaDashboardBackground" type="file" name="file" style="display: none;"
-									onchange="angular.element(this).scope().backgroundFileChangedHandler(arguments)" />
+								<div style="padding: 5px;">
+									<a ng-click="selectBackgroundDialogHandler()">Select background image</a>
+								</div>
 								<div style="padding: 5px;" ng-hide="!isToggleHueRotateEnabled()">
 									<hr style="margin-top: 5px; margin-bottom: 10px;" />
 									<span class="iz-dash-switcher-label">Color hue rotate</span>
@@ -240,14 +281,14 @@
 					</ul>
 					<!-- navbar dashboard tabs -->
 					<div id="izendaDashboardLinksPanel">
-						<ul class="nav navbar-nav unselectable iz-dash-nav-tabs-left" 
+						<ul class="nav navbar-nav unselectable iz-dash-nav-tabs-left"
 							style="position: absolute; left: 0; top: 0; background-color: #e3e3e3; z-index: 1;">
 							<li><a title="Show previous dashboards" ng-click="shiftTabs(-1)" ng-hide="hiddenShiftTabs(-1)">
 								<b style="font-size: 12px;" class="glyphicon glyphicon-chevron-left"></b>
 							</a></li>
 						</ul>
 						<ul class="unselectable nav navbar-nav iz-dash-nav-tabs"></ul>
-						<ul class="nav navbar-nav unselectable iz-dash-nav-tabs-right" 
+						<ul class="nav navbar-nav unselectable iz-dash-nav-tabs-right"
 							style="position: absolute; right: 0; top: 0; background-color: #ddd; z-index: 1;">
 							<li><a title="Show next dashboards" ng-click="shiftTabs(1)" ng-hide="hiddenShiftTabs(1)">
 								<b style="font-size: 12px;" class="glyphicon glyphicon-chevron-right"></b>

@@ -142,7 +142,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
    * Is tile content should be hidden now.
    */
   $scope.isReportDivHidden = function () {
-    return /*$scope.reportFullName == null || */$scope.$parent.isChangingNow;
+    return $scope.reportFullName == null || $scope.$parent.isChangingNow;
   };
 
   /**

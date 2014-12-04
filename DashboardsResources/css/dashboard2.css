@@ -34,11 +34,17 @@
 	position: fixed;
 	z-index: 0;
 	background-color: #1c8fd6;
-	/*background: url("../images/spectrum.jpg") no-repeat 0px 0px;
+	background-repeat: no-repeat;
+	-moz-background-position-x: 0px;
+	-o-background-position-x: 0px;
+	background-position-x: 0px;
+	-moz-background-position-y: 0px;
+	-o-background-position-y: 0px;
+	background-position-y: 0px;
 	-webkit-background-size: cover;
 	-moz-background-size: cover;
 	-o-background-size: cover;
-	background-size: cover;*/
+	background-size: cover;
 }
 
 #mainContentDiv {

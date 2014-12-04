@@ -2,14 +2,105 @@
 function IzendaToolbarController($scope, $rootScope, $compile, $window, $location, $cookies, $izendaRsQuery, $izendaDashboardToolbarQuery, $izendaUrl) {
   'use strict';
 
+  //////////////////////////////////////////////////////
+  // PRIVATE (non scope methods)
+  //////////////////////////////////////////////////////
+
+  /**
+   * Check if browser storage object available
+   */
+  var isStorageAvailable = function () {
+    return typeof (Storage) !== 'undefined';
+  };
+
+  /**
+   * Set string to storage
+   */
+  var setToStorage = function (stringValue) {
+    if (!isStorageAvailable())
+      return false;
+    localStorage.setItem('izendaDashboardBackgroundImg', stringValue);
+    return true;
+  };
+
+  /**
+   * Get object from storage
+   */
+  var getFromStorage = function () {
+    if (!isStorageAvailable())
+      return null;
+    var dataImage = localStorage.getItem('izendaDashboardBackgroundImg');
+    if (!angular.isString(dataImage))
+      return null;
+    return dataImage;
+  };
+
+  /**
+   * Get cookie by name
+   */
+  var getCookie = function (name) {
+    var nameEq = name + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') c = c.substring(1);
+      if (c.indexOf(nameEq) != -1) return c.substring(nameEq.length, c.length);
+    }
+    return null;
+  };
+
+  /**
+   * Turn off background hue rotate
+   */
+  var resetRotate = function () {
+    var e = angular.element('.iz-dash-background');
+    e.css({ 'filter': 'hue-rotate(' + '0' + 'deg)' });
+    e.css({ '-webkit-filter': 'hue-rotate(' + '0' + 'deg)' });
+    e.css({ '-moz-filter': 'hue-rotate(' + '0' + 'deg)' });
+    e.css({ '-o-filter': 'hue-rotate(' + '0' + 'deg)' });
+    e.css({ '-ms-filter': 'hue-rotate(' + '0' + 'deg)' });
+  };
+
+  /**
+   * Turn off/on hue rotate effect handler
+   */
+  var toggleHueRotate = function () {
+    if (window.hueRotateTimeOut == null) {
+      angular.element('.hue-rotate-btn').children('img').attr('src', 'DashboardsResources/images/color.png');
+      var e = angular.element('.iz-dash-background');
+      if (window.chrome) {
+        rotate(e);
+      }
+    } else {
+      angular.element('.hue-rotate-btn').children('img').attr('src', 'DashboardsResources/images/color-bw.png');
+      clearTimeout(hueRotateTimeOut);
+      window.hueRotateTimeOut = null;
+    }
+  };
+
+  /**
+   * Set background Y position: it depends on current window scroll position.
+   */
+  var setBackgroundPosition = function () {
+    var newBackgroundTop = 150 - angular.element($window).scrollTop();
+    if (newBackgroundTop < 0) newBackgroundTop = 0;
+    angular.element('.iz-dash-background').css({
+      '-moz-background-position-y': newBackgroundTop + 'px',
+      '-o-background-position-y': newBackgroundTop + 'px',
+      'background-position-y': newBackgroundTop + 'px'
+    });
+  };
+
+  //////////////////////////////////////////////////////
+  // VARS
+  //////////////////////////////////////////////////////
+
   $scope.backgroundColorStyle = {
     'background-color': getCookie('izendaDashboardBackgroundColor') ? getCookie('izendaDashboardBackgroundColor') : '#1c8fd6'
   };
   $scope.izendaBackgroundColor = getCookie('izendaDashboardBackgroundColor') ? getCookie('izendaDashboardBackgroundColor') : '#1c8fd6';
-  $scope.izendaBackgroundImageSrc = getImgFromStorage();
-  $scope.backgroundFileChangedHandler = function () {
-    console.log(arguments);
-  };
+  $scope.izendaBackgroundImageUrl = getCookie('izendaDashboardBackgroundImageUrl');
+  $scope.backgroundModalRadio = 'url';
 
   $scope.$izendaUrl = $izendaUrl;
   $scope.dashboardCategoriesLoading = true;
@@ -17,6 +108,11 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
   $scope.dashboardsInCurrentCategory = [];
   $scope.previousDashboardCategory = null;
   $scope.liItems = null;
+
+  $scope.windowResizeOptions = {
+    timeout: false,
+    rtime: null
+  };
 
   // triple bar button styles:
   $scope.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition';
@@ -31,6 +127,216 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
     $scope.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition opened';
     angular.element('#izendaDashboardLinksPanel').fadeIn(200, function () {
       $scope.updateToolbarItems(true);
+    });
+  };
+
+  
+  //////////////////////////////////////////////////////
+  // EVENT HANDLERS
+  //////////////////////////////////////////////////////
+
+  /**
+   * Start initialize dashboard when location was changed or page was loaded
+   */
+  $scope.$on('$locationChangeSuccess', function () {
+    if ($izendaUrl.getReportInfo().fullName == null)
+      return;
+    $scope.setDashboard($izendaUrl.getReportInfo().fullName);
+  });
+
+  /**
+   * Start tile edit event handler
+   */
+  $scope.$on('startEditTileEvent', function () {
+    $scope.turnOffWindowResizeHandler();
+  });
+
+  /**
+   * Tile edit completed event handler
+   */
+  $scope.$on('stopEditTileEvent', function () {
+    $scope.turnOnWindowResizeHandler();
+  });
+
+  //////////////////////////////////////////////////////
+  // PUBLIC
+  //////////////////////////////////////////////////////
+
+  /**
+   * Check toggleHueRotateEnabled
+   */
+  $scope.isToggleHueRotateEnabled = function () {
+    var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+    var isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor);
+    return isChrome || isSafari;
+  };
+
+  /**
+   * Create new dashboard button handler.
+   */
+  $scope.createNewDashboardHandler = function () {
+    $rootScope.$broadcast('dashboardCreateNewEvent', []);
+  };
+
+  /**
+   * Refresh dashboard button handler.
+   */
+  $scope.refreshDashboardHandler = function () {
+    $rootScope.$broadcast('dashboardRefreshEvent', []);
+  };
+  
+  /**
+   * Save/SaveAS dialog
+   */
+  $scope.saveDashboardHandler = function (showSaveAsDialog) {
+    $rootScope.$broadcast('dashboardSaveEvent', [showSaveAsDialog]);
+  };
+
+  /**
+   * Open dialog when user can set url to set background image.
+   */
+  $scope.selectBackgroundDialogHandler = function () {
+    $scope.izendaBackgroundImageUrl = null;
+    $scope.backgroundModalRadio = 'url';
+    var $modal = angular.element('#izendaOpenImageModal');
+    $modal.modal();
+  };
+
+  /**
+   * User selected background image url:
+   */
+  $scope.okBackgroundDialogHandler = function() {
+    var $modal = angular.element('#izendaOpenImageModal');
+    $modal.modal('hide');
+    if ($scope.backgroundModalRadio == 'file') {
+      $scope.setBackgroundImageFromLocalhost();
+    } else {
+      $scope.setBackgroundImageFromUrl();
+    }
+  };
+
+  /**
+   * Turn on window resize handler
+   */
+  $scope.turnOnWindowResizeHandler = function () {
+    // update all tiles
+    $scope.isChangingNow = true;
+    var resizeEnd = function () {
+      if (new Date() - $scope.windowResizeOptions.rtime < 200) {
+        setTimeout(function () {
+          resizeEnd.apply();
+        }, 200);
+      } else {
+        $scope.windowResizeOptions.timeout = false;
+        $scope.isChangingNow = false;
+        // end update window:
+        $scope.updateToolbarItems();
+        $rootScope.$broadcast('dashboardResizeEvent', [{}]);
+        if (!$scope.$$phase)
+          $scope.$apply();
+      }
+    };
+
+    angular.element($window).on('resize.dashboard', function () {
+      $scope.windowResizeOptions.rtime = new Date();
+      if ($scope.windowResizeOptions.timeout === false) {
+        $scope.windowResizeOptions.timeout = true;
+        setTimeout(function () {
+          resizeEnd.apply();
+        }, 200);
+      }
+    });
+  };
+
+  /**
+   * Turn off window resize handler
+   */
+  $scope.turnOffWindowResizeHandler = function () {
+    angular.element($window).off('resize.dashboard');
+  };
+
+  /**
+   * Toggle hue rotate switcher control handler.
+   */
+  $scope.toggleHueRotateHandler = function () {
+    var $hueRotateControl = angular.element('#izendaDashboardHueRotateSwitcher');
+    var turnedOn = $hueRotateControl.hasClass('on');
+    var text = turnedOn ? 'OFF' : 'ON';
+    $hueRotateControl.find('.iz-dash-switcher-text').text(text);
+    $hueRotateControl.toggleClass('on');
+    resetRotate();
+    toggleHueRotate();
+  };
+
+  /**
+   * Set file selected in file input as background
+   */
+  $scope.setBackgroundImageFromLocalhost = function() {
+    var $fileBtn = angular.element('#izendaDashboardBackground');
+    if (window.File && window.FileReader && window.FileList && window.Blob) {
+      if ($fileBtn[0].files.length == 0)
+        return;
+      var file = $fileBtn[0].files[0];
+
+      // test file information
+      if (!file.type.match('image.*')) {
+        alert('File should be image');
+        return;
+      }
+      // read the file:
+      var reader = new FileReader();
+      reader.onload = (function (theFile) {
+        return function (e) {
+          var bytes = e.target.result;
+          if (setToStorage(bytes))
+            $scope.updateDashboardBackgroundImage();
+        };
+      })(file);
+      // Read in the image file as a data URL.
+      reader.readAsDataURL(file);
+    }
+  };
+
+  /**
+   * Set background image from remote url
+   */
+  $scope.setBackgroundImageFromUrl = function() {
+    if (setToStorage($scope.izendaBackgroundImageUrl))
+      $scope.updateDashboardBackgroundImage();
+  };
+
+  /**
+   * Update dashboard background
+   */
+  $scope.updateDashboardBackgroundImage = function () {
+    var backgroundImg = getFromStorage();
+    var $background = angular.element('.iz-dash-background');
+    $background.css('background-image', 'url(' + backgroundImg + ')');
+  };
+
+  /**
+   * Initialize background color picker control.
+   */
+  $scope.initializeColorPicker = function () {
+    var $colorPickerInput = angular.element('#izendaDashboardColorPicker');
+    $colorPickerInput.minicolors({
+      inline: true,
+      control: 'hue',
+      change: function (hex) {
+        angular.element('.hue-rotate-btn, .iz-dash-background').css('background-color', hex);
+        $cookies.izendaBackgroundColor = hex;
+        document.cookie = "izendaDashboardBackgroundColor=" + hex;
+        $scope.backgroundColorStyle = {
+          'background-color': hex
+        };
+        $scope.izendaBackgroundColor = hex;
+      }
+    });
+    $colorPickerInput.minicolors('value', [$scope.izendaBackgroundColor]);
+
+    // prevent closing dropdown menu:
+    angular.element('.dropdown-no-close-on-click.dropdown-menu .minicolors-grid, .dropdown-no-close-on-click.dropdown-menu .minicolors-slider, #izendaDashboardHueRotateSwitcher').click(function (e) {
+      e.stopPropagation();
     });
   };
 
@@ -155,146 +461,6 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
     return style;
   };
 
-  //////////////////////////////////////////////////////
-  // EVENT HANDLERS
-  //////////////////////////////////////////////////////
-
-  /**
-   * Start initialize dashboard when location was changed or page was loaded
-   */
-  $scope.$on('$locationChangeSuccess', function () {
-    if ($izendaUrl.getReportInfo().fullName == null)
-      return;
-    setDashboard($izendaUrl.getReportInfo().fullName);
-  });
-
-  /**
-   * Start tile edit event handler
-   */
-  $scope.$on('startEditTileEvent', function () {
-    $scope.turnOffWindowResizeHandler();
-  });
-
-  /**
-   * Tile edit completed event handler
-   */
-  $scope.$on('stopEditTileEvent', function () {
-    $scope.turnOnWindowResizeHandler();
-  });
-
-  /**
-   * Check toggleHueRotateEnabled
-   */
-  $scope.isToggleHueRotateEnabled = function () {
-    var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-    var isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor);
-    return isChrome || isSafari;
-  };
-
-  /**
-   * Create new dashboard button handler.
-   */
-  $scope.createNewDashboardHandler = function () {
-    $rootScope.$broadcast('dashboardCreateNewEvent', []);
-  };
-
-  /**
-   * Refresh dashboard button handler.
-   */
-  $scope.refreshDashboardHandler = function () {
-    $rootScope.$broadcast('dashboardRefreshEvent', []);
-  };
-
-  /**
-   * Save/SaveAS dialog
-   */
-  $scope.saveDashboardHandler = function (showSaveAsDialog) {
-    $rootScope.$broadcast('dashboardSaveEvent', [showSaveAsDialog]);
-  };
-
-  /**
-   * Turn on window resize handler
-   */
-  $scope.windowResizeOptions = {
-    timeout: false,
-    rtime: null
-  };
-  $scope.turnOnWindowResizeHandler = function () {
-    // update all tiles
-    $scope.isChangingNow = true;
-    var resizeEnd = function () {
-      if (new Date() - $scope.windowResizeOptions.rtime < 200) {
-        setTimeout(function () {
-          resizeEnd.apply();
-        }, 200);
-      } else {
-        $scope.windowResizeOptions.timeout = false;
-        $scope.isChangingNow = false;
-        // end update window:
-        $scope.updateToolbarItems();
-        $rootScope.$broadcast('dashboardResizeEvent', [{}]);
-        if (!$scope.$$phase)
-          $scope.$apply();
-      }
-    };
-    
-    angular.element($window).on('resize.dashboard', function () {
-      $scope.windowResizeOptions.rtime = new Date();
-      if ($scope.windowResizeOptions.timeout === false) {
-        $scope.windowResizeOptions.timeout = true;
-        setTimeout(function () {
-          resizeEnd.apply();
-        }, 200);
-      }
-    });
-  };
-
-  /**
-   * Turn off window resize handler
-   */
-  $scope.turnOffWindowResizeHandler = function () {
-    angular.element($window).off('resize.dashboard');
-  };
-
-  /**
-   * Toggle hue rotate switcher control handler.
-   */
-  $scope.toggleHueRotateHandler = function () {
-    var $hueRotateControl = angular.element('#izendaDashboardHueRotateSwitcher');
-    var turnedOn = $hueRotateControl.hasClass('on');
-    var text = turnedOn ? 'OFF' : 'ON';
-    $hueRotateControl.find('.iz-dash-switcher-text').text(text);
-    $hueRotateControl.toggleClass('on');
-    resetRotate();
-    toggleHueRotate();
-  };
-
-  /**
-   * Initialize background color picker control.
-   */
-  $scope.initializeColorPicker = function () {
-    var $colorPickerInput = angular.element('#izendaDashboardColorPicker');
-    $colorPickerInput.minicolors({
-      inline: true,
-      control: 'hue',
-      change: function (hex) {
-        angular.element('.hue-rotate-btn, .iz-dash-background').css('background-color', hex);
-        $cookies.izendaBackgroundColor = hex;
-        document.cookie = "izendaDashboardBackgroundColor=" + hex;
-        $scope.backgroundColorStyle = {
-          'background-color': hex
-        };
-        $scope.izendaBackgroundColor = hex;
-      }
-    });
-    $colorPickerInput.minicolors('value', [$scope.izendaBackgroundColor]);
-
-    // prevent closing dropdown menu:
-    angular.element('.dropdown-no-close-on-click.dropdown-menu .minicolors-grid, .dropdown-no-close-on-click.dropdown-menu .minicolors-slider, #izendaDashboardHueRotateSwitcher').click(function (e) {
-      e.stopPropagation();
-    });
-  };
-
   /**
    * Is tabs shift button hidden
    */
@@ -343,7 +509,7 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
   /**
    * Calculate available space for toolbar tabs
    */
-  $scope.getToolbarItemsAvailableSpace = function() {
+  $scope.getToolbarItemsAvailableSpace = function () {
     var $tool = angular.element('#izendaDashboardToolbar');
     return $tool.find('.iz-dash-nav-tabs').width();
   };
@@ -351,7 +517,7 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
   /**
    * Calculate overal width of toolbar items.
    */
-  $scope.getToolbarItemsWidth = function() {
+  $scope.getToolbarItemsWidth = function () {
     var itemsWidth = 0;
     var $linksPanel = angular.element('#izendaDashboardLinksPanel');
     var $liItems = $linksPanel.find('ul.iz-dash-nav-tabs > li');
@@ -365,7 +531,7 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
   /**
    * Get right value for item by given li element
    */
-  $scope.getToolbarItem$Right = function($item) {
+  $scope.getToolbarItem$Right = function ($item) {
     var $i = angular.element($item);
     var d = $i.data('dashboard');
     return $scope.getToolbarItemRight(d);
@@ -374,7 +540,7 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
   /**
    * Get right value for item by given name
    */
-  $scope.getToolbarItemRight = function(itemName) {
+  $scope.getToolbarItemRight = function (itemName) {
     var value = $scope.getLiItems()[itemName];
     if (!angular.isNumber(value)) {
       return 0;
@@ -385,7 +551,7 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
   /**
    * getLiItems
    */
-  $scope.getLiItems = function() {
+  $scope.getLiItems = function () {
     if (!angular.isObject($scope.liItems))
       $scope.liItems = {};
     return $scope.liItems;
@@ -394,7 +560,7 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
   /**
    * Set an item
    */
-  $scope.setLiItem = function(name, value) {
+  $scope.setLiItem = function (name, value) {
     var items = $scope.getLiItems();
     items[name] = value;
   };
@@ -402,14 +568,14 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
   /**
    * Is toolbar items requires scrollbar
    */
-  $scope.isAllToolbarItemsFit = function() {
+  $scope.isAllToolbarItemsFit = function () {
     return $scope.getToolbarItemsAvailableSpace() >= $scope.getToolbarItemsWidth();
   };
 
   /**
    * Align toobar item to right or left if free space is found
    */
-  $scope.alignToolbarItems = function() {
+  $scope.alignToolbarItems = function () {
     var $linksPanel = angular.element('#izendaDashboardLinksPanel');
     var $liItems = $linksPanel.find('ul.iz-dash-nav-tabs > li');
     var space = $scope.getToolbarItemsAvailableSpace();
@@ -417,18 +583,15 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
     var maxRight = -100000;
     var minRight = 100000;
     var leftDelta = 100000;
-    var $liLeft = null;
     $liItems.each(function (il, l) {
       var $l = angular.element(l);
       var right = $scope.getToolbarItem$Right($l);
-      if (maxRight < right)
-        $liLeft = $l;
       maxRight = Math.max(maxRight, right);
       minRight = Math.min(minRight, right);
       var left = space - right - $l.width();
       leftDelta = Math.min(leftDelta, left);
     });
-    
+
     if (leftDelta > 42) {
       // shift left:
       $liItems.each(function (il, l) {
@@ -440,7 +603,7 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
         $l.css('right', newRight);
       });
     }
-    
+
     // check if there is some free space at right:
     if (minRight > 42) {
       // shift right:
@@ -495,7 +658,7 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
           if ($l.data('dashboard') == $izendaUrl.getReportInfo().fullName)
             activeIndex = il;
         });
-        
+
         var space = $scope.getToolbarItemsAvailableSpace();
         var center = space / 2;
         var $activeLi = angular.element($liItems[activeIndex]);
@@ -516,7 +679,7 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
         $scope.alignToolbarItems();
       }
     };
-    
+
     // set current dashboard menu items
     var $linksPanel = angular.element('#izendaDashboardLinksPanel');
     var $ul = $linksPanel.find('ul.iz-dash-nav-tabs');
@@ -547,108 +710,45 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
     updateItemsUi();
   };
 
-  //////////////////////////////////////////////////////
-  // CONSTRUCTOR
-  //////////////////////////////////////////////////////
-
-  // initialize dashboard method
-  initialize();
-
-  //////////////////////////////////////////////////////
-  // PRIVATE
-  //////////////////////////////////////////////////////
-
-  function setImgToStorage(img) {
-    var imgData = getBase64Image(img);
-    localStorage.setItem('izendaDashboardBackgroundImg', imgData);
-  }
-
-  function getImgFromStorage() {
-    var dataImage = localStorage.getItem('izendaDashboardBackgroundImg');
-    return 'data:image/png;base64,' + dataImage;
-  }
-
-  function getBase64Image(img) {
-    // Create an empty canvas element
-    var canvas = document.createElement("canvas");
-    canvas.width = img.width;
-    canvas.height = img.height;
-
-    // Copy the image contents to the canvas
-    var ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0);
-
-    // Get the data-URL formatted image
-    // Firefox supports PNG and JPEG. You could check img.src to guess the
-    // original format, but be aware the using "image/jpg" will re-encode the image.
-    var dataURL = canvas.toDataURL("image/png");
-
-    return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
-  }
-
-  function getCookie(name) {
-    var nameEq = name + "=";
-    //alert(document.cookie);
-    var ca = document.cookie.split(';');
-    for (var i = 0; i < ca.length; i++) {
-      var c = ca[i];
-      while (c.charAt(0) == ' ') c = c.substring(1);
-      if (c.indexOf(nameEq) != -1) return c.substring(nameEq.length, c.length);
-    }
-    return null;
-  }
-
-  function resetRotate() {
-    var e = angular.element('.iz-dash-background');
-    e.css({ 'filter': 'hue-rotate(' + '0' + 'deg)' });
-    e.css({ '-webkit-filter': 'hue-rotate(' + '0' + 'deg)' });
-    e.css({ '-moz-filter': 'hue-rotate(' + '0' + 'deg)' });
-    e.css({ '-o-filter': 'hue-rotate(' + '0' + 'deg)' });
-    e.css({ '-ms-filter': 'hue-rotate(' + '0' + 'deg)' });
-  }
+  /**
+   * Check if browser storage object available
+   */
+  $scope.isStorageAvailable = function() {
+    return isStorageAvailable();
+  };
 
   /**
-   * Turn off/on hue rotate effect handler
+   * Set current dashboard
    */
-  function toggleHueRotate() {
-    if (window.hueRotateTimeOut == null) {
-      angular.element('.hue-rotate-btn').children('img').attr('src', 'DashboardsResources/images/color.png');
-      var e = angular.element('.iz-dash-background');
-      if (window.chrome) {
-        rotate(e);
-      }
-    } else {
-      angular.element('.hue-rotate-btn').children('img').attr('src', 'DashboardsResources/images/color-bw.png');
-      clearTimeout(hueRotateTimeOut);
-      window.hueRotateTimeOut = null;
-    }
-  }
+  $scope.setDashboard = function (dashboardFullName) {
+    console.log(' ');
+    console.log('>>>>> Set current dashboard: "' + dashboardFullName + '"');
+    console.log(' ');
 
-  /**
-   * Initialize dashboard navigation
-   */
-  function initialize() {
-    if (angular.element('body > .iz-dash-background').length == 0) {
-      angular.element('body').prepend(angular.element('<div class="iz-dash-background" style="background-color: ' +
-        $scope.backgroundColorStyle['background-color'] + '"></div>'));
-    }
+    // check if category was changed
+    var newCat = $izendaUrl.extractReportCategory(dashboardFullName);
+    var prevCat = $scope.previousDashboardCategory;
+    if (prevCat == null)
+      prevCat = newCat;
+    var isCategoryChanged = prevCat !== newCat;
+    $scope.previousDashboardCategory = newCat;
 
+    // cancel all current queries
+    $izendaRsQuery.cancelAllQueries('Starting load next dashboard.');
 
-    // start window resize handler
-    $scope.turnOnWindowResizeHandler();
+    angular.element('.iz-dash-tile').css('display', 'none');
 
-    // load dashboard navigation
-    $izendaDashboardToolbarQuery.loadDashboardNavigation().then(function (data) {
-      dashboardNavigationLoaded(data);
-    });
+    // notify dashboard to start
+    $rootScope.$broadcast('dashboardSetEvent', [{}]);
 
-    $scope.initializeColorPicker();
-  }
+    // update toolbar items
+    $scope.updateToolbarItems(isCategoryChanged);
+  };
 
   /**
    * Dashboard categories loaded. Now we have to update it.
    */
-  function dashboardNavigationLoaded(data) {
+  $scope.dashboardNavigationLoaded = function (data) {
     $scope.dashboardCategoriesLoading = false;
     $scope.dashboardCategories.length = 0;
     if (angular.isObject(data)) {
@@ -678,33 +778,40 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
         throw 'There is no dashboards to load.';
       }
     }
-  }
+  };
 
   /**
-   * Set current dashboard
+   * Initialize dashboard navigation
    */
-  function setDashboard(dashboardFullName) {
-    console.log(' ');
-    console.log('>>>>> Set current dashboard: "' + dashboardFullName + '"');
-    console.log(' ');
+  $scope.initialize = function () {
+    // initialize background and background color:
+    if (angular.element('body > .iz-dash-background').length == 0) {
+      angular.element('body').prepend(angular.element('<div class="iz-dash-background" style="background-color: ' +
+        $scope.backgroundColorStyle['background-color'] + '"></div>'));
+    }
+    $scope.updateDashboardBackgroundImage();
 
-    // check if category was changed
-    var newCat = $izendaUrl.extractReportCategory(dashboardFullName);
-    var prevCat = $scope.previousDashboardCategory;
-    if (prevCat == null)
-      prevCat = newCat;
-    var isCategoryChanged = prevCat !== newCat;
-    $scope.previousDashboardCategory = newCat;
+    // initialize background shift
+    setBackgroundPosition();
+    angular.element($window).scroll(function () {
+      setBackgroundPosition();
+    });
 
-    // cancel all current queries
-    $izendaRsQuery.cancelAllQueries('Starting load next dashboard.');
+    // start window resize handler
+    $scope.turnOnWindowResizeHandler();
 
-    angular.element('.iz-dash-tile').css('display', 'none');
+    // load dashboard navigation
+    $izendaDashboardToolbarQuery.loadDashboardNavigation().then(function (data) {
+      $scope.dashboardNavigationLoaded(data);
+    });
 
-    // notify dashboard to start
-    $rootScope.$broadcast('dashboardSetEvent', [{}]);
+    $scope.initializeColorPicker();
+  };
 
-    // update toolbar items
-    $scope.updateToolbarItems(isCategoryChanged);
-  }
+  //////////////////////////////////////////////////////
+  // CONSTRUCTOR
+  //////////////////////////////////////////////////////
+
+  // initialize dashboard method
+  $scope.initialize();
 }]);
