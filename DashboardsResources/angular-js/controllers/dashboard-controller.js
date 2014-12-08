@@ -453,6 +453,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $t
     angular.element('.report').empty();
 
     // load dashboard tiles layout
+    $scope.updateDashboardSize();
     loadDashboardLayout();
   };
 
@@ -694,8 +695,15 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $t
     tileObj.preloadStarted = true;
     tileObj.preloadData = null;
     tileObj.preloadDataHandler = $q(function (resolve) {
-      $izendaDashboardQuery.loadTileReport(false, $izendaUrl.getReportInfo().fullName, tileObj.reportFullName, null,
-            tileObj.top, (tileObj.width * $scope.tileWidth) - 20, (tileObj.height * $scope.tileHeight) - 90)
+      var heightDelta = tileObj.description != null && tileObj.description != '' ? 120 : 90;
+      $izendaDashboardQuery.loadTileReport(
+        false,
+        $izendaUrl.getReportInfo().fullName,
+        tileObj.reportFullName,
+        null,
+        tileObj.top,
+        (($scope.isOneColumnView() ? 12 : tileObj.width) * $scope.tileWidth) - 40,
+        (($scope.isOneColumnView() ? 4 : tileObj.height) * $scope.tileHeight) - heightDelta)
       .then(function (htmlData) {
         tileObj.preloadStarted = false;
         tileObj.preloadData = htmlData;

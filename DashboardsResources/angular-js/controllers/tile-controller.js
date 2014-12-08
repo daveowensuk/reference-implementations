@@ -112,6 +112,8 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
     } else {
       $tile.removeClass('mobile');
     }
+
+    $scope.refreshTile(false);
   });
 
   /**
@@ -618,12 +620,10 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
    */
   function updateDashboardHandlers($tile) {
     if ($scope.isOneColumnView()) {
-      console.log('MOVE TO READ VIEW');
       $tile.resizable('disable');
       $tile.draggable('disable');
       $scope.removeScroll();
     } else {
-      console.log('MOVE TO READ+EDIT VIEW');
       $tile.resizable('enable');
       $tile.draggable('enable');
       if ($scope.state.resizableHandlerStarted)
@@ -667,10 +667,10 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
         applyTileHtml($scope.preloadData);
         $scope.preloadData = null;
       } else {
-        var heightDelta = $scope.description != null && $scope.description != '' ? 110 : 80;
+        var heightDelta = $scope.description != null && $scope.description != '' ? 120 : 90;
         $izendaDashboardQuery.loadTileReport(updateFromSourceReport, $izendaUrl.getReportInfo().fullName, $scope.reportFullName,
-              previousReportName, $scope.top, ($scope.width * $scope.$parent.tileWidth) - 20,
-              ($scope.height * $scope.$parent.tileHeight) - heightDelta)
+              previousReportName, $scope.top, ($scope.getWidth() * $scope.$parent.tileWidth) - 40,
+              ($scope.getHeight() * $scope.$parent.tileHeight) - heightDelta)
         .then(function (htmlData) {
           applyTileHtml(htmlData);
         });
