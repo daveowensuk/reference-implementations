@@ -19,9 +19,7 @@
 angular.module('izendaDashboard').controller('IzendaTileController', ['$window', '$element', '$rootScope', '$scope', '$injector', '$izendaUrl', '$izendaCommonQuery', '$izendaDashboardQuery',
 function IzendaTileController($window, $element, $rootScope, $scope, $injector, $izendaUrl, $izendaCommonQuery, $izendaDashboardQuery) {
   'use strict';
-
-  $scope.isHidden = false;
-
+  
   $scope.state = {
     resizableHandlerStarted: false
   };
@@ -29,6 +27,69 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
   // delete tile button classes
   $scope.deleteClass = 'title-button';
   $scope.deleteConfirmClass = 'title-button hidden-confirm-btn';
+
+  ////////////////////////////////////////////////////////
+  // calculated tile parameters:
+  ////////////////////////////////////////////////////////
+
+  /**
+   * Shortcut for $parent.isOneColumnView() function
+   */
+  $scope.isOneColumnView = function() {
+    return $scope.$parent.isOneColumnView();
+  };
+
+  /**
+   * Get X coordinate for tile. This coordinate used for drawing tile UI
+   */
+  $scope.getX = function () {
+    return $scope.isOneColumnView() ? 0 : $scope.x;
+  };
+
+  /**
+   * Get Y coordinate for tile. This coordinate used for drawing tile UI
+   */
+  $scope.getY = function () {
+    return $scope.isOneColumnView() ? 4 * $scope.$parent.getTilePositionIndex($scope.id) : $scope.y;
+  };
+
+  /**
+   * Get width of tile. This coordinate used for drawing tile UI
+   */
+  $scope.getWidth = function () {
+    return $scope.isOneColumnView() ? 12 : $scope.width;
+  };
+
+  /**
+   * Get height of tile. This coordinate used for drawing tile UI
+   */
+  $scope.getHeight = function () {
+    return $scope.isOneColumnView() ? 4 : $scope.height;
+  };
+
+  /**
+   * Return style object for '.iz-dash-tile'
+   */
+  $scope.getTileStyle = function () {
+    return {
+      'top': ($scope.$parent.tileHeight * $scope.getY()) + 'px',
+      'left': ($scope.$parent.tileWidth * $scope.getX()) + 'px',
+      'width': ($scope.$parent.tileWidth * $scope.getWidth()) + 'px',
+      'height': ($scope.$parent.tileHeight * $scope.getHeight()) + 'px'
+    };
+  };
+
+  /**
+   * Return class for '.iz-dash-tile'
+   */
+  $scope.getTileClass = function () {
+    var baseClass = 'iz-dash-tile fx-fade-down fx-speed-500 fx-trigger fx-easing-quint';
+    return baseClass;
+  };
+
+  ////////////////////////////////////////////////////////
+  // tile events
+  ////////////////////////////////////////////////////////
 
   /**
    * Tile refresh event handler
@@ -43,10 +104,14 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
   /**
    * Update tile after completing window resize
    */
-  $scope.$on('windowResizedEvent', function (event, args) {
+  $scope.$on('dashboardResizeEvent', function (event, args) {
     var $tile = $scope.$parent.getTile$ById($scope.id);
-    if ($scope.state.resizableHandlerStarted)
-      $tile.resizable('option', 'grid', [$scope.$parent.tileWidth, $scope.$parent.tileHeight]);
+    updateDashboardHandlers($tile);
+    if ($scope.isOneColumnView()) {
+      $tile.addClass('mobile');
+    } else {
+      $tile.removeClass('mobile');
+    }
   });
 
   /**
@@ -72,7 +137,6 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
       if (eventOptions.refresh)
         $scope.refreshTile(false);
     }
-
     $scope.$parent.isChangingNow = false;
   });
 
@@ -115,8 +179,11 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
     initializeDraggable();
     initializeResizable();
     initializeTopSlider();
+    updateDashboardHandlers($element);
+
     $scope.$watch(['width', 'height'], function () {
       changeTileSizeHandler();
+      $scope.$parent.updateDashboardSize();
     });
   };
 
@@ -256,12 +323,34 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
     }
   };
 
+  /**
+   * Remove scrollbar
+   */
+  $scope.removeScroll = function() {
+    var $tile = angular.element($element);
+    var $front = $tile.find('.flippy-front .frame');
+    if ($front.hasClass('ps-container')) {
+      $front.perfectScrollbar('destroy');
+    }
+    var $back = $tile.find('.flippy-back .frame');
+    if ($back.hasClass('ps-container')) {
+      $back.perfectScrollbar('destroy');
+    }
+    $tile.find('.frame').css('overflow', 'auto');
+  };
+
+  /**
+   * Class for confirm delete button (depends on tile size)
+   */
   $scope.getConfirmDeleteClass = function () {
     if ($scope.width <= 1)
       return 'title-button-confirm-remove short';
     return 'title-button-confirm-remove';
   };
 
+  /**
+   * Class for cancel delete button (depends on tile size)
+   */
   $scope.getCancelDeleteClass = function () {
     if ($scope.width <= 1)
       return 'title-button-cancel-remove short';
@@ -512,7 +601,6 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
    */
   function flipTileBack() {
     var $tile = angular.element($element);
-    //this.removeScroll($tile);
     var showClass = 'animated fast flipInY';
     var hideClass = 'animated fast flipOutY';
     var $front = $tile.find('.flippy-front');
@@ -523,6 +611,25 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
       $back.css('display', 'block').addClass(showClass);
       $front.css('display', 'none').removeClass(hideClass);
     }, 1);
+  }
+
+  /**
+   * Update handlers state
+   */
+  function updateDashboardHandlers($tile) {
+    if ($scope.isOneColumnView()) {
+      console.log('MOVE TO READ VIEW');
+      $tile.resizable('disable');
+      $tile.draggable('disable');
+      $scope.removeScroll();
+    } else {
+      console.log('MOVE TO READ+EDIT VIEW');
+      $tile.resizable('enable');
+      $tile.draggable('enable');
+      if ($scope.state.resizableHandlerStarted)
+        $tile.resizable('option', 'grid', [$scope.$parent.tileWidth, $scope.$parent.tileHeight]);
+      $scope.setScroll();
+    }
   }
 
   /**
@@ -591,6 +698,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
     if (!angular.isUndefined(AdHoc) && !angular.isUndefined(AdHoc.Utility) && typeof (AdHoc.Utility.DocumentReady) == 'function') {
       AdHoc.Utility.DocumentReady();
     }
-    $scope.setScroll();
+    if (!$scope.isOneColumnView())
+      $scope.setScroll();
   }
 }]);

@@ -308,10 +308,13 @@
 		<div id="dashboardsDiv">
 			<div id="dashboardBodyContainer" class="iz-dash-body-container" ng-style="tileContainerStyle">
 				<!-- repeat tiles -->
-				<div ng-repeat="tile in tiles" class="iz-dash-tile fx-fade-down fx-speed-500 fx-trigger fx-easing-quint" tileid="{{tile.id}}"
-					ng-style="{'top': ($parent.tileHeight * y) + 'px', 'height': ($parent.tileHeight * height) + 'px', 'left': ($parent.tileWidth * x) + 'px', 'width': ($parent.tileWidth * width) + 'px'}"
+				<div tileid="{{tile.id}}"
+					ng-repeat="tile in tiles" 
+					ng-class="getTileClass()"
+					ng-style="getTileStyle()"
 					ng-controller="IzendaTileController"
-					ng-init="initialize(tile)" ng-hide="isHidden" ng-cloak>
+					ng-init="initialize(tile)"
+					ng-cloak>
 
 					<div class="animate-flip">
 						<div class="flippy-front animated fast">
@@ -375,12 +378,14 @@
 									</div>
 								</div>
 								<div class="iz-dash-tile-fb-toolbar">
-									<div class="iz-dash-tile-fb-toolbtn">
+									<div class="iz-dash-tile-fb-toolbtn" 
+										ng-hide="isOneColumnView()">
 										<a title="Print tile report" href="{{options.urlSettings.urlRsPage}}?rn={{getSourceReportName()}}&p=htmlreport&print=1">
 											<img class="img-responsive" src="DashboardsResources/images/back-tile/print.png" />
 										</a>
 									</div>
-									<div class="iz-dash-tile-fb-toolbtn">
+									<div class="iz-dash-tile-fb-toolbtn"
+										ng-hide="isOneColumnView()">
 										<a title="Export tile report to excel" href="{{options.urlSettings.urlRsPage}}?rn={{getSourceReportName()}}&output=xls">
 											<img class="img-responsive" src="DashboardsResources/images/back-tile/excel.png">
 										</a>
@@ -400,7 +405,8 @@
 											<img class="img-responsive" src="DashboardsResources/images/back-tile/reload.png">
 										</a>
 									</div>
-									<div class="iz-dash-tile-fb-toolbtn">
+									<div class="iz-dash-tile-fb-toolbtn"
+										ng-hide="isOneColumnView()">
 										<a title="Add new report part to tile" ng-click="selectReportPart()">
 											<img class="img-responsive" src="DashboardsResources/images/back-tile/add.png">
 										</a>

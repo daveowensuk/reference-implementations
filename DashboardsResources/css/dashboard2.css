@@ -631,7 +631,8 @@
 /* title buttons */
 
 
-.iz-dash-tile:hover .title-container {
+.iz-dash-tile:hover .title-container,
+.iz-dash-tile.mobile .title-container {
 	display: block;
 }
 
@@ -643,7 +644,8 @@
 	transition: opacity 0.2s ease;
 }
 
-.iz-dash-tile:hover .flip-button {
+.iz-dash-tile:hover .flip-button,
+.iz-dash-tile.mobile .flip-button {
 	opacity: 1;
 }
 
@@ -661,24 +663,6 @@
 	-o-box-shadow: 0 4px 8px -4px #aaa;
 	box-shadow: 0 4px 8px -4px #aaa;
 }
-
-/*.title-hide {
-	-moz-transition: width 0.2s ease;
-	-o-transition: width 0.2s ease;
-	-webkit-transition: width 0.2s ease;
-	transition: width 0.2s ease;
-	top: 0;
-	bottom: 0;
-	right: 0;
-	position: absolute;
-	background-color: red;
-	height: 100%;
-	width: 0;
-}
-
-.iz-dash-tile:hover .title-hide {
-	width: 70px;
-}*/
 
 .title-button {
 	position: absolute;
@@ -705,8 +689,16 @@
 	right: 0;
 }
 
+.iz-dash-tile.mobile .title-button.button1 {
+	right: -32px;
+}
+
 .iz-dash-tile:hover .title-button.button2 {
 	right: 32px;
+}
+
+.iz-dash-tile.mobile .title-button.button2 {
+	right: 0;
 }
 
 .title-button > .bar {
@@ -743,11 +735,13 @@
 		width: 32px;
 	}
 
-.iz-dash-tile:hover .title-button.title-button-confirm-remove {
+.iz-dash-tile:hover .title-button.title-button-confirm-remove,
+.iz-dash-tile.mobile .title-button.title-button-confirm-remove {
 	right: 120px;
 }
 
-	.iz-dash-tile:hover .title-button.title-button-confirm-remove.short {
+	.iz-dash-tile:hover .title-button.title-button-confirm-remove.short,
+	.iz-dash-tile.mobile .title-button.title-button-confirm-remove.short {
 		right: 32px;
 	}
 
@@ -761,11 +755,13 @@
 		width: 32px;
 	}
 
-.iz-dash-tile:hover .title-button.title-button-cancel-remove {
+.iz-dash-tile:hover .title-button.title-button-cancel-remove,
+.iz-dash-tile.mobile .title-button.title-button-cancel-remove {
 	right: 0;
 }
 
-	.iz-dash-tile:hover .title-button.title-button-cancel-remove.short {
+	.iz-dash-tile:hover .title-button.title-button-cancel-remove.short,
+	.iz-dash-tile.mobile .title-button.title-button-cancel-remove.short {
 		right: 0;
 	}
 
@@ -987,6 +983,9 @@
 	}
 }
 
-/*.iz-dash-tile:hover .iz-ui-icon-gripsmall-diagonal-se {
-  visibility: visible;
-}*/
+.iz-ui-state-disabled, 
+.iz-ui-widget-content .iz-ui-state-disabled, 
+.iz-ui-widget-header .iz-ui-state-disabled {
+	opacity: 1;
+	filter: Alpha(Opacity=100);
+}
