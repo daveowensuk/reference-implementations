@@ -116,8 +116,9 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
 
   $scope.windowResizeOptions = {
     timeout: false,
-    rtime: null
-  };
+    rtime: null,
+    previousWidth: null
+};
 
   // triple bar button styles:
   $scope.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition';
@@ -232,8 +233,28 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
    * Turn on window resize handler
    */
   $scope.turnOnWindowResizeHandler = function () {
-    // update all tiles
+
+    $scope.windowResizeOptions.id = null;
+    $scope.windowResizeOptions.previousWidth = angular.element($window).width();
     $scope.isChangingNow = true;
+    angular.element($window).on('resize.dashboard', function () {
+      if ($scope.windowResizeOptions.id != null)
+        clearTimeout($scope.windowResizeOptions.id);
+      $scope.windowResizeOptions.id = setTimeout(doneResizing, 200);
+    });
+    function doneResizing() {
+      if ($scope.windowResizeOptions.previousWidth != angular.element($window).width()) {
+        $scope.windowResizeOptions.timeout = false;
+        $scope.isChangingNow = false;
+        $scope.updateToolbarItems();
+        $rootScope.$broadcast('dashboardResizeEvent', [{}]);
+        if (!$scope.$$phase) $scope.$apply();
+      }
+      $scope.windowResizeOptions.previousWidth = angular.element($window).width();
+    }
+
+    // update all tiles
+    /*$scope.isChangingNow = true;
     var resizeEnd = function () {
       if (new Date() - $scope.windowResizeOptions.rtime < 200) {
         setTimeout(function () {
@@ -258,7 +279,7 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
           resizeEnd.apply();
         }, 200);
       }
-    });
+    });*/
   };
 
   /**
