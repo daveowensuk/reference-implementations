@@ -1,4 +1,4 @@
-﻿angular.module('izendaDashboard').controller('IzendaSelectReportController', ['$rootScope', '$scope', '$q', '$element', '$izendaUrl', '$izendaCommonQuery',
+﻿izendaDashboardModule.controller('IzendaSelectReportController', ['$rootScope', '$scope', '$q', '$element', '$izendaUrl', '$izendaCommonQuery',
 function IzendaSelectReportController($rootScope, $scope, $q, $element, $izendaUrl, $izendaCommonQuery) {
   'use strict';
 

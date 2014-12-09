@@ -1,4 +1,4 @@
-﻿angular.module('izendaUrl').factory('$izendaUrl', ['$location', function ($location) {
+﻿izendaUrlModule.factory('$izendaUrl', ['$location', function ($location) {
   'use strict';
 
   return {

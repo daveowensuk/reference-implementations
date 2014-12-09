@@ -1,5 +1,5 @@
-﻿angular.module('izendaDashboard').controller('IzendaDashboardController', ['$rootScope', '$scope', '$window', '$q', '$animate', '$timeout', '$injector', '$izendaUrl', '$izendaDashboardQuery',
-function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $timeout, $injector, $izendaUrl, $izendaDashboardQuery) {
+﻿izendaDashboardModule.controller('IzendaDashboardController', ['$rootScope', '$scope', '$window', '$q', '$animate', '$injector', '$izendaUrl', '$izendaCompatibility', '$izendaDashboardQuery',
+function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $injector, $izendaUrl, $izendaCompatibility, $izendaDashboardQuery) {
   'use strict';
 
   var newTileIndex = 1;
@@ -206,31 +206,18 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $t
   ////////////////////////////////////////////////////////
 
   /**
-   * Check is dashboard should have mobile view.
+   * Check old IE version
    */
-  $scope.isMobile = function () {
-    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-      return true;
-    }
-    return false;
-  };
-
-  /**
-   * Check is dashboard window is too small to fit several columns of tiles.
-   */
-  $scope.isSmallResolution = function() {
-    return angular.element($window).width() <= 1024;
+  $scope.checkIsIE8 = function() {
+    return $izendaCompatibility.checkIsIe8();
   };
 
   /**
    * Check if one column view required
    */
   $scope.isOneColumnView = function() {
-    return $scope.isMobile() || $scope.isSmallResolution();
+    return $izendaCompatibility.isOneColumnView();
   };
-
-  // is dashboard readonly:
-  $scope.isReadonly = $scope.isOneColumnView();
 
   /**
    * Refresh all tiles.
@@ -385,7 +372,44 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $t
    * Swap 2 tiles. Return promise after complete swap.
    */
   $scope.swapTiles = function ($tile1, $tile2) {
-    return $q(function (resolve) {
+    var deferred = $q.defer();
+    var t1O = $tile1.position(),
+        t2O = $tile2.position(),
+        w1 = $tile1.width(),
+        h1 = $tile1.height(),
+        w2 = $tile2.width(),
+        h2 = $tile2.height();
+
+    $tile1.find('.frame').hide();
+    $tile2.find('.frame').hide();
+
+    var completeCount = 0;
+    $tile1.animate({
+      left: t2O.left,
+      top: t2O.top,
+      width: w2,
+      height: h2
+    }, 500, function () {
+      if (completeCount == 0)
+        completeCount++;
+      else {
+        deferred.resolve([$tile1, $tile2]);
+      }
+    });
+    $tile2.animate({
+      left: t1O.left,
+      top: t1O.top,
+      width: w1,
+      height: h1
+    }, 500, function () {
+      if (completeCount == 0)
+        completeCount++;
+      else {
+        deferred.resolve([$tile1, $tile2]);
+      }
+    });
+    return deferred.promise;
+    /*return $q(function (resolve) {
       var t1O = $tile1.position(),
         t2O = $tile2.position(),
         w1 = $tile1.width(),
@@ -421,7 +445,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $t
           resolve([$tile1, $tile2]);
         }
       });
-    });
+    });*/
   };
 
   /**
@@ -447,6 +471,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $t
    */
   $scope.initialize = function (options) {
     // set options
+    $scope.checkIsIE8();
     $scope.options.reportInfo = $izendaUrl.getReportInfo();
 
     // remove content from all tiles to speed up "bounce up" animation
@@ -694,7 +719,26 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $t
   function loadTileReport(tileObj) {
     tileObj.preloadStarted = true;
     tileObj.preloadData = null;
-    tileObj.preloadDataHandler = $q(function (resolve) {
+    tileObj.preloadDataHandler = (function() {
+      var deferred = $q.defer();
+      var heightDelta = tileObj.description != null && tileObj.description != '' ? 120 : 90;
+      $izendaDashboardQuery.loadTileReport(
+        false,
+        $izendaUrl.getReportInfo().fullName,
+        tileObj.reportFullName,
+        null,
+        tileObj.top,
+        (($scope.isOneColumnView() ? 12 : tileObj.width) * $scope.tileWidth) - 40,
+        (($scope.isOneColumnView() ? 4 : tileObj.height) * $scope.tileHeight) - heightDelta)
+      .then(function (htmlData) {
+        tileObj.preloadStarted = false;
+        tileObj.preloadData = htmlData;
+        deferred.resolve(htmlData);
+        tileObj.preloadData = null;
+      });
+      return deferred.promise;
+    })();
+    /*tileObj.preloadDataHandler = $q(function (resolve) {
       var heightDelta = tileObj.description != null && tileObj.description != '' ? 120 : 90;
       $izendaDashboardQuery.loadTileReport(
         false,
@@ -710,7 +754,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $t
         resolve(htmlData);
         tileObj.preloadData = null;
       });
-    });
+    });*/
   }
 
   /**

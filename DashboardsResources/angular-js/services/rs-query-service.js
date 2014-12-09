@@ -2,7 +2,7 @@
  * Izenda query service which provides access to rs.aspx
  * this is singleton
  */
-angular.module('izendaQuery').factory('$izendaRsQuery', ['$http', '$q', '$izendaUrl', function ($http, $q, $izendaUrl) {
+izendaQueryModule.factory('$izendaRsQuery', ['$http', '$q', '$izendaUrl', function ($http, $q, $izendaUrl) {
   'use strict';
 
   var rsQueryBaseUrl = $izendaUrl.urlSettings.urlRsPage;
@@ -89,7 +89,7 @@ angular.module('izendaQuery').factory('$izendaRsQuery', ['$http', '$q', '$izenda
 
   function handleSuccess(response) {
     requestList[response.config.url] = null;
-    //console.log('<<< ' + ((new Date()).getTime() - rsQueryLog[response.config.url].getTime()) + 'ms: ' + response.config.url);
+    console.log('<<< ' + ((new Date()).getTime() - rsQueryLog[response.config.url].getTime()) + 'ms: ' + response.config.url);
     if (typeof (response.data) == 'string') {
       return response.data;
     }

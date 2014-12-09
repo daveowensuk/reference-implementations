@@ -1,37 +1,6 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="Dashboards-New-Body-Angular.ascx.cs" Inherits="Resources_html_Dashboard_New_Body" %>
 
 <div ng-app="izendaDashboard">
-	<!-- IzendaToolbarController template: Dropdown list with dashboard links template -->
-	<script type='text/ng-template' id="toolbarDropdownTemplate"> 
-		<li ng-repeat="category in dashboardCategories">
-			<div class="iz-dash-menu-catergory">{{category.name}}</div>
-			<div class="iz-dash-navigation-menu-item" 
-				ng-repeat="dashboard in category.dashboards">
-				<a href="#{{dashboard}}">{{dashboard}}</a>
-			</div>
-		</li>
-	</script>
-
-	<!-- IzendaTileController template: Tile title template -->
-	<script type="text/ng-template" id="tileTitleTemplate">
-		<span class="title-text">
-			<a ng-if="title != null && title != ''" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
-				href="{{options.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{title}}
-			</a>
-			<a ng-if="(title == null || title == '') && reportCategory != null" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
-				href="{{options.urlSettings.urlReportList}}#{{reportCategory}}">{{reportCategory}}
-			</a>
-			<span ng-if="(title == null || title == '') && title != '' && reportCategory != null">/</span>
-			<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
-				href="{{options.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{reportName}}
-			</a>
-			<span ng-if="(title == null || title == '') && reportPartName != null">/</span>
-			<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
-				href="{{options.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{reportPartName}}
-			</a>
-		</span>
-	</script>
-
 	<!-- select report name modal dialog -->
 	<div id="izendaSelectReportNameModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true"
 		ng-controller="IzendaSelectReportNameController">
@@ -188,7 +157,13 @@
 									<b class="caret"></b>
 								</span></a>
 							<ul class="dropdown-menu pull-right" role="menu">
-								<ng-include src="'toolbarDropdownTemplate'"></ng-include>
+								<li ng-repeat="category in dashboardCategories">
+									<div class="iz-dash-menu-catergory">{{category.name}}</div>
+									<div class="iz-dash-navigation-menu-item" 
+										ng-repeat="dashboard in category.dashboards">
+										<a href="#{{dashboard}}">{{dashboard}}</a>
+									</div>
+								</li>
 							</ul>
 						</li>
 					</ul>
@@ -278,7 +253,13 @@
 								</span>
 							</a>
 							<ul class="dropdown-menu pull-right" role="menu">
-								<ng-include src="'toolbarDropdownTemplate'"></ng-include>
+								<li ng-repeat="category in dashboardCategories">
+									<div class="iz-dash-menu-catergory">{{category.name}}</div>
+									<div class="iz-dash-navigation-menu-item" 
+										ng-repeat="dashboard in category.dashboards">
+										<a href="#{{dashboard}}">{{dashboard}}</a>
+									</div>
+								</li>
 							</ul>
 						</li>
 					</ul>
@@ -336,7 +317,22 @@
 							</div>
 							<div class="title-container" style="height: 35px; overflow: hidden;">
 								<div class="title">
-									<ng-include src="'tileTitleTemplate'"></ng-include>
+									<span class="title-text">
+										<a ng-if="title != null && title != ''" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
+											href="{{options.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{title}}
+										</a>
+										<a ng-if="(title == null || title == '') && reportCategory != null" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
+											href="{{options.urlSettings.urlReportList}}#{{reportCategory}}">{{reportCategory}}
+										</a>
+										<span ng-if="(title == null || title == '') && title != '' && reportCategory != null">/</span>
+										<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
+											href="{{options.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{reportName}}
+										</a>
+										<span ng-if="(title == null || title == '') && reportPartName != null">/</span>
+										<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
+											href="{{options.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{reportPartName}}
+										</a>
+									</span>
 									<a title="Show tile options" class="title-button button2" ng-click="flipBack()">
 										<span class="bar"></span>
 										<span class="bar"></span>
@@ -428,8 +424,23 @@
 							</div>
 							<div class="title-container" style="height: 35px; overflow: hidden;">
 								<div class="title">
-									<ng-include src="'tileTitleTemplate'"></ng-include>
-									<a title="Show tile options" class="title-button title-button-remove button2" ng-click="flipFront(true)">
+									<span class="title-text">
+										<a ng-if="title != null && title != ''" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
+											href="{{options.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{title}}
+										</a>
+										<a ng-if="(title == null || title == '') && reportCategory != null" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
+											href="{{options.urlSettings.urlReportList}}#{{reportCategory}}">{{reportCategory}}
+										</a>
+										<span ng-if="(title == null || title == '') && title != '' && reportCategory != null">/</span>
+										<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
+											href="{{options.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{reportName}}
+										</a>
+										<span ng-if="(title == null || title == '') && reportPartName != null">/</span>
+										<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
+											href="{{options.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{reportPartName}}
+										</a>
+									</span>
+									<a title="Show tile options" class="title-button title-button-remove button2" ng-click="flipFront(false)">
 										<img src="DashboardsResources/images/turn-18.png" class="img-responsive" />
 									</a>
 									<a title="Delete tile" class="title-button title-button-remove button1"
@@ -457,11 +468,11 @@
 
 <script type="text/javascript" src="DashboardsResources/angular-js/modules/module-definition.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/services/url-service.js"></script>
+<script type="text/javascript" src="DashboardsResources/angular-js/services/compatibility-service.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/services/rs-query-service.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/services/common-query-service.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/services/toolbar-query-service.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/services/dashboard-query-service.js"></script>
-<script type="text/javascript" src="DashboardsResources/angular-js/dashboard-app.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/controllers/toolbar-controller.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/controllers/tile-controller.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/controllers/dashboard-controller.js"></script>

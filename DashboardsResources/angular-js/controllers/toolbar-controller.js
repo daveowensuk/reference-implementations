@@ -1,5 +1,5 @@
-﻿angular.module('izendaDashboard').controller('IzendaToolbarController', ['$scope', '$rootScope', '$compile', '$window', '$location', '$cookies', '$izendaRsQuery', '$izendaDashboardToolbarQuery', '$izendaUrl',
-function IzendaToolbarController($scope, $rootScope, $compile, $window, $location, $cookies, $izendaRsQuery, $izendaDashboardToolbarQuery, $izendaUrl) {
+﻿izendaDashboardModule.controller('IzendaToolbarController', ['$scope', '$rootScope', '$window', '$location', '$cookies', '$izendaCompatibility', '$izendaRsQuery', '$izendaDashboardToolbarQuery', '$izendaUrl',
+function IzendaToolbarController($scope, $rootScope, $window, $location, $cookies, $izendaCompatibility, $izendaRsQuery, $izendaDashboardToolbarQuery, $izendaUrl) {
   'use strict';
 
   //////////////////////////////////////////////////////
@@ -167,6 +167,20 @@ function IzendaToolbarController($scope, $rootScope, $compile, $window, $locatio
   //////////////////////////////////////////////////////
   // PUBLIC
   //////////////////////////////////////////////////////
+
+  /**
+   * Check old IE version
+   */
+  $scope.checkIsIE8 = function () {
+    return $izendaCompatibility.checkIsIe8();
+  };
+
+  /**
+   * Check if one column view required
+   */
+  $scope.isOneColumnView = function () {
+    return $izendaCompatibility.isOneColumnView();
+  };
 
   /**
    * Check toggleHueRotateEnabled

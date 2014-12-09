@@ -1,4 +1,4 @@
-﻿angular.module('izendaDashboard').constant('tileDefaults', {
+﻿izendaDashboardModule.constant('tileDefaults', {
   id: null,
   title: null,
   description: null,
@@ -14,10 +14,8 @@
   width: 1,
   height: 1,
   top: 100
-});
-
-angular.module('izendaDashboard').controller('IzendaTileController', ['$window', '$element', '$rootScope', '$scope', '$injector', '$izendaUrl', '$izendaCommonQuery', '$izendaDashboardQuery',
-function IzendaTileController($window, $element, $rootScope, $scope, $injector, $izendaUrl, $izendaCommonQuery, $izendaDashboardQuery) {
+}).controller('IzendaTileController', ['$window', '$element', '$rootScope', '$scope', '$injector', '$izendaUrl', '$izendaCompatibility', '$izendaCommonQuery', '$izendaDashboardQuery',
+function IzendaTileController($window, $element, $rootScope, $scope, $injector, $izendaUrl, $izendaCompatibility, $izendaCommonQuery, $izendaDashboardQuery) {
   'use strict';
   
   $scope.state = {
@@ -28,17 +26,24 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
   $scope.deleteClass = 'title-button';
   $scope.deleteConfirmClass = 'title-button hidden-confirm-btn';
 
+  /**
+   * Check old IE version
+   */
+  $scope.checkIsIE8 = function () {
+    return $izendaCompatibility.checkIsIe8();
+  };
+
+  /**
+   * Check if one column view required
+   */
+  $scope.isOneColumnView = function () {
+    return $izendaCompatibility.isOneColumnView();
+  };
+
   ////////////////////////////////////////////////////////
   // calculated tile parameters:
   ////////////////////////////////////////////////////////
-
-  /**
-   * Shortcut for $parent.isOneColumnView() function
-   */
-  $scope.isOneColumnView = function() {
-    return $scope.$parent.isOneColumnView();
-  };
-
+  
   /**
    * Get X coordinate for tile. This coordinate used for drawing tile UI
    */
@@ -302,6 +307,8 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
    * Set scroll to tile.
    */
   $scope.setScroll = function () {
+    if ($scope.checkIsIE8())
+      return;
     var $tile = angular.element($element);
     $tile.find('.frame').css('overflow', 'hidden');
     var $front = $tile.find('.flippy-front .frame');
@@ -328,7 +335,9 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
   /**
    * Remove scrollbar
    */
-  $scope.removeScroll = function() {
+  $scope.removeScroll = function () {
+    if ($scope.checkIsIE8())
+      return;
     var $tile = angular.element($element);
     var $front = $tile.find('.flippy-front .frame');
     if ($front.hasClass('ps-container')) {
@@ -565,16 +574,31 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
   function initializeTopSlider() {
     var $tile = angular.element($element);
     var $slider = $tile.find('.slider');
-    $slider.bootstrapSlider().on('slide', function (ev) {
-      $scope.top = ev.value;
-      if (!$scope.$$phase)
-        $scope.$apply();
-    }).on('slideStop', function (ev) {
-      $scope.top = ev.value;
-      if (!$scope.$$phase)
-        $scope.$apply();
-      flipTileFront(true);
-    });
+    if ($scope.checkIsIE8()) {
+      $slider.on('change', function(ev) {
+        $scope.top = angular.element(this).val();
+        if (!$scope.$$phase)
+          $scope.$apply();
+        flipTileFront(true);
+      });
+      return;
+    }
+    try {
+      if (angular.isUndefined($slider.bootstrapSlider))
+        return;
+      $slider.bootstrapSlider().on('slide', function(ev) {
+        $scope.top = ev.value;
+        if (!$scope.$$phase)
+          $scope.$apply();
+      }).on('slideStop', function(ev) {
+        $scope.top = ev.value;
+        if (!$scope.$$phase)
+          $scope.$apply();
+        flipTileFront(true);
+      });
+    } catch (ex) {
+      console.log('Can\'t initialize bootstrap slider: ', ex);
+    }
   }
 
   /**
@@ -695,6 +719,12 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
       $zerochartResults.closest('table').css('height', '100%');
       divs$.css('height', '100%');
     }
+
+    /*var $reportsDiv = $b.find('#_ReportsDiv');
+    if ($reportsDiv.length > 0) {
+      $reportsDiv.children('table').children('tbody').children('tr').children('td[rowspan="1"][colspan="1"]').hide();
+    }*/
+
     if (!angular.isUndefined(AdHoc) && !angular.isUndefined(AdHoc.Utility) && typeof (AdHoc.Utility.DocumentReady) == 'function') {
       AdHoc.Utility.DocumentReady();
     }
