@@ -152,10 +152,18 @@
 					</a>
 					<ul class="pull-right" style="margin: 10px; margin-top: 14px;">
 						<li class="dropdown">
-							<a class="dropdown-toggle" data-toggle="dropdown" title="Open dashboard">
+							<a class="dropdown-toggle" data-toggle="dropdown" title="Open dashboard"
+								ng-if="!checkIsIE8()">
 								<span class="glyphicon glyphicon-folder-open">
 									<b class="caret"></b>
-								</span></a>
+								</span>
+							</a>
+							<a class="dropdown-toggle" data-toggle="dropdown" title="Open dashboard"
+								ng-if="checkIsIE8()">
+								<span><img src="DashboardsResources/images/folder.png"/>
+									<b class="caret"></b>
+								</span>
+							</a>
 							<ul class="dropdown-menu pull-right" role="menu">
 								<li ng-repeat="category in dashboardCategories">
 									<div class="iz-dash-menu-catergory">{{category.name}}</div>
@@ -187,37 +195,71 @@
 						<li><a ng-click="hideButtonBar()" title="Hide buttons" style="border-right: 1px solid #ddd;">
 							<span class="glyphicon glyphicon-chevron-left"></span>
 						</a></li>
-						<li><a id="izendaDashboardCreateDash" title="Create New Dashboard"
-							ng-click="createNewDashboardHandler()">
-							<span class="glyphicon glyphicon-plus"></span>
-						</a></li>
+						<li>
+							<a title="Create New Dashboard"
+								ng-click="createNewDashboardHandler()"
+								ng-if="!checkIsIE8()">
+								<span class="glyphicon glyphicon-plus"></span>
+							</a>
+							<a title="Create New Dashboard"
+								ng-click="createNewDashboardHandler()"
+								ng-if="checkIsIE8()">
+								<img src="DashboardsResources/images/add-new.png"/>
+							</a>
+						</li>
 						<!-- refresh -->
-						<li><a id="izendaDashboardRefreshDash" title="Refresh Dashboard"
-							ng-click="refreshDashboardHandler()">
-							<span class="glyphicon glyphicon-refresh"></span>
-						</a></li>
+						<li>
+							<a title="Refresh Dashboard"
+								ng-click="refreshDashboardHandler()"
+								ng-if="!checkIsIE8()"><span class="glyphicon glyphicon-refresh"></span>
+							</a>
+							<a title="Refresh Dashboard"
+								ng-click="refreshDashboardHandler()"
+								ng-if="checkIsIE8()"><img src="DashboardsResources/images/refresh-18.png"/>
+							</a>
+						</li>
+						
 						<!-- save -->
 						<li class="dropdown">
-							<a class="dropdown-toggle" data-toggle="dropdown" title="Save Dashboard">
+							<a class="dropdown-toggle" data-toggle="dropdown" title="Save Dashboard"
+								ng-if="!checkIsIE8()">
 								<span class="glyphicon glyphicon-floppy-disk">&nbsp;<b class="caret"></b></span>
+							</a>
+							<a class="dropdown-toggle" data-toggle="dropdown" title="Save Dashboard"
+								ng-if="checkIsIE8()">
+								<img src="DashboardsResources/images/floppy.png"/>&nbsp;<b class="caret"></b>
 							</a>
 							<ul class="dropdown-menu">
 								<li class="iz-dash-menu-item">
-									<a id="izendaDashboardSaveDash" title="Save Dashboard"
-										ng-click="saveDashboardHandler(false)">
+									<a title="Save Dashboard"
+										ng-click="saveDashboardHandler(false)"
+										ng-if="!checkIsIE8()">
 										<span class="glyphicon glyphicon-floppy-disk"></span>Save Dashboard
 									</a>
+									<a title="Save Dashboard"
+										ng-click="saveDashboardHandler(false)"
+										ng-if="checkIsIE8()">
+										<img src="DashboardsResources/images/floppy.png"/>Save Dashboard
+									</a>
 								</li>
-								<li class="iz-dash-menu-item"><a id="izendaDashboardSaveDashAs" title="Save Dashboard As"
-									ng-click="saveDashboardHandler(true)">
-									<span class="glyphicon glyphicon-floppy-disk"></span>Save Dashboard As
-								</a></li>
+								<li class="iz-dash-menu-item">
+									<a title="Save Dashboard As"
+										ng-click="saveDashboardHandler(true)"
+										ng-if="!checkIsIE8()">
+										<span class="glyphicon glyphicon-floppy-disk"></span>Save Dashboard As
+									</a>
+									<a title="Save Dashboard As"
+										ng-click="saveDashboardHandler(true)"
+										ng-if="checkIsIE8()">
+										<img src="DashboardsResources/images/floppy.png"/>Save Dashboard As
+									</a>
+								</li>
 							</ul>
 						</li>
 						<li class="dropdown">
 							<a class="hue-rotate-btn dropdown-toggle" data-toggle="dropdown"
-								title="Toggle background hue rotate" ng-style="backgroundColorStyle" style="padding-top: 2px;">
-								<img class="icon" src="DashboardsResources/images/color-bw.png" style="width: 16px; height: 16px; padding-top: 2px;" alt="Hue rotate" />
+								title="Toggle background hue rotate" ng-style="backgroundColorStyle">
+								<img class="icon" src="DashboardsResources/images/color-bw.png" style="width: 16px;" alt="Hue rotate" />
 								&nbsp;<b class="caret"></b>
 							</a>
 							<div class="dropdown-menu dropdown-no-close-on-click" style="min-width: 200px; text-align: center;">
@@ -247,8 +289,15 @@
 					<!-- navbar "folder" dropdown -->
 					<ul class="nav navbar-nav iz-dash-dashboards-dropdown" ng-show="dashboardCategories.length">
 						<li class="dropdown">
-							<a class="dropdown-toggle" data-toggle="dropdown" title="Open dashboard">
+							<a class="dropdown-toggle" data-toggle="dropdown" title="Open dashboard"
+								ng-if="!checkIsIE8()">
 								<span class="glyphicon glyphicon-folder-open">
+									<b class="caret"></b>
+								</span>
+							</a>
+							<a class="dropdown-toggle" data-toggle="dropdown" title="Open dashboard"
+								ng-if="checkIsIE8()">
+								<span><img src="DashboardsResources/images/folder.png"/>
 									<b class="caret"></b>
 								</span>
 							</a>
@@ -268,14 +317,18 @@
 						<ul class="nav navbar-nav unselectable iz-dash-nav-tabs-left"
 							style="position: absolute; left: 0; top: 0; background-color: #e3e3e3; z-index: 1;">
 							<li><a title="Show previous dashboards" ng-click="shiftTabs(-1)" ng-hide="hiddenShiftTabs(-1)">
-								<b style="font-size: 12px;" class="glyphicon glyphicon-chevron-left"></b>
+								<b style="font-size: 12px;" class="glyphicon glyphicon-chevron-left"
+									ng-if="!checkIsIE8()"></b>
+								<b style="font-size: 12px;" ng-if="checkIsIE8()">&lt;</b>
 							</a></li>
 						</ul>
 						<ul class="unselectable nav navbar-nav iz-dash-nav-tabs"></ul>
 						<ul class="nav navbar-nav unselectable iz-dash-nav-tabs-right"
 							style="position: absolute; right: 0; top: 0; background-color: #ddd; z-index: 1;">
 							<li><a title="Show next dashboards" ng-click="shiftTabs(1)" ng-hide="hiddenShiftTabs(1)">
-								<b style="font-size: 12px;" class="glyphicon glyphicon-chevron-right"></b>
+								<b style="font-size: 12px;" class="glyphicon glyphicon-chevron-right"
+									ng-if="!checkIsIE8()"></b>
+								<b style="font-size: 12px;" ng-if="checkIsIE8()">&gt;</b>
 							</a></li>
 						</ul>
 					</div>

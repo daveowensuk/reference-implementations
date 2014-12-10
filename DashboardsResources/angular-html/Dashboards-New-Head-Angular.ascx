@@ -15,21 +15,21 @@
 		window.jQueryTemp = window.jQuery;
 	window.jQuery = jq$;
 </script>
-<!--[if !IE]><!-->
+<![if !IE]>
 <script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-route.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-animate.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-cookies.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/vendor/ngFx.js"></script>
-<!--<![endif]-->
-<!--[if gte IE 9]>
+<![endif]>
+<!--[if gt IE 8]>
 	<script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular.js"></script>
 	<script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-route.js"></script>
 	<script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-animate.js"></script>
 	<script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-cookies.js"></script>
 	<script type="text/javascript" src="DashboardsResources/angular-js/vendor/ngFx.js"></script>
 <![endif]-->
-<!--[if lt IE 9]>
+<!--[if lte IE 8]>
 	<script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-1.2.27/angular.js"></script>
 	<script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-1.2.27/angular-route.js"></script>
 	<script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-1.2.27/angular-animate.js"></script>
