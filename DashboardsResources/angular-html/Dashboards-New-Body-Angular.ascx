@@ -192,9 +192,16 @@
 					</ul>
 					<ul ng-class="buttonbarClass" class="nav navbar-nav iz-dash-toolbtn-panel left-transition">
 						<!-- create new -->
-						<li><a ng-click="hideButtonBar()" title="Hide buttons" style="border-right: 1px solid #ddd;">
-							<span class="glyphicon glyphicon-chevron-left"></span>
-						</a></li>
+						<li>
+							<a ng-click="hideButtonBar()" title="Hide buttons" style="border-right: 1px solid #ddd;"
+								ng-if="!checkIsIE8()">
+								<span class="glyphicon glyphicon-chevron-left"></span>
+							</a>
+							<a ng-click="hideButtonBar()" title="Hide buttons" style="border-right: 1px solid #ddd;"
+								ng-if="checkIsIE8()">
+								<b>&lt;</b>
+							</a>
+						</li>
 						<li>
 							<a title="Create New Dashboard"
 								ng-click="createNewDashboardHandler()"
