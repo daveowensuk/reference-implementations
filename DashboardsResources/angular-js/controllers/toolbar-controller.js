@@ -118,7 +118,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
     timeout: false,
     rtime: null,
     previousWidth: null
-};
+  };
 
   // triple bar button styles:
   $scope.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition';
@@ -145,6 +145,12 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    * Start initialize dashboard when location was changed or page was loaded
    */
   $scope.$on('$locationChangeSuccess', function () {
+    var isNewDashboard = $location.search()['new'];
+    if (isNewDashboard) {
+      $scope.createNewDashboardHandler();
+      return;
+    }
+
     if ($izendaUrl.getReportInfo().fullName == null)
       return;
     $scope.setDashboard($izendaUrl.getReportInfo().fullName);
@@ -195,8 +201,21 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    * Create new dashboard button handler.
    */
   $scope.createNewDashboardHandler = function () {
-    $rootScope.$broadcast('dashboardCreateNewEvent', []);
+    $rootScope.$broadcast('openSelectReportNameModalEvent', [true]);
   };
+
+  /**
+   * Create new dashboard. Fires when user selects name for new dashboard in IzendaSelectReportNameController
+   */
+  $scope.$on('selectedNewReportNameEvent', function (event, args) {
+    var dashboardName = args[0],
+        dashboardCategory = args[1];
+    var url = dashboardName;
+    if (angular.isString(dashboardCategory) && dashboardCategory != '' && dashboardCategory.toLowerCase() != 'uncategorized') {
+      url = dashboardCategory + '/' + dashboardName;
+    }
+    $location.url(url);
+  });
 
   /**
    * Refresh dashboard button handler.
@@ -791,11 +810,6 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
       prevCat = newCat;
     var isCategoryChanged = prevCat !== newCat;
     $scope.previousDashboardCategory = newCat;
-
-    // cancel all current queries
-    $izendaRsQuery.cancelAllQueries('Starting load next dashboard.');
-
-    angular.element('.iz-dash-tile').css('display', 'none');
 
     // notify dashboard to start
     $rootScope.$broadcast('dashboardSetEvent', [{}]);

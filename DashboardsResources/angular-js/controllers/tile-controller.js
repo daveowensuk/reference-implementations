@@ -681,21 +681,26 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
 
     var previousReportName = $scope.previousReportFullName;
     $scope.previousReportFullName = null;
-    if ($scope.preloadStarted) {
+    if ($scope.preloadStarted && $scope.preloadDataHandler != null) {
+      //console.log('>>> 1: do preloadDataHandler', $izendaUrl.getReportInfo().fullName, $scope.reportFullName);
       $scope.preloadDataHandler.then(function (htmlData) {
+        //console.log('>>> 1: done preloadDataHandler', $izendaUrl.getReportInfo().fullName, $scope.reportFullName);
         $scope.preloadStarted = false;
         applyTileHtml(htmlData);
       });
     } else {
       if (!angular.isUndefined($scope.preloadData) && $scope.preloadData !== null) {
+        //console.log('>>> 2: done preloadData', $izendaUrl.getReportInfo().fullName, $scope.reportFullName);
         applyTileHtml($scope.preloadData);
         $scope.preloadData = null;
       } else {
+        //console.log('>>> 3: do request', $izendaUrl.getReportInfo().fullName, $scope.reportFullName);
         var heightDelta = $scope.description != null && $scope.description != '' ? 120 : 90;
         $izendaDashboardQuery.loadTileReport(updateFromSourceReport, $izendaUrl.getReportInfo().fullName, $scope.reportFullName,
               previousReportName, $scope.top, ($scope.getWidth() * $scope.$parent.tileWidth) - 40,
               ($scope.getHeight() * $scope.$parent.tileHeight) - heightDelta)
         .then(function (htmlData) {
+          //console.log('>>> 3: done request', $izendaUrl.getReportInfo().fullName, $scope.reportFullName);
           applyTileHtml(htmlData);
         });
       }

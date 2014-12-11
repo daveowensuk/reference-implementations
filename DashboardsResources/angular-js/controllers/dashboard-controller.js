@@ -1,5 +1,5 @@
-﻿izendaDashboardModule.controller('IzendaDashboardController', ['$rootScope', '$scope', '$window', '$q', '$animate', '$injector', '$izendaUrl', '$izendaCompatibility', '$izendaDashboardQuery',
-function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $injector, $izendaUrl, $izendaCompatibility, $izendaDashboardQuery) {
+﻿izendaDashboardModule.controller('IzendaDashboardController', ['$rootScope', '$scope', '$window', '$q', '$animate', '$injector', '$izendaUrl', '$izendaCompatibility', '$izendaDashboardQuery', '$izendaRsQuery',
+function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $injector, $izendaUrl, $izendaCompatibility, $izendaDashboardQuery, $izendaRsQuery) {
   'use strict';
 
   var newTileIndex = 1;
@@ -39,9 +39,25 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $i
   });
 
   /**
-   * Create new dashboard
+   * Listen dashboard "save/save as" event
    */
-  $scope.$on('dashboardCreateNewEvent', function () {
+  $scope.$on('dashboardSaveEvent', function (event, args) {
+    if (args[0]) {
+      $rootScope.$broadcast('openSelectReportNameModalEvent', []);
+    } else {
+      var dashboardName = $scope.options.reportInfo.name,
+          dashboardCategory = $scope.options.reportInfo.category;
+      console.log('Save dashboard: ', dashboardName, dashboardCategory);
+    }
+  });
+
+  /**
+   * Save dashboard as (create dashboard copy). Fires when user selects name of new dashboard in IzendaSelectReportNameController.
+   */
+  $scope.$on('selectedReportNameEvent', function (event, args) {
+    var dashboardName = args[0],
+        dashboardCategory = args[1];
+    console.log('Save dashboard as: ', dashboardName, dashboardCategory);
   });
 
   /**
@@ -57,17 +73,6 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $i
    */
   $scope.$on('dashboardRefreshEvent', function (event, args) {
     refreshAllTiles();
-  });
-
-  /**
-   * Listen dashboard "save/save as" event
-   */
-  $scope.$on('dashboardSaveEvent', function (event, args) {
-    if (args[0]) {
-      $rootScope.$broadcast('openSelectReportNameModalEvent', []);
-    } else {
-      alert('SAVE DASHBOARD. Use name dialog: ' + args[0]);
-    }
   });
 
   /**
@@ -471,7 +476,6 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $i
    */
   $scope.initialize = function (options) {
     // set options
-    $scope.checkIsIE8();
     $scope.options.reportInfo = $izendaUrl.getReportInfo();
 
     // remove content from all tiles to speed up "bounce up" animation
@@ -644,9 +648,28 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $i
    */
   function loadDashboardLayout() {
     // load dashboard layout
-    if ($scope.tiles.length > 0) {
-      $scope.tiles.length = 0;
+
+    // CLEAR TILES BEFORE LOADING:
+
+    // remove tiles
+    $scope.tiles.length = 0;
+
+    // interrupt previous animations
+    clearInterval($scope.refreshIntervalId);
+    $scope.refreshIntervalId = null;
+
+    // cancel all current queries
+    var countCancelled = $izendaRsQuery.cancelAllQueries({
+      ignoreList: ['getdashboardcategories', 'getReportDashboardConfig']
+    });
+    if (countCancelled > 0) {
+      console.log('>>> Cancelled ' + countCancelled + ' queryes');
     }
+    // remove html
+    var tiles = angular.element('.iz-dash-tile');
+    tiles.remove();
+
+    // start loading dashboard layout
     $izendaDashboardQuery.loadDashboardLayout($scope.options.reportInfo.fullName).then(function (data) {
       // collect tiles information:
       var tilesToAdd = [];
@@ -678,6 +701,8 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $i
         }
       }
       tilesToAdd = sortTilesByPosition(tilesToAdd);
+      
+      // start loading tile reports
       for (var i = 0; i < tilesToAdd.length; i++) {
         loadTileReport(tilesToAdd[i]);
       }
@@ -690,12 +715,12 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $i
         width: 12 * $scope.tileWidth
       }]);
       var animationSpeed = 200;
-      var refreshIntervalId = null;
-      $scope.tiles.length = 0;
+      
+      // start adding tiles
       var index = 0;
       function nextTile() {
-        if (index >= tilesToAdd.length && refreshIntervalId != null) {
-          clearInterval(refreshIntervalId);
+        if (index >= tilesToAdd.length && $scope.refreshIntervalId != null) {
+          clearInterval($scope.refreshIntervalId);
           if (index >= tilesToAdd.length) {
             // update dashboard size when all finished
             $scope.updateDashboardSize();
@@ -709,7 +734,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $i
         index++;
       }
       nextTile();
-      refreshIntervalId = window.setInterval(nextTile, animationSpeed);
+      $scope.refreshIntervalId = window.setInterval(nextTile, animationSpeed);
     });
   };
 
@@ -717,14 +742,17 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $i
    * Start preloading report
    */
   function loadTileReport(tileObj) {
-    tileObj.preloadStarted = true;
     tileObj.preloadData = null;
+    tileObj.preloadDataHandler = null;
+    if (!angular.isString(tileObj.reportFullName) || tileObj.reportFullName == '')
+      return;
+    tileObj.preloadStarted = true;
     tileObj.preloadDataHandler = (function() {
       var deferred = $q.defer();
       var heightDelta = tileObj.description != null && tileObj.description != '' ? 120 : 90;
       $izendaDashboardQuery.loadTileReport(
         false,
-        $izendaUrl.getReportInfo().fullName,
+        $scope.options.reportInfo.fullName,
         tileObj.reportFullName,
         null,
         tileObj.top,
@@ -735,6 +763,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $i
         tileObj.preloadData = htmlData;
         deferred.resolve(htmlData);
         tileObj.preloadData = null;
+        tileObj.preloadDataHandler = null;
       });
       return deferred.promise;
     })();
@@ -742,7 +771,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $i
       var heightDelta = tileObj.description != null && tileObj.description != '' ? 120 : 90;
       $izendaDashboardQuery.loadTileReport(
         false,
-        $izendaUrl.getReportInfo().fullName,
+        $scope.options.reportInfo.fullName,
         tileObj.reportFullName,
         null,
         tileObj.top,

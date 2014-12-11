@@ -9,7 +9,7 @@ izendaQueryModule.factory('$izendaRsQuery', ['$http', '$q', '$izendaUrl', functi
 
   var rsQueryLog = {};
 
-  var requestList = {};
+  var requestList = [];
 
   // PUBLIC API:
   return {
@@ -19,7 +19,7 @@ izendaQueryModule.factory('$izendaRsQuery', ['$http', '$q', '$izendaUrl', functi
 
   /**
    * Make query to rs.aspx
-   */
+   */ 
   function query(wsCmd, wsArgs, options) {
     if (!angular.isString(wsCmd) || wsCmd.trim() == '')
       throw 'wsCmd parameter should be not empty string.';
@@ -55,25 +55,65 @@ izendaQueryModule.factory('$izendaRsQuery', ['$http', '$q', '$izendaUrl', functi
     rsQueryLog[url] = new Date();
 
     // make request
-    var request = $http({
+    var request = angular.element.ajax({
       method: 'get',
       url: url,
+      context: {
+        url: url
+      },
       responseType: queryOptions.dataType
     });
-    requestList[url] = request;
+    requestList.push({
+      url: url,
+      request: request
+    });
     return request.then(handleSuccess, handleError);
+  }
+
+  /**
+   * Remove request from array
+   */
+  function removeRequest(url) {
+    var foundIndex = -1;
+    var i = 0;
+    while (foundIndex < 0 && i < requestList.length) {
+      if (requestList[i].url === url) {
+        foundIndex = i;
+      }
+      i++;
+    }
+    if (foundIndex >= 0) {
+      requestList.splice(foundIndex, 1);
+    }
   }
 
   /**
    * Cancel all running queries
    */
-  function cancelAllQueries(message) {
-    /*for (var requestId in requestList) {
-      if (requestList.hasOwnProperty(requestId)) {
-        if (requestList[requestId] != null)
-          requestList[requestId].cancel(message);
+  function cancelAllQueries(options) {
+    var opts = options || {};
+    var count = requestList.length;
+    var i = 0;
+    while (i < requestList.length) {
+      var request = requestList[0];
+      var cancel = true;
+      if (opts.hasOwnProperty('ignoreList')) {
+        var ignoreList = opts['ignoreList'];
+        for (var j = 0; j < ignoreList.length; j++) {
+          if (request.url.indexOf(ignoreList[j]) >= 0) {
+            cancel = false;
+          }
+        }
       }
-    }*/
+      if (cancel) {
+        console.log('<<< (cancelled!) ' + ((new Date()).getTime() - rsQueryLog[request.url].getTime()) + 'ms: ' + request.url);
+        request.request.abort();
+        requestList.splice(0, 1);
+      } else {
+        i++;
+      }
+    }
+    return count - i;
   }
 
   // ========================================
@@ -87,9 +127,10 @@ izendaQueryModule.factory('$izendaRsQuery', ['$http', '$q', '$izendaUrl', functi
     return ($q.reject(response.data.message));
   }
 
-  function handleSuccess(response) {
-    requestList[response.config.url] = null;
-    console.log('<<< ' + ((new Date()).getTime() - rsQueryLog[response.config.url].getTime()) + 'ms: ' + response.config.url);
+  function handleSuccess(response, state, params) {
+    var currentUrl = this.url;
+    console.log('<<< ' + ((new Date()).getTime() - rsQueryLog[currentUrl].getTime()) + 'ms: ' + currentUrl);
+    removeRequest(currentUrl);
     if (typeof (response.data) == 'string') {
       return response.data;
     }

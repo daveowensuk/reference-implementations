@@ -17,14 +17,14 @@ function IzendaSelectReportNameController($rootScope, $scope, $q, $element, $ize
    * Open modal event
    */
   $scope.$on('openSelectReportNameModalEvent', function (event, args) {
+    $scope.isNewReportDialog = args.length > 0 ? args[0] : false;
     $scope.show();
   });
 
   /**
    * Set form to it's initial state
    */
-  $scope.resetForm = function (isNewReportDialog) {
-    $scope.isNewReportDialog = isNewReportDialog;
+  $scope.resetForm = function () {
     var reportInfo = $izendaUrl.getReportInfo();
     $scope.errorMessages.length = 0;
     $scope.isCreatingNewCategory = false;
@@ -32,7 +32,7 @@ function IzendaSelectReportNameController($rootScope, $scope, $q, $element, $ize
     $scope.selectedCategoryId = -1;
     $scope.categories.length = 0;
     $scope.reportSets.length = 0;
-    if (isNewReportDialog) {
+    if ($scope.isNewReportDialog) {
       $scope.reportName = '';
     } else {
       $scope.reportName = reportInfo.name;
@@ -106,7 +106,6 @@ function IzendaSelectReportNameController($rootScope, $scope, $q, $element, $ize
 
       var selectedObj = $scope.getCategoryObjectById($scope.selectedCategoryId);
       var categoryName = $scope.isCreatingNewCategory ? $scope.newCategoryName : selectedObj['name'];
-      alert('SAVE REPORT AS ' + categoryName + '\\' + $scope.reportName);
       $rootScope.$broadcast($scope.isNewReportDialog ? 'selectedNewReportNameEvent' : 'selectedReportNameEvent',
         [$scope.reportName, categoryName]);
     }, function () {
