@@ -660,7 +660,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $i
 
     // cancel all current queries
     var countCancelled = $izendaRsQuery.cancelAllQueries({
-      ignoreList: ['getdashboardcategories', 'getReportDashboardConfig']
+      ignoreList: ['getdashboardcategories']
     });
     if (countCancelled > 0) {
       console.log('>>> Cancelled ' + countCancelled + ' queryes');
