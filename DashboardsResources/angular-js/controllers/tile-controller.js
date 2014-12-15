@@ -17,6 +17,8 @@
 }).controller('IzendaTileController', ['$window', '$element', '$rootScope', '$scope', '$injector', '$izendaUrl', '$izendaCompatibility', '$izendaCommonQuery', '$izendaDashboardQuery',
 function IzendaTileController($window, $element, $rootScope, $scope, $injector, $izendaUrl, $izendaCompatibility, $izendaCommonQuery, $izendaDashboardQuery) {
   'use strict';
+
+  var _ = angular.element;
   
   $scope.state = {
     resizableHandlerStarted: false
@@ -141,6 +143,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
     var tileIdArray = angular.isArray(eventOptions.tileId) ? eventOptions.tileId : [eventOptions.tileId];
     if (tileIdArray.indexOf($scope.id) >= 0) {
       $scope.updateTileParameters();
+      updateParentTile();
       if (eventOptions.refresh)
         $scope.refreshTile(false);
     }
@@ -166,6 +169,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
       $scope.reportNameWithCategory = $scope.reportCategory + '\\' + $scope.reportNameWithCategory;
     $scope.top = 100;
     $scope.flipFront(true, true);
+    updateParentTile();
   });
 
   ////////////////////////////////////////////////////////
@@ -188,10 +192,8 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
     initializeTopSlider();
     updateDashboardHandlers($element);
 
-    $scope.$watch(['width', 'height'], function () {
-      changeTileSizeHandler();
-      $scope.$parent.updateDashboardSize();
-    });
+    changeTileSizeHandler();
+    $scope.$parent.updateDashboardSize();
   };
 
   /**
@@ -309,7 +311,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
   $scope.setScroll = function () {
     if ($scope.checkIsIE8())
       return;
-    var $tile = angular.element($element);
+    var $tile = _($element);
     $tile.find('.frame').css('overflow', 'hidden');
     var $front = $tile.find('.flippy-front .frame');
     if ($scope.top != -999) {
@@ -338,7 +340,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
   $scope.removeScroll = function () {
     if ($scope.checkIsIE8())
       return;
-    var $tile = angular.element($element);
+    var $tile = _($element);
     var $front = $tile.find('.flippy-front .frame');
     if ($front.hasClass('ps-container')) {
       $front.perfectScrollbar('destroy');
@@ -373,6 +375,34 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
   ////////////////////////////////////////////////////////
 
   /**
+   * Update parent collection. Should be called when tile change ends.
+   */
+  function updateParentTile() {
+    var parentTile = $scope.$parent.getTileById($scope.id);
+    var oldTile = jQuery.extend({}, parentTile);
+    parentTile.width = $scope.width;
+    parentTile.height = $scope.height;
+    parentTile.x = $scope.x;
+    parentTile.y = $scope.y;
+    parentTile.reportName = $scope.reportName;
+    parentTile.reportCategory = $scope.reportCategory;
+    parentTile.reportFullName = $scope.reportFullName;
+    parentTile.title = $scope.title;
+    parentTile.description = $scope.description;
+
+    var change = {};
+    for (var prop in parentTile) {
+      if (parentTile.hasOwnProperty(prop)) {
+        var newValue = parentTile[prop];
+        if (!(prop in oldTile) || newValue !== oldTile[prop]) {
+          change[prop] = newValue;
+        }
+      }
+    }
+    console.log(parentTile.id + ': ', change);
+  };
+
+  /**
    * initialize draggable for tile
    */
   function initializeDraggable() {
@@ -380,7 +410,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
       stack: '.iz-dash-tile',
       handle: '.title-container',
       helper: function (event, ui) {
-        var $target = angular.element(event.currentTarget);
+        var $target = _(event.currentTarget);
         var helperStr =
           '<div class="iz-dash-tile iz-dash-tile-helper" style="top: 0px; height: ' + $target.height() + 'px; left: 0px; width: ' + $target.width() + 'px; opacity: 1; transform: matrix(1, 0, 0, 1, 0, 0); z-index: 1000;">' +
           '<div class="animate-flip">' +
@@ -388,7 +418,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
           '<div class="title-container" style="height: 35px; overflow: hidden;"><div class="title"><span class="title-text">' +
           '</span></div></div>' +
           '</div></div></div>';
-        return angular.element(helperStr);
+        return _(helperStr);
       },
       distance: 10,
       start: function (event, ui) {
@@ -397,7 +427,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
           actionName: 'drag'
         }]);
 
-        var $target = angular.element(event.target),
+        var $target = _(event.target),
             $helper = ui.helper,
             targetPos = $target.position(),
             helperPos = $helper.position(),
@@ -440,7 +470,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
       stop: function (event, ui) {
         var $flippies = $scope.$parent.getTileContainer().find('.animate-flip > .flippy-front, .animate-flip > .flippy-back');
         var $helper = ui.helper;
-        var $source = angular.element(event.target);
+        var $source = _(event.target);
         var $target = $scope.$parent.getUnderlyingTile(event.pageX, event.pageY, $scope);
         $flippies.css('background-color', '#fff');
 
@@ -508,7 +538,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
           actionName: 'resize'
         }]);
         $animates = $scope.$parent.getTileContainer().find('.animate-flip');
-        var $target = angular.element(event.target);
+        var $target = _(event.target);
         $target.find('.flippy-front, .flippy-back').removeClass('flipInY');
         $target.find('.flippy-front, .flippy-back').css('background-color', 'rgba(50,205,50, 0.3)');
         $target.find('.frame').addClass('hidden');
@@ -572,11 +602,11 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
    * Initialize select report top records count slider control
    */
   function initializeTopSlider() {
-    var $tile = angular.element($element);
+    var $tile = _($element);
     var $slider = $tile.find('.slider');
     if ($scope.checkIsIE8()) {
       $slider.on('change', function(ev) {
-        $scope.top = angular.element(this).val();
+        $scope.top = _(this).val();
         if (!$scope.$$phase)
           $scope.$apply();
         flipTileFront(true);
@@ -605,7 +635,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
    * Flip tile to the front side and refresh if needed.
    */
   function flipTileFront(update, updateFromSourceReport) {
-    var $tile = angular.element($element);
+    var $tile = _($element);
     var showClass = 'animated fast flipInY';
     var hideClass = 'animated fast flipOutY';
     var $front = $tile.find('.flippy-front');
@@ -626,7 +656,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
    * Flip tile to back side
    */
   function flipTileBack() {
-    var $tile = angular.element($element);
+    var $tile = _($element);
     var showClass = 'animated fast flipInY';
     var hideClass = 'animated fast flipOutY';
     var $front = $tile.find('.flippy-front');
@@ -660,7 +690,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
    * Clear tile content
    */
   function clearTileContent() {
-    var $body = angular.element($element).find('.report');
+    var $body = _($element).find('.report');
     $body.empty();
   }
 
@@ -676,7 +706,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
       '<img class="img-responsive" src="' + $izendaUrl.urlSettings.urlRsPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
       '</div>' +
       '</div>';
-    var $body = angular.element($element).find('.report');
+    var $body = _($element).find('.report');
     $body.html(loadingHtml);
 
     var previousReportName = $scope.previousReportFullName;
@@ -712,7 +742,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
    */
   function applyTileHtml(htmlData) {
     clearTileContent();
-    var $b = angular.element($element).find('.report');
+    var $b = _($element).find('.report');
     if (!angular.isUndefined(ReportScripting))
       ReportScripting.loadReportResponse(htmlData, $b);
     if (!angular.isUndefined(AdHoc.Utility) && typeof AdHoc.Utility.DocumentReadyHandler == 'function') {

@@ -2,6 +2,8 @@
 function IzendaToolbarController($scope, $rootScope, $window, $location, $cookies, $izendaCompatibility, $izendaRsQuery, $izendaDashboardToolbarQuery, $izendaUrl) {
   'use strict';
 
+  var _ = angular.element;
+
   //////////////////////////////////////////////////////
   // PRIVATE (non scope methods)
   //////////////////////////////////////////////////////
@@ -12,12 +14,13 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
   var isStorageAvailable = function () {
     return typeof (Storage) !== 'undefined';
   };
+  $scope.isStorageAvailable = isStorageAvailable();
 
   /**
    * Set string to storage
    */
   var setToStorage = function (stringValue) {
-    if (!isStorageAvailable())
+    if (!$scope.isStorageAvailable)
       return false;
     if (stringValue != null)
       localStorage.setItem('izendaDashboardBackgroundImg', stringValue);
@@ -32,7 +35,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    * Get object from storage
    */
   var getFromStorage = function () {
-    if (!isStorageAvailable())
+    if (!$scope.isStorageAvailable)
       return null;
     var dataImage = localStorage.getItem('izendaDashboardBackgroundImg');
     if (!angular.isString(dataImage))
@@ -58,7 +61,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    * Turn off background hue rotate
    */
   var resetRotate = function () {
-    var e = angular.element('.iz-dash-background');
+    var e = _('.iz-dash-background');
     e.css({ 'filter': 'hue-rotate(' + '0' + 'deg)' });
     e.css({ '-webkit-filter': 'hue-rotate(' + '0' + 'deg)' });
     e.css({ '-moz-filter': 'hue-rotate(' + '0' + 'deg)' });
@@ -71,13 +74,13 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    */
   var toggleHueRotate = function () {
     if (window.hueRotateTimeOut == null) {
-      angular.element('.hue-rotate-btn').children('img').attr('src', 'DashboardsResources/images/color.png');
-      var e = angular.element('.iz-dash-background');
+      _('.hue-rotate-btn').children('img').attr('src', 'DashboardsResources/images/color.png');
+      var e = _('.iz-dash-background');
       if (window.chrome) {
         rotate(e);
       }
     } else {
-      angular.element('.hue-rotate-btn').children('img').attr('src', 'DashboardsResources/images/color-bw.png');
+      _('.hue-rotate-btn').children('img').attr('src', 'DashboardsResources/images/color-bw.png');
       clearTimeout(hueRotateTimeOut);
       window.hueRotateTimeOut = null;
     }
@@ -87,9 +90,9 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    * Set background Y position: it depends on current window scroll position.
    */
   var setBackgroundPosition = function () {
-    var newBackgroundTop = 150 - angular.element($window).scrollTop();
+    var newBackgroundTop = 150 - _($window).scrollTop();
     if (newBackgroundTop < 0) newBackgroundTop = 0;
-    angular.element('.iz-dash-background').css({
+    _('.iz-dash-background').css({
       '-moz-background-position-y': newBackgroundTop + 'px',
       '-o-background-position-y': newBackgroundTop + 'px',
       'background-position-y': newBackgroundTop + 'px'
@@ -106,8 +109,8 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
   $scope.izendaBackgroundColor = getCookie('izendaDashboardBackgroundColor') ? getCookie('izendaDashboardBackgroundColor') : '#1c8fd6';
   $scope.izendaBackgroundImageUrl = getCookie('izendaDashboardBackgroundImageUrl');
   $scope.backgroundModalRadio = 'url';
+  $scope.izendaUrl = $izendaUrl;
 
-  $scope.$izendaUrl = $izendaUrl;
   $scope.dashboardCategoriesLoading = true;
   $scope.dashboardCategories = [];
   $scope.dashboardsInCurrentCategory = [];
@@ -126,12 +129,12 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
   $scope.showButtonBar = function () {
     $scope.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition opened';
     $scope.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition';
-    angular.element('#izendaDashboardLinksPanel').fadeOut(200);
+    _('#izendaDashboardLinksPanel').fadeOut(200);
   };
   $scope.hideButtonBar = function () {
     $scope.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition';
     $scope.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition opened';
-    angular.element('#izendaDashboardLinksPanel').fadeIn(200, function () {
+    _('#izendaDashboardLinksPanel').fadeIn(200, function () {
       $scope.updateToolbarItems(true);
     });
   };
@@ -245,7 +248,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
   $scope.selectBackgroundDialogHandler = function () {
     $scope.izendaBackgroundImageUrl = null;
     $scope.backgroundModalRadio = 'url';
-    var $modal = angular.element('#izendaOpenImageModal');
+    var $modal = _('#izendaOpenImageModal');
     $modal.modal();
   };
 
@@ -253,7 +256,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    * User selected background image url:
    */
   $scope.okBackgroundDialogHandler = function() {
-    var $modal = angular.element('#izendaOpenImageModal');
+    var $modal = _('#izendaOpenImageModal');
     $modal.modal('hide');
     if ($scope.backgroundModalRadio == 'file') {
       $scope.setBackgroundImageFromLocalhost();
@@ -268,22 +271,22 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
   $scope.turnOnWindowResizeHandler = function () {
 
     $scope.windowResizeOptions.id = null;
-    $scope.windowResizeOptions.previousWidth = angular.element($window).width();
+    $scope.windowResizeOptions.previousWidth = _($window).width();
     $scope.isChangingNow = true;
-    angular.element($window).on('resize.dashboard', function () {
+    _($window).on('resize.dashboard', function () {
       if ($scope.windowResizeOptions.id != null)
         clearTimeout($scope.windowResizeOptions.id);
       $scope.windowResizeOptions.id = setTimeout(doneResizing, 200);
     });
     function doneResizing() {
-      if ($scope.windowResizeOptions.previousWidth != angular.element($window).width()) {
+      if ($scope.windowResizeOptions.previousWidth != _($window).width()) {
         $scope.windowResizeOptions.timeout = false;
         $scope.isChangingNow = false;
         $scope.updateToolbarItems();
         $rootScope.$broadcast('dashboardResizeEvent', [{}]);
         if (!$scope.$$phase) $scope.$apply();
       }
-      $scope.windowResizeOptions.previousWidth = angular.element($window).width();
+      $scope.windowResizeOptions.previousWidth = _($window).width();
     }
 
     // update all tiles
@@ -304,7 +307,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
       }
     };
 
-    angular.element($window).on('resize.dashboard', function () {
+    _($window).on('resize.dashboard', function () {
       $scope.windowResizeOptions.rtime = new Date();
       if ($scope.windowResizeOptions.timeout === false) {
         $scope.windowResizeOptions.timeout = true;
@@ -319,14 +322,14 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    * Turn off window resize handler
    */
   $scope.turnOffWindowResizeHandler = function () {
-    angular.element($window).off('resize.dashboard');
+    _($window).off('resize.dashboard');
   };
 
   /**
    * Toggle hue rotate switcher control handler.
    */
   $scope.toggleHueRotateHandler = function () {
-    var $hueRotateControl = angular.element('#izendaDashboardHueRotateSwitcher');
+    var $hueRotateControl = _('#izendaDashboardHueRotateSwitcher');
     var turnedOn = $hueRotateControl.hasClass('on');
     var text = turnedOn ? 'OFF' : 'ON';
     $hueRotateControl.find('.iz-dash-switcher-text').text(text);
@@ -339,7 +342,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    * Set file selected in file input as background
    */
   $scope.setBackgroundImageFromLocalhost = function() {
-    var $fileBtn = angular.element('#izendaDashboardBackground');
+    var $fileBtn = _('#izendaDashboardBackground');
     if (window.File && window.FileReader && window.FileList && window.Blob) {
       if ($fileBtn[0].files.length == 0)
         return;
@@ -385,7 +388,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    */
   $scope.updateDashboardBackgroundImage = function () {
     var backgroundImg = getFromStorage();
-    var $background = angular.element('.iz-dash-background');
+    var $background = _('.iz-dash-background');
     if (backgroundImg != null)
       $background.css('background-image', 'url(' + backgroundImg + ')');
     else
@@ -396,12 +399,12 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    * Initialize background color picker control.
    */
   $scope.initializeColorPicker = function () {
-    var $colorPickerInput = angular.element('#izendaDashboardColorPicker');
+    var $colorPickerInput = _('#izendaDashboardColorPicker');
     $colorPickerInput.minicolors({
       inline: true,
       control: 'hue',
       change: function (hex) {
-        angular.element('.hue-rotate-btn, .iz-dash-background').css('background-color', hex);
+        _('.hue-rotate-btn, .iz-dash-background').css('background-color', hex);
         $cookies.izendaBackgroundColor = hex;
         document.cookie = "izendaDashboardBackgroundColor=" + hex;
         $scope.backgroundColorStyle = {
@@ -413,7 +416,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
     $colorPickerInput.minicolors('value', [$scope.izendaBackgroundColor]);
 
     // prevent closing dropdown menu:
-    angular.element('.dropdown-no-close-on-click.dropdown-menu .minicolors-grid, .dropdown-no-close-on-click.dropdown-menu .minicolors-slider, #izendaDashboardHueRotateSwitcher').click(function (e) {
+    _('.dropdown-no-close-on-click.dropdown-menu .minicolors-grid, .dropdown-no-close-on-click.dropdown-menu .minicolors-slider, #izendaDashboardHueRotateSwitcher').click(function (e) {
       e.stopPropagation();
     });
   };
@@ -543,7 +546,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    * Is tabs shift button hidden
    */
   $scope.hiddenShiftTabs = function (direction) {
-    var $linksPanel = angular.element('#izendaDashboardLinksPanel');
+    var $linksPanel = _('#izendaDashboardLinksPanel');
     var $liItems = $linksPanel.find('ul.iz-dash-nav-tabs > li');
     if ($liItems.length == 0)
       return true;
@@ -556,7 +559,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
         right = 100000;
     var space = $scope.getToolbarItemsAvailableSpace();
     $liItems.each(function (il, l) {
-      var $l = angular.element(l);
+      var $l = _(l);
       var oldRight = $scope.getToolbarItem$Right($l);
       right = Math.min(right, oldRight);
       left = Math.min(left, space - right - $l.width());
@@ -571,10 +574,10 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    * Move tabs
    */
   $scope.shiftTabs = function (direction) {
-    var $linksPanel = angular.element('#izendaDashboardLinksPanel');
+    var $linksPanel = _('#izendaDashboardLinksPanel');
     var $liItems = $linksPanel.find('ul.iz-dash-nav-tabs > li');
     $liItems.each(function (il, l) {
-      var $l = angular.element(l);
+      var $l = _(l);
       var d = $l.data('dashboard');
       var oldRight = $scope.getToolbarItem$Right($l);
       var newRight = oldRight - direction * 150;
@@ -588,7 +591,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    * Calculate available space for toolbar tabs
    */
   $scope.getToolbarItemsAvailableSpace = function () {
-    var $tool = angular.element('#izendaDashboardToolbar');
+    var $tool = _('#izendaDashboardToolbar');
     return $tool.find('.iz-dash-nav-tabs').width();
   };
 
@@ -597,10 +600,10 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    */
   $scope.getToolbarItemsWidth = function () {
     var itemsWidth = 0;
-    var $linksPanel = angular.element('#izendaDashboardLinksPanel');
+    var $linksPanel = _('#izendaDashboardLinksPanel');
     var $liItems = $linksPanel.find('ul.iz-dash-nav-tabs > li');
     $liItems.each(function (iLi, li) {
-      var $li = angular.element(li);
+      var $li = _(li);
       itemsWidth += $li.width();
     });
     return itemsWidth;
@@ -610,7 +613,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    * Get right value for item by given li element
    */
   $scope.getToolbarItem$Right = function ($item) {
-    var $i = angular.element($item);
+    var $i = _($item);
     var d = $i.data('dashboard');
     return $scope.getToolbarItemRight(d);
   };
@@ -654,7 +657,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    * Align toobar item to right or left if free space is found
    */
   $scope.alignToolbarItems = function () {
-    var $linksPanel = angular.element('#izendaDashboardLinksPanel');
+    var $linksPanel = _('#izendaDashboardLinksPanel');
     var $liItems = $linksPanel.find('ul.iz-dash-nav-tabs > li');
     var space = $scope.getToolbarItemsAvailableSpace();
     // check if there is some free space at left:
@@ -662,7 +665,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
     var minRight = 100000;
     var leftDelta = 100000;
     $liItems.each(function (il, l) {
-      var $l = angular.element(l);
+      var $l = _(l);
       var right = $scope.getToolbarItem$Right($l);
       maxRight = Math.max(maxRight, right);
       minRight = Math.min(minRight, right);
@@ -673,7 +676,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
     if (leftDelta > 42) {
       // shift left:
       $liItems.each(function (il, l) {
-        var $l = angular.element(l);
+        var $l = _(l);
         var d = $l.data('dashboard');
         var right = $scope.getToolbarItem$Right($l);
         var newRight = right + leftDelta - 42;
@@ -686,7 +689,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
     if (minRight > 42) {
       // shift right:
       $liItems.each(function (il, l) {
-        var $l = angular.element(l);
+        var $l = _(l);
         var d = $l.data('dashboard');
         var right = $scope.getToolbarItem$Right($l);
         var newRight = right - minRight + 42;
@@ -703,10 +706,10 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
 
     // update tab style
     var updateItemsUi = function () {
-      var $lp = angular.element('#izendaDashboardLinksPanel');
+      var $lp = _('#izendaDashboardLinksPanel');
       var $liItems = $lp.find('ul.iz-dash-nav-tabs > li');
       $liItems.each(function (iLi, li) {
-        var $li = angular.element(li);
+        var $li = _(li);
         var d = $li.data('dashboard');
         $li.css($scope.getToolItemStyle(d));
       });
@@ -714,13 +717,13 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
 
     // move tab to it's place
     var moveItemsToItsPlace = function () {
-      var $lp = angular.element('#izendaDashboardLinksPanel');
+      var $lp = _('#izendaDashboardLinksPanel');
       var $liItems = $lp.find('ul.iz-dash-nav-tabs > li');
 
       // move items to initial place
       var currentRight = 42;
       for (var iLi = $liItems.length - 1; iLi >= 0; iLi--) {
-        var $li = angular.element($liItems[iLi]);
+        var $li = _($liItems[iLi]);
         var dash = $li.data('dashboard');
         $li.css('right', currentRight);
         $scope.setLiItem(dash, currentRight);
@@ -732,20 +735,20 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
       if (hasHiddenItems) {
         var activeIndex = 0;
         $liItems.each(function (il, l) {
-          var $l = angular.element(l);
+          var $l = _(l);
           if ($l.data('dashboard') == $izendaUrl.getReportInfo().fullName)
             activeIndex = il;
         });
 
         var space = $scope.getToolbarItemsAvailableSpace();
         var center = space / 2;
-        var $activeLi = angular.element($liItems[activeIndex]);
+        var $activeLi = _($liItems[activeIndex]);
         if ($activeLi.length == 0)
           return;
         var activeLiRight = $scope.getToolbarItem$Right($activeLi);
         var delta = activeLiRight - (center - $activeLi.width() / 2);
         $liItems.each(function (il, l) {
-          var $l = angular.element(l);
+          var $l = _(l);
           var right = $scope.getToolbarItem$Right($l);
           var d = $l.data('dashboard');
           var newRight = right - delta;
@@ -759,7 +762,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
     };
 
     // set current dashboard menu items
-    var $linksPanel = angular.element('#izendaDashboardLinksPanel');
+    var $linksPanel = _('#izendaDashboardLinksPanel');
     var $ul = $linksPanel.find('ul.iz-dash-nav-tabs');
     if (updateActiveDashboard) {
       $ul.empty();
@@ -772,7 +775,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
           $ul.empty();
           for (var j = 0; j < dashboards.length; j++) {
             var dashboard = dashboards[j];
-            var $dashboardLi = angular.element('<li class="iz-dash-menu-item">' +
+            var $dashboardLi = _('<li class="iz-dash-menu-item">' +
                 '<a href="#' + dashboard + '">' + $izendaUrl.extractReportName(dashboard) + '</a>' +
                 '</li>')
               .css($scope.getToolItemStyle(dashboard))
@@ -786,13 +789,6 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
 
     moveItemsToItsPlace();
     updateItemsUi();
-  };
-
-  /**
-   * Check if browser storage object available
-   */
-  $scope.isStorageAvailable = function() {
-    return isStorageAvailable();
   };
 
   /**
@@ -840,7 +836,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
     }
 
     // check dashboard parameter is defined
-    var fullName = $scope.$izendaUrl.getReportInfo().fullName;
+    var fullName = $izendaUrl.getReportInfo().fullName;
     if (angular.isUndefined(fullName) || fullName == null) {
       // go to the first found dashboard, if parameter isn't defined
       if ($scope.dashboardCategories.length > 0) {
@@ -858,15 +854,15 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    */
   $scope.initialize = function () {
     // initialize background and background color:
-    if (angular.element('body > .iz-dash-background').length == 0) {
-      angular.element('body').prepend(angular.element('<div class="iz-dash-background" style="background-color: ' +
+    if (_('body > .iz-dash-background').length == 0) {
+      _('body').prepend(_('<div class="iz-dash-background" style="background-color: ' +
         $scope.backgroundColorStyle['background-color'] + '"></div>'));
     }
     $scope.updateDashboardBackgroundImage();
 
     // initialize background shift
     setBackgroundPosition();
-    angular.element($window).scroll(function () {
+    _($window).scroll(function () {
       setBackgroundPosition();
     });
 

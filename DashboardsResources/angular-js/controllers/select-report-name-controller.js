@@ -2,6 +2,8 @@
 function IzendaSelectReportNameController($rootScope, $scope, $q, $element, $izendaUrl, $izendaCommonQuery) {
   'use strict';
 
+  var _ = angular.element;
+
   $scope.isNewReportDialog = false;
   $scope.reportName = '';
   $scope.isCreatingNewCategory = false;
@@ -45,7 +47,7 @@ function IzendaSelectReportNameController($rootScope, $scope, $q, $element, $ize
   $scope.show = function () {
     $scope.resetForm();
 
-    var $modal = angular.element($element);
+    var $modal = _($element);
     $modal.modal();
 
     $izendaCommonQuery.getReportSetCategory('Uncategorized').then(function (data) {
@@ -69,7 +71,7 @@ function IzendaSelectReportNameController($rootScope, $scope, $q, $element, $ize
         var category = report.Category;
         if (category == null || category == '')
           category = 'Uncategorized';
-        if (angular.element.grep($scope.categories, function (a) {
+        if (_.grep($scope.categories, function (a) {
           return a['name'] === category;
         }).length == 0) {
           $scope.categories.push({
@@ -101,7 +103,7 @@ function IzendaSelectReportNameController($rootScope, $scope, $q, $element, $ize
    */
   $scope.completeHandler = function () {
     $scope.validateForm().then(function () {
-      var $modal = angular.element($element);
+      var $modal = _($element);
       $modal.modal('hide');
 
       var selectedObj = $scope.getCategoryObjectById($scope.selectedCategoryId);

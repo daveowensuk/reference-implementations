@@ -2,9 +2,11 @@
 function IzendaSelectReportController($rootScope, $scope, $q, $element, $izendaUrl, $izendaCommonQuery) {
   'use strict';
 
-  $scope.$izendaUrl = $izendaUrl;
+  var _ = angular.element;
+
+  $scope.izendaUrl = $izendaUrl;
   $scope.category = 'Uncategorized';
-  $scope.noReportsFound = false;
+  $scope.isLoading = false;
   $scope.tileId = null;
   $scope.categories = [];
   $scope.groups = [];
@@ -21,14 +23,17 @@ function IzendaSelectReportController($rootScope, $scope, $q, $element, $izendaU
    * Select report part modal
    */
   $scope.show = function () {
-    var $modal = angular.element($element);
+    var $modal = _($element);
     $modal.modal();
     $scope.categories.length = 0;
-    setModalBodyLoading();
+    $scope.groups.length = 0;
+    $scope.isLoading = true;
     $izendaCommonQuery.getReportSetCategory('Uncategorized').then(function (data) {
       var reportSets = data.ReportSets;
       addCategoriesToModal(reportSets);
       addReportsToModal(reportSets);
+      $scope.isLoading = false;
+      $scope.$evalAsync();
     });
   };
 
@@ -36,9 +41,12 @@ function IzendaSelectReportController($rootScope, $scope, $q, $element, $izendaU
    * Select category handler
    */
   $scope.categoryChangedHandler = function () {
-    setModalBodyLoading();
+    $scope.isLoading = true;
+    $scope.groups.length = 0;
     $izendaCommonQuery.getReportSetCategory($scope.category).then(function (data) {
       addReportsToModal(data.ReportSets);
+      $scope.isLoading = false;
+      $scope.$evalAsync();
     });
   };
 
@@ -53,27 +61,21 @@ function IzendaSelectReportController($rootScope, $scope, $q, $element, $izendaU
 
     if (!isReportPart) {
       // if report set selected
-      setModalBodyLoading();
+      $scope.isLoading = true;
+      $scope.groups.length = 0;
       $izendaCommonQuery.getReportParts(reportFullName).then(function (data) {
         var reports = data.Reports;
         addReportPartsToModal(reports);
+        $scope.isLoading = false;
+        $scope.$evalAsync();
       });
     } else {
       // if report part selected
-      var $modal = angular.element('#izendaSelectPartModal');
+      var $modal = _('#izendaSelectPartModal');
       $modal.modal('hide');
       $rootScope.$broadcast('selectedReportPartEvent', [$scope.tileId, item]);
     }
   };
-
-  /**
-   * Reset groups collection
-   */
-  function setModalBodyLoading() {
-    $scope.groups.length = 0;
-    if (!$scope.$$phase)
-      $scope.$apply();
-  }
 
   /**
    * Add reportset categories to modal select control.
@@ -99,12 +101,11 @@ function IzendaSelectReportController($rootScope, $scope, $q, $element, $izendaU
    * Add report to modal dialog body.
    */
   function addReportsToModal(reportSets) {
-    $scope.noReportsFound = false;
-    var reportSetsToShow = angular.element.grep(reportSets, function (reportSet) {
+    $scope.groups.length = 0;
+    var reportSetsToShow = _.grep(reportSets, function (reportSet) {
       return !reportSet.Dashboard && reportSet.Name;
     });
     if (reportSetsToShow == null || reportSetsToShow.length == 0) {
-      $scope.noReportsFound = true;
       return;
     }
 
@@ -127,15 +128,13 @@ function IzendaSelectReportController($rootScope, $scope, $q, $element, $izendaU
    * Add report parts to modal
    */
   function addReportPartsToModal(reportParts) {
-    $scope.noReportsFound = false;
+    $scope.groups.length = 0;
     if (reportParts == null || reportParts.length == 0) {
-      $scope.noReportsFound = true;
       return;
     }
 
     // add groups:
     var currentGroup = [];
-    $scope.groups.length = 0;
     for (var i = 0; i < reportParts.length; i++) {
       if (i > 0 && i % 4 == 0) {
         $scope.groups.push(currentGroup);

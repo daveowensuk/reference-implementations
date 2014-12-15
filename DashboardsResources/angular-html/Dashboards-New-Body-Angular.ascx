@@ -2,14 +2,14 @@
 
 <div ng-app="izendaDashboard">
 	<!-- select report name modal dialog -->
-	<div id="izendaSelectReportNameModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true"
+	<div id="izendaSelectReportNameModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true" 
 		ng-controller="IzendaSelectReportNameController">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-body">
 					<form class="form-horizontal" role="form">
-						<div class="form-group">
-							<div class="alert alert-danger" role="alert" ng-hide="errorMessages.length === 0">
+						<div class="form-group" ng-if="errorMessages.length > 0">
+							<div class="alert alert-danger" role="alert">
 								<div ng-repeat="errorMessage in errorMessages">
 									{{errorMessage}}
 								</div>
@@ -70,22 +70,22 @@
 					</div>
 				</div>
 				<div class="modal-body" style="min-height: 300px;">
-					<div class="iz-dash-tile-vcentered-container" ng-if="noReportsFound">
+					<div class="iz-dash-tile-vcentered-container" ng-hide="isLoading || groups.length > 0">
 						<div class="iz-dash-tile-vcentered-item">
 							No reports found!
 						</div>
 					</div>
-					<div class="iz-dash-tile-vcentered-container" ng-if="!noReportsFound && groups.length == 0">
+					<div class="iz-dash-tile-vcentered-container" ng-hide="!isLoading">
 						<div class="iz-dash-tile-vcentered-item">
-							<img class="img-responsive" ng-src="{{$izendaUrl.urlSettings.urlRsPage}}?image=ModernImages.loading-grid.gif" alt="Loading..." />
+							<img class="img-responsive" ng-src="{{izendaUrl.urlSettings.urlRsPage}}?image=ModernImages.loading-grid.gif" alt="Loading..." />
 						</div>
 					</div>
-					<div ng-if="!noReportsFound && groups.length > 0">
+					<div ng-hide="isLoading || groups.length == 0">
 						<div ng-repeat="group in groups" class="row">
 							<div class="col-md-3" ng-repeat="item in group">
 								<div class="thumb" ng-click="itemSelectedHandler(item)">
 									<div class="thumb-container" style="background-color: white; width: 170px; height: 220px;">
-										<img class="img-responsive" ng-src="{{item.ImgUrl}}" />
+										<img class="img-responsive" ng-src="{{item.ImgUrl}}" alt="{{item.Name}}"/>
 									</div>
 									<div class="thumb-title">{{item.Name}}</div>
 								</div>
@@ -106,38 +106,35 @@
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-body">
-						<div class="alert alert-info small" role="alert">
-							Background will be visible only in this browser
-						</div>
-						
-						<div class="radio" 
-							ng-hide="!isStorageAvailable()">
-							<label>
-								<input type="radio" name="backgroundTypeRadios" value="url" checked
-									ng-model="backgroundModalRadio">
-								Image Url
-							</label>
-						</div>
-						<input type="text" class="form-control" 
-							placeholder="Type URL here..." 
-							ng-model="izendaBackgroundImageUrl"
-							ng-disabled="backgroundModalRadio === 'file'"/>
-						<br/>
-						<div class="radio" 
-							ng-hide="!isStorageAvailable()">
-							<label>
-								<input type="radio" name="backgroundTypeRadios" value="file"
-									ng-model="backgroundModalRadio">
-								Open file in your computer
-							</label>
-						</div>
-						<input id="izendaDashboardBackground" type="file" name="files[]" 
-							ng-disabled="backgroundModalRadio === 'url'"
-							ng-hide="!isStorageAvailable()"/>
+						<form>
+							<div class="alert alert-info small" role="alert">
+								Background will be visible only in this browser
+							</div>
+							<div class="radio" ng-hide="!isStorageAvailable">
+								<label>
+									<input type="radio" name="a1" checked="checked"
+										ng-model="backgroundModalRadio" ng-value="'url'"/> Image Url
+								</label>
+							</div>
+							<input type="text" class="form-control" 
+								placeholder="Type URL here..." 
+								ng-model="izendaBackgroundImageUrl"
+								ng-disabled="backgroundModalRadio == 'file'"/>
+							<div class="radio" style="margin-top: 20px;"
+								ng-hide="!isStorageAvailable">
+								<label>
+									<input type="radio" name="a1"
+										ng-model="backgroundModalRadio" ng-value="'file'"/> Open file in your computer
+								</label>
+							</div>
+							<input id="izendaDashboardBackground" type="file" name="files[]" 
+								ng-disabled="backgroundModalRadio == 'url'"
+								ng-hide="!isStorageAvailable"/>
+						</form>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-primary" ng-click="okBackgroundDialogHandler()">OK</button>
 						<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+						<button type="button" class="btn btn-primary" ng-click="okBackgroundDialogHandler()">OK</button>
 					</div>
 				</div>
 			</div>
@@ -175,7 +172,7 @@
 							</ul>
 						</li>
 					</ul>
-					<div class="navbar-brand">{{$izendaUrl.getReportInfo().name}}</div>
+					<div class="navbar-brand">{{izendaUrl.getReportInfo().name}}</div>
 				</div>
 
 				<!-- (hidden: xs, sm) -->
@@ -379,18 +376,18 @@
 								<div class="title">
 									<span class="title-text">
 										<a ng-if="title != null && title != ''" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
-											href="{{options.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{title}}
+											href="{{izendaUrl.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{title}}
 										</a>
 										<a ng-if="(title == null || title == '') && reportCategory != null" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
-											href="{{options.urlSettings.urlReportList}}#{{reportCategory}}">{{reportCategory}}
+											href="{{izendaUrl.urlSettings.urlReportList}}#{{reportCategory}}">{{reportCategory}}
 										</a>
 										<span ng-if="(title == null || title == '') && title != '' && reportCategory != null">/</span>
 										<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
-											href="{{options.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{reportName}}
+											href="{{izendaUrl.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{reportName}}
 										</a>
 										<span ng-if="(title == null || title == '') && reportPartName != null">/</span>
 										<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
-											href="{{options.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{reportPartName}}
+											href="{{izendaUrl.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{reportPartName}}
 										</a>
 									</span>
 									<a title="Show tile options" class="title-button button2" ng-click="flipBack()">
@@ -436,23 +433,23 @@
 								<div class="iz-dash-tile-fb-toolbar">
 									<div class="iz-dash-tile-fb-toolbtn" 
 										ng-hide="isOneColumnView()">
-										<a title="Print tile report" href="{{options.urlSettings.urlRsPage}}?rn={{getSourceReportName()}}&p=htmlreport&print=1">
+										<a title="Print tile report" href="{{izendaUrl.urlSettings.urlRsPage}}?rn={{getSourceReportName()}}&p=htmlreport&print=1">
 											<img class="img-responsive" src="DashboardsResources/images/back-tile/print.png" />
 										</a>
 									</div>
 									<div class="iz-dash-tile-fb-toolbtn"
 										ng-hide="isOneColumnView()">
-										<a title="Export tile report to excel" href="{{options.urlSettings.urlRsPage}}?rn={{getSourceReportName()}}&output=xls">
+										<a title="Export tile report to excel" href="{{izendaUrl.urlSettings.urlRsPage}}?rn={{getSourceReportName()}}&output=xls">
 											<img class="img-responsive" src="DashboardsResources/images/back-tile/excel.png">
 										</a>
 									</div>
 									<div class="iz-dash-tile-fb-toolbtn">
-										<a href="{{options.urlSettings.urlReportDesigner}}?rn={{getSourceReportName()}}" title="Open tile report in designer">
+										<a href="{{izendaUrl.urlSettings.urlReportDesigner}}?rn={{getSourceReportName()}}" title="Open tile report in designer">
 											<img class="img-responsive" src="DashboardsResources/images/back-tile/edit.png">
 										</a>
 									</div>
 									<div class="iz-dash-tile-fb-toolbtn" title="Open tile report in viewer">
-										<a href="{{options.urlSettings.urlReportViewer}}?rn={{getSourceReportName()}}" title="Open tile report in viewer">
+										<a href="{{izendaUrl.urlSettings.urlReportViewer}}?rn={{getSourceReportName()}}" title="Open tile report in viewer">
 											<img class="img-responsive" src="DashboardsResources/images/back-tile/view.png">
 										</a>
 									</div>
@@ -486,18 +483,18 @@
 								<div class="title">
 									<span class="title-text">
 										<a ng-if="title != null && title != ''" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
-											href="{{options.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{title}}
+											href="{{izendaUrl.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{title}}
 										</a>
 										<a ng-if="(title == null || title == '') && reportCategory != null" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
-											href="{{options.urlSettings.urlReportList}}#{{reportCategory}}">{{reportCategory}}
+											href="{{izendaUrl.urlSettings.urlReportList}}#{{reportCategory}}">{{reportCategory}}
 										</a>
 										<span ng-if="(title == null || title == '') && title != '' && reportCategory != null">/</span>
 										<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
-											href="{{options.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{reportName}}
+											href="{{izendaUrl.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{reportName}}
 										</a>
 										<span ng-if="(title == null || title == '') && reportPartName != null">/</span>
 										<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
-											href="{{options.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{reportPartName}}
+											href="{{izendaUrl.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{reportPartName}}
 										</a>
 									</span>
 									<a title="Show tile options" class="title-button title-button-remove button2" ng-click="flipFront(false)">
