@@ -1,5 +1,5 @@
-﻿izendaDashboardModule.controller('IzendaDashboardController', ['$rootScope', '$scope', '$window', '$q', '$animate', '$injector', '$izendaUrl', '$izendaCompatibility', '$izendaDashboardQuery', '$izendaRsQuery',
-function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $injector, $izendaUrl, $izendaCompatibility, $izendaDashboardQuery, $izendaRsQuery) {
+﻿izendaDashboardModule.controller('IzendaDashboardController', ['$rootScope', '$scope', '$window', '$q', '$location', '$animate', '$injector', '$izendaUrl', '$izendaCompatibility', '$izendaDashboardQuery', '$izendaRsQuery',
+function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $animate, $injector, $izendaUrl, $izendaCompatibility, $izendaDashboardQuery, $izendaRsQuery) {
   'use strict';
 
   var _ = angular.element;
@@ -43,8 +43,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $i
     } else {
       var dashboardName = $izendaUrl.getReportInfo().name,
           dashboardCategory = $izendaUrl.getReportInfo().category;
-      var json = createSaveJson(dashboardName, dashboardCategory);
-      console.log('Save dashboard as: ', json);
+      save(dashboardName, dashboardCategory);
     }
   });
 
@@ -54,8 +53,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $i
   $scope.$on('selectedReportNameEvent', function (event, args) {
     var dashboardName = args[0],
         dashboardCategory = args[1];
-    var json = createSaveJson(dashboardName, dashboardCategory);
-    console.log('Save dashboard as: ', json);
+    save(dashboardName, dashboardCategory);
   });
 
   /**
@@ -605,17 +603,51 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $i
    * Prepare tiles for saving: cleaning, validating and so on...
    */
   function createSaveJson(dashboardName, dashboardCategory) {
-    var result = {
-      name: dashboardName,
-      category: dashboardCategory,
-      tiles: []
-    };
     var tiles = $scope.tiles;
+    var config = {
+      Rows: [{
+        Cells: [],
+        ColumnsCount: tiles.length
+      }],
+      RowsCount: 1
+    };
+    
     for (var i = 0; i < tiles.length; i++) {
       var tile = tiles[i];
-      result.tiles.push(tile);
+      var saveObject = {
+        ReportTitle: angular.isUndefined(tile.title) ? '' : tile.title,
+        ReportDescription: angular.isUndefined(tile.description) ? '' : tile.description,
+        ReportFullName: tile.reportFullName,
+        ReportPartName: tile.reportPartName,
+        ReportSetName: tile.reportNameWithCategory,
+        RecordsCount: tile.top,
+        X: tile.x,
+        Y: tile.y,
+        Height: tile.height,
+        Width: tile.width
+      };
+      config.Rows[0].Cells[i] = saveObject;
     }
-    return result;
+    return config;
+  }
+
+  /**
+   * Save 
+   */
+  function save(dashboardName, dashboardCategory) {
+    var dashboardFullName = dashboardName;
+    if (angular.isString(dashboardCategory) && dashboardCategory != '' && dashboardCategory.toLowerCase() != 'uncategorized') {
+      dashboardFullName = dashboardCategory + '\\' + dashboardName;
+    }
+    var json = createSaveJson(dashboardName, dashboardCategory);
+    $izendaDashboardQuery.saveDashboard(dashboardFullName, json).then(function (data) {
+      var n = $izendaUrl.getReportInfo().name,
+          c = $izendaUrl.getReportInfo().category;
+      alert('Dashboard saved!');
+      if (n != dashboardName || c != dashboardCategory) {
+        $rootScope.$broadcast('selectedNewReportNameEvent', [dashboardName, dashboardCategory]);
+      }
+    });
   }
 
   /**
@@ -666,6 +698,8 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $animate, $i
             y: cell.Y,
             width: cell.Width,
             height: cell.Height,
+            title: cell.ReportTitle,
+            description: cell.ReportDescription,
             top: cell.RecordsCount
           });
           if (maxHeight < cell.Y + cell.Height)

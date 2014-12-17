@@ -95,6 +95,9 @@
     result.reportSetName = reportSetName;
     result.reportName = reportNameObj.reportName;
     result.reportCategory = reportNameObj.reportCategory;
+    result.reportNameWithCategory = result.reportName;
+    if (result.reportCategory != null)
+      result.reportNameWithCategory = result.reportCategory + '\\' + result.reportNameWithCategory;
     result.reportFullName = (result.reportPartName != null ? result.reportPartName + '@' : '') + result.reportSetName;
     return result;
   }

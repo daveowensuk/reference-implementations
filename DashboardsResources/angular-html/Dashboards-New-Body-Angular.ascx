@@ -234,7 +234,7 @@
 								<img src="DashboardsResources/images/floppy.png"/>&nbsp;<b class="caret"></b>
 							</a>
 							<ul class="dropdown-menu">
-								<li class="iz-dash-menu-item">
+								<li>
 									<a title="Save Dashboard"
 										ng-click="saveDashboardHandler(false)"
 										ng-if="!checkIsIE8()">
@@ -246,7 +246,7 @@
 										<img src="DashboardsResources/images/floppy.png"/>Save Dashboard
 									</a>
 								</li>
-								<li class="iz-dash-menu-item">
+								<li>
 									<a title="Save Dashboard As"
 										ng-click="saveDashboardHandler(true)"
 										ng-if="!checkIsIE8()">

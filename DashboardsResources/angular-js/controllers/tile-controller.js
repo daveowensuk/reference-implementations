@@ -99,6 +99,27 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
   ////////////////////////////////////////////////////////
 
   /**
+   * Update parent title
+   */
+  $scope.$watch('top', function (newValue) {
+    updateParentTile();
+  });
+
+  /**
+   * Update parent title
+   */
+  $scope.$watch('title', function(newValue) {
+    updateParentTile();
+  });
+
+  /**
+   * Update parent description
+   */
+  $scope.$watch('description', function (newValue) {
+    updateParentTile();
+  });
+
+  /**
    * Tile refresh event handler
    */
   $scope.$on('tileRefreshEvent', function (event, args) {
@@ -385,21 +406,27 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
     parentTile.x = $scope.x;
     parentTile.y = $scope.y;
     parentTile.reportName = $scope.reportName;
+    parentTile.reportPartName = $scope.reportPartName;
     parentTile.reportCategory = $scope.reportCategory;
+    parentTile.reportSetName = $scope.reportSetName;
     parentTile.reportFullName = $scope.reportFullName;
+    parentTile.reportNameWithCategory = $scope.reportNameWithCategory;
     parentTile.title = $scope.title;
     parentTile.description = $scope.description;
 
     var change = {};
+    var changeCount = 0;
     for (var prop in parentTile) {
       if (parentTile.hasOwnProperty(prop)) {
         var newValue = parentTile[prop];
         if (!(prop in oldTile) || newValue !== oldTile[prop]) {
           change[prop] = newValue;
+          changeCount++;
         }
       }
     }
-    console.log(parentTile.id + ': ', change);
+    if (changeCount > 0)
+      console.log(parentTile.id + ': ', change);
   };
 
   /**

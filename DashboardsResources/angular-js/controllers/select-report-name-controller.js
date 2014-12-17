@@ -83,6 +83,7 @@ function IzendaSelectReportNameController($rootScope, $scope, $q, $element, $ize
           }
         };
       }
+      $scope.$evalAsync();
     });
   };
 
@@ -96,6 +97,7 @@ function IzendaSelectReportNameController($rootScope, $scope, $q, $element, $ize
     } else {
       $scope.isCreatingNewCategory = false;
     }
+    $scope.$evalAsync();
   };
 
   /**

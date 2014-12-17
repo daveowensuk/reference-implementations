@@ -8,7 +8,8 @@ izendaQueryModule.factory('$izendaDashboardQuery', ['$izendaRsQuery', function (
   // PUBLIC API
   return {
     loadDashboardLayout: loadDashboardLayout,
-    loadTileReport: loadTileReport
+    loadTileReport: loadTileReport,
+    saveDashboard: saveDashboard
   };
 
   /**
@@ -34,5 +35,14 @@ izendaQueryModule.factory('$izendaDashboardQuery', ['$izendaRsQuery', function (
             }
           }
     );
+  }
+
+  /**
+   * Save dashboard
+   */
+  function saveDashboard(dashboardName, dashboardConfigObject) {
+    return $izendaRsQuery.query('savecrsdashboard', [JSON.stringify(dashboardConfigObject), dashboardName], {
+      dataType: 'text'
+    });
   }
 }]);

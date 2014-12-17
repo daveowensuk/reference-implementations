@@ -217,7 +217,12 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
     if (angular.isString(dashboardCategory) && dashboardCategory != '' && dashboardCategory.toLowerCase() != 'uncategorized') {
       url = dashboardCategory + '/' + dashboardName;
     }
+    // load dashboard navigation
+    $izendaDashboardToolbarQuery.loadDashboardNavigation().then(function (data) {
+      $scope.dashboardNavigationLoaded(data);
+    });
     $location.url(url);
+    $scope.$evalAsync();
   });
 
   /**
