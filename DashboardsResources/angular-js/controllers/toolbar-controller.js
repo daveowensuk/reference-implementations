@@ -116,6 +116,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
   $scope.dashboardsInCurrentCategory = [];
   $scope.previousDashboardCategory = null;
   $scope.liItems = null;
+  $scope.isGalleryMode = false;
 
   $scope.windowResizeOptions = {
     timeout: false,
@@ -198,6 +199,14 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
     var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
     var isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor);
     return isChrome || isSafari;
+  };
+  
+  /**
+   * Activate/deactivate dashboard mode
+   */
+  $scope.toggleGalleryMode = function (state) {
+    $scope.isGalleryMode = state;
+    $rootScope.$broadcast('toggleGalleryMode', [state]);
   };
 
   /**

@@ -673,6 +673,10 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
       $front.css('display', 'block').addClass(showClass);
       $back.css('display', 'none').removeClass(hideClass);
     }, 1);
+    setTimeout(function () {
+      $front.removeClass('flipInY');
+      $back.removeClass('flipInY');
+    }, 200);
 
     if (update) {
       refreshTile(updateFromSourceReport);
@@ -694,6 +698,10 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
       $back.css('display', 'block').addClass(showClass);
       $front.css('display', 'none').removeClass(hideClass);
     }, 1);
+    setTimeout(function() {
+      $front.removeClass('flipInY');
+      $back.removeClass('flipInY');
+    }, 200);
   }
 
   /**

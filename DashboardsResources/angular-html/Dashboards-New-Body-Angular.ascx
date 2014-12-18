@@ -2,7 +2,7 @@
 
 <div ng-app="izendaDashboard">
 	<!-- select report name modal dialog -->
-	<div id="izendaSelectReportNameModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true" 
+	<div id="izendaSelectReportNameModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true"
 		ng-controller="IzendaSelectReportNameController">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -85,7 +85,7 @@
 							<div class="col-md-3" ng-repeat="item in group">
 								<div class="thumb" ng-click="itemSelectedHandler(item)">
 									<div class="thumb-container" style="background-color: white; width: 170px; height: 220px;">
-										<img class="img-responsive" ng-src="{{item.ImgUrl}}" alt="{{item.Name}}"/>
+										<img class="img-responsive" ng-src="{{item.ImgUrl}}" alt="{{item.Name}}" />
 									</div>
 									<div class="thumb-title">{{item.Name}}</div>
 								</div>
@@ -113,23 +113,25 @@
 							<div class="radio" ng-hide="!isStorageAvailable">
 								<label>
 									<input type="radio" name="a1" checked="checked"
-										ng-model="backgroundModalRadio" ng-value="'url'"/> Image Url
+										ng-model="backgroundModalRadio" ng-value="'url'" />
+									Image Url
 								</label>
 							</div>
-							<input type="text" class="form-control" 
-								placeholder="Type URL here..." 
+							<input type="text" class="form-control"
+								placeholder="Type URL here..."
 								ng-model="izendaBackgroundImageUrl"
-								ng-disabled="backgroundModalRadio == 'file'"/>
+								ng-disabled="backgroundModalRadio == 'file'" />
 							<div class="radio" style="margin-top: 20px;"
 								ng-hide="!isStorageAvailable">
 								<label>
 									<input type="radio" name="a1"
-										ng-model="backgroundModalRadio" ng-value="'file'"/> Open file in your computer
+										ng-model="backgroundModalRadio" ng-value="'file'" />
+									Open file in your computer
 								</label>
 							</div>
-							<input id="izendaDashboardBackground" type="file" name="files[]" 
+							<input id="izendaDashboardBackground" type="file" name="files[]"
 								ng-disabled="backgroundModalRadio == 'url'"
-								ng-hide="!isStorageAvailable"/>
+								ng-hide="!isStorageAvailable" />
 						</form>
 					</div>
 					<div class="modal-footer">
@@ -157,14 +159,15 @@
 							</a>
 							<a class="dropdown-toggle" data-toggle="dropdown" title="Open dashboard"
 								ng-if="checkIsIE8()">
-								<span><img src="DashboardsResources/images/folder.png"/>
+								<span>
+									<img src="DashboardsResources/images/folder.png" />
 									<b class="caret"></b>
 								</span>
 							</a>
 							<ul class="dropdown-menu pull-right" role="menu">
 								<li ng-repeat="category in dashboardCategories">
 									<div class="iz-dash-menu-catergory">{{category.name}}</div>
-									<div class="iz-dash-navigation-menu-item" 
+									<div class="iz-dash-navigation-menu-item"
 										ng-repeat="dashboard in category.dashboards">
 										<a href="#{{dashboard}}">{{dashboard}}</a>
 									</div>
@@ -208,7 +211,17 @@
 							<a title="Create New Dashboard"
 								ng-click="createNewDashboardHandler()"
 								ng-if="checkIsIE8()">
-								<img src="DashboardsResources/images/add-new.png"/>
+								<img src="DashboardsResources/images/add-new.png" />
+							</a>
+						</li>
+						<li>
+							<a title="Gallery Mode" style="min-width: 100px;"
+								ng-click="toggleGalleryMode(true)"
+								ng-hide="isGalleryMode">GALLERY
+							</a>
+							<a title="Gallery Mode" style="min-width: 100px;"
+								ng-click="toggleGalleryMode(false)"
+								ng-hide="!isGalleryMode">TILES
 							</a>
 						</li>
 						<!-- refresh -->
@@ -219,10 +232,11 @@
 							</a>
 							<a title="Refresh Dashboard"
 								ng-click="refreshDashboardHandler()"
-								ng-if="checkIsIE8()"><img src="DashboardsResources/images/refresh-18.png"/>
+								ng-if="checkIsIE8()">
+								<img src="DashboardsResources/images/refresh-18.png" />
 							</a>
 						</li>
-						
+
 						<!-- save -->
 						<li class="dropdown">
 							<a class="dropdown-toggle" data-toggle="dropdown" title="Save Dashboard"
@@ -231,7 +245,7 @@
 							</a>
 							<a class="dropdown-toggle" data-toggle="dropdown" title="Save Dashboard"
 								ng-if="checkIsIE8()">
-								<img src="DashboardsResources/images/floppy.png"/>&nbsp;<b class="caret"></b>
+								<img src="DashboardsResources/images/floppy.png" />&nbsp;<b class="caret"></b>
 							</a>
 							<ul class="dropdown-menu">
 								<li>
@@ -243,7 +257,7 @@
 									<a title="Save Dashboard"
 										ng-click="saveDashboardHandler(false)"
 										ng-if="checkIsIE8()">
-										<img src="DashboardsResources/images/floppy.png"/>Save Dashboard
+										<img src="DashboardsResources/images/floppy.png" />Save Dashboard
 									</a>
 								</li>
 								<li>
@@ -255,7 +269,7 @@
 									<a title="Save Dashboard As"
 										ng-click="saveDashboardHandler(true)"
 										ng-if="checkIsIE8()">
-										<img src="DashboardsResources/images/floppy.png"/>Save Dashboard As
+										<img src="DashboardsResources/images/floppy.png" />Save Dashboard As
 									</a>
 								</li>
 							</ul>
@@ -274,7 +288,7 @@
 								<input type="text" id="izendaDashboardColorPicker" class="form-control" data-inline="true" ng-value="izendaBackgroundColor">
 								<div style="padding: 5px;">
 									<a class="small" ng-click="selectBackgroundDialogHandler()">Select background image</a>
-									<br ng-hide="!isBackgroundImageSet()"/>
+									<br ng-hide="!isBackgroundImageSet()" />
 									<a class="small" ng-click="removeBackgroundImageHandler()"
 										ng-hide="!isBackgroundImageSet()" style="color: #8b0000;">Remove background image</a>
 								</div>
@@ -301,14 +315,15 @@
 							</a>
 							<a class="dropdown-toggle" data-toggle="dropdown" title="Open dashboard"
 								ng-if="checkIsIE8()">
-								<span><img src="DashboardsResources/images/folder.png"/>
+								<span>
+									<img src="DashboardsResources/images/folder.png" />
 									<b class="caret"></b>
 								</span>
 							</a>
 							<ul class="dropdown-menu pull-right" role="menu">
 								<li ng-repeat="category in dashboardCategories">
 									<div class="iz-dash-menu-catergory">{{category.name}}</div>
-									<div class="iz-dash-navigation-menu-item" 
+									<div class="iz-dash-navigation-menu-item"
 										ng-repeat="dashboard in category.dashboards">
 										<a href="#{{dashboard}}">{{dashboard}}</a>
 									</div>
@@ -344,10 +359,11 @@
 	<!-- dashboard body -->
 	<div ng-controller="IzendaDashboardController as dash" ng-cloak>
 		<div id="dashboardsDiv">
-			<div id="dashboardBodyContainer" class="iz-dash-body-container" ng-style="tileContainerStyle">
+			<div id="dashboardBodyContainer" class="iz-dash-body-container" ng-style="tileContainerStyle"
+				ng-hide="isGalleryMode">
 				<!-- repeat tiles -->
 				<div tileid="{{tile.id}}"
-					ng-repeat="tile in tiles" 
+					ng-repeat="tile in tiles"
 					ng-class="getTileClass()"
 					ng-style="getTileStyle()"
 					ng-controller="IzendaTileController"
@@ -375,18 +391,18 @@
 							<div class="title-container" style="height: 35px; overflow: hidden;">
 								<div class="title">
 									<span class="title-text">
-										<a ng-if="title != null && title != ''" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
+										<a ng-if="title != null && title != ''" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}"
 											href="{{izendaUrl.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{title}}
 										</a>
-										<a ng-if="(title == null || title == '') && reportCategory != null" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
+										<a ng-if="(title == null || title == '') && reportCategory != null" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}"
 											href="{{izendaUrl.urlSettings.urlReportList}}#{{reportCategory}}">{{reportCategory}}
 										</a>
 										<span ng-if="(title == null || title == '') && title != '' && reportCategory != null">/</span>
-										<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
+										<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}"
 											href="{{izendaUrl.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{reportName}}
 										</a>
 										<span ng-if="(title == null || title == '') && reportPartName != null">/</span>
-										<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
+										<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}"
 											href="{{izendaUrl.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{reportPartName}}
 										</a>
 									</span>
@@ -431,7 +447,7 @@
 									</div>
 								</div>
 								<div class="iz-dash-tile-fb-toolbar">
-									<div class="iz-dash-tile-fb-toolbtn" 
+									<div class="iz-dash-tile-fb-toolbtn"
 										ng-hide="isOneColumnView()">
 										<a title="Print tile report" href="{{izendaUrl.urlSettings.urlRsPage}}?rn={{getSourceReportName()}}&p=htmlreport&print=1">
 											<img class="img-responsive" src="DashboardsResources/images/back-tile/print.png" />
@@ -482,18 +498,18 @@
 							<div class="title-container" style="height: 35px; overflow: hidden;">
 								<div class="title">
 									<span class="title-text">
-										<a ng-if="title != null && title != ''" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
+										<a ng-if="title != null && title != ''" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}"
 											href="{{izendaUrl.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{title}}
 										</a>
-										<a ng-if="(title == null || title == '') && reportCategory != null" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
+										<a ng-if="(title == null || title == '') && reportCategory != null" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}"
 											href="{{izendaUrl.urlSettings.urlReportList}}#{{reportCategory}}">{{reportCategory}}
 										</a>
 										<span ng-if="(title == null || title == '') && title != '' && reportCategory != null">/</span>
-										<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
+										<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}"
 											href="{{izendaUrl.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{reportName}}
 										</a>
 										<span ng-if="(title == null || title == '') && reportPartName != null">/</span>
-										<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}" 
+										<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}"
 											href="{{izendaUrl.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{reportPartName}}
 										</a>
 									</span>
@@ -518,6 +534,47 @@
 					</div>
 
 				</div>
+			</div>
+			<div id="galleryBodyContainer" class="fx-fade-down fx-speed-500 fx-trigger fx-easing-quint"
+				ng-hide="!isGalleryMode" 
+				ng-style="galleryContainerStyle">
+				<div id="impresshook">
+					<div class="impress">
+						<div class="step slide" 
+							tileId="{{tile.id}}"
+						ng-repeat="tile in tiles"
+						data-x="{{($index + 1) * 920}}"
+						data-y="{{0}}"
+						data-z="{{0}}"
+						data-rotate-x="{{0}}"
+						data-rotate-y="{{0}}"
+						data-rotate-z="{{0}}">
+							<h1>{{tile.reportFullName}}</h1>
+						</div>
+					</div>
+					<button ng-click="$emit('previousSlide')">Previous</button>
+					<button ng-click="$emit('nextSlide')">Next</button>
+				</div>
+
+				<%--<div class="container-fluid">
+					<div class="row">
+						<div class="col-xs-1 text-center">
+							<h2>
+								<a style="color: #fff;" ng-click="prevGalleryTile()">&larr;</a>
+							</h2>
+						</div>
+						<div class="col-xs-10 text-center">
+							<div class="gallery-tile-container">
+								
+							</div>
+						</div>
+						<div class="col-xs-1 text-center">
+							<h2>
+								<a style="color: #fff;" ng-click="nextGalleryTile()">&rarr;</a>
+							</h2>
+						</div>
+					</div>
+				</div>--%>
 			</div>
 		</div>
 	</div>

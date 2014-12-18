@@ -15,12 +15,14 @@
 		window.jQueryTemp = window.jQuery;
 	window.jQuery = jq$;
 </script>
+<%--<script type="text/javascript" src="DashboardsResources/angular-js/vendor/impress.js"></script>--%>
 <![if !IE]>
 <script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-route.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-animate.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-cookies.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/vendor/ngFx.js"></script>
+<script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-impress.js"></script>
 <![endif]>
 <!--[if gt IE 8]>
 	<script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular.js"></script>
@@ -28,12 +30,14 @@
 	<script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-animate.js"></script>
 	<script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-cookies.js"></script>
 	<script type="text/javascript" src="DashboardsResources/angular-js/vendor/ngFx.js"></script>
+	<script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-impress.js"></script>
 <![endif]-->
 <!--[if lte IE 8]>
 	<script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-1.2.27/angular.js"></script>
 	<script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-1.2.27/angular-route.js"></script>
 	<script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-1.2.27/angular-animate.js"></script>
 	<script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-1.2.27/angular-cookies.js"></script>
+	<script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-impress.js"></script>
 <![endif]-->
 
 <script type="text/javascript">

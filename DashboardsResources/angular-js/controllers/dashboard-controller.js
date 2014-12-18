@@ -5,7 +5,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   var _ = angular.element;
 
   var newTileIndex = 1;
-  
+
   $scope.izendaUrl = $izendaUrl;
 
   // dashboard tiles container
@@ -13,8 +13,16 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
     'height': 0
   };
 
+  $scope.galleryContainerStyle = {
+    'height': 0
+  };
+
   // is dashboard changing now.
   $scope.isChangingNow = false;
+
+  $scope.isGalleryMode = false;
+  $scope.galleryTileIndex = 0;
+  $scope.galleryTile = null;
 
   // dashboard tiles
   $scope.tiles = [];
@@ -31,6 +39,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   $scope.$on('dashboardResizeEvent', function () {
     // update dashboard tile sizes
     $scope.updateDashboardSize();
+    updateGalleryContainer();
     $scope.updateDashboardHandlers();
   });
 
@@ -145,6 +154,22 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
     $scope.tiles.splice(idx, 1);
   });
 
+  /**
+   * Gallery mode activated/deactivated
+   */
+  $scope.$on('toggleGalleryMode', function (event, args) {
+    if (angular.isUndefined(args) || angular.isUndefined(args[0]))
+      throw 'Should be 1 argument with boolean parameter';
+    var activate = args[0];
+    if ((activate && $scope.isGalleryMode) || (!activate && !$scope.isGalleryMode))
+      return;
+    if (activate) {
+      activateGallery();
+    } else {
+      deactivateGallery();
+    }
+  });
+
   ////////////////////////////////////////////////////////
   // scope helper functions:
   ////////////////////////////////////////////////////////
@@ -154,6 +179,9 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   };
   $scope.getTileContainer = function () {
     return _('#dashboardBodyContainer');
+  };
+  $scope.getGalleryContainer = function () {
+    return _('#galleryBodyContainer');
   };
   $scope.getTileById = function (tileId) {
     for (var i = 0; i < $scope.tiles.length; i++) {
@@ -209,14 +237,14 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   /**
    * Check old IE version
    */
-  $scope.checkIsIE8 = function() {
+  $scope.checkIsIE8 = function () {
     return $izendaCompatibility.checkIsIe8();
   };
 
   /**
    * Check if one column view required
    */
-  $scope.isOneColumnView = function() {
+  $scope.isOneColumnView = function () {
     return $izendaCompatibility.isOneColumnView();
   };
 
@@ -295,6 +323,26 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
     var $gridPlaceholder = $scope.getTileContainer();
     var $shadow = $gridPlaceholder.find('.tile-grid-cell.shadow');
     $shadow.hide();
+  };
+
+  /**
+   * Next tile in gallery
+   */
+  $scope.nextGalleryTile = function () {
+    $scope.galleryTileIndex++;
+    if ($scope.galleryTileIndex >= $scope.tiles.length)
+      $scope.galleryTileIndex = 0;
+    loadTileToGallery();
+  };
+
+  /**
+   * Previous tile in gallery
+   */
+  $scope.prevGalleryTile = function () {
+    $scope.galleryTileIndex--;
+    if ($scope.galleryTileIndex < 0)
+      $scope.galleryTileIndex = $scope.tiles.length - 1;
+    loadTileToGallery();
   };
 
   /**
@@ -415,7 +463,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   /**
    * Update dashboard size:
    */
-  $scope.updateDashboardSize = function() {
+  $scope.updateDashboardSize = function () {
     updateTileContainerSize();
   };
 
@@ -445,7 +493,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   ////////////////////////////////////////////////////////
   // dashboard functions:
   ////////////////////////////////////////////////////////
-  
+
   /**
    * Get addtile context object
    */
@@ -611,7 +659,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
       }],
       RowsCount: 1
     };
-    
+
     for (var i = 0; i < tiles.length; i++) {
       var tile = tiles[i];
       var saveObject = {
@@ -708,7 +756,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
         }
       }
       tilesToAdd = sortTilesByPosition(tilesToAdd);
-      
+
       // start loading tile reports
       for (var i = 0; i < tilesToAdd.length; i++) {
         loadTileReport(tilesToAdd[i]);
@@ -722,7 +770,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
         width: 12 * $scope.tileWidth
       }]);
       var animationSpeed = 200;
-      
+
       // start adding tiles
       var index = 0;
       function nextTile() {
@@ -754,7 +802,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
     if (!angular.isString(tileObj.reportFullName) || tileObj.reportFullName == '')
       return;
     tileObj.preloadStarted = true;
-    tileObj.preloadDataHandler = (function() {
+    tileObj.preloadDataHandler = (function () {
       var deferred = $q.defer();
       var heightDelta = tileObj.description != null && tileObj.description != '' ? 120 : 90;
       $izendaDashboardQuery.loadTileReport(
@@ -786,7 +834,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   ////////////////////////////////////////////////////////
   // tile container functions:
   ////////////////////////////////////////////////////////
-  
+
   /**
    * Tile container style
    */
@@ -804,7 +852,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
 
     // update height
     var maxHeight = 0;
-    $tileContainer.find('.iz-dash-tile').each(function(iTile, tile) {
+    $tileContainer.find('.iz-dash-tile').each(function (iTile, tile) {
       var $tile = _(tile);
       if ($tile.position().top + $tile.height() > maxHeight) {
         maxHeight = $tile.position().top + $tile.height();
@@ -820,5 +868,85 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
 
     // set height:
     $scope.tileContainerStyle.height = (maxHeight + $scope.tileHeight + 1) + 'px';
-  };
+  }
+
+  ////////////////////////////////////////////////////////
+  // gallery
+  ////////////////////////////////////////////////////////
+
+  function activateGallery() {
+    if ($scope.tiles.length == 0) {
+      alert('Cannot run gallery: no tiles found.');
+      return;
+    }
+    $scope.isGalleryMode = true;
+
+    updateGalleryContainer();
+    setTimeout(function () {
+      angular.element(document.getElementById('impresshook')).scope().$emit('initImpress');
+      loadTileToGallery();
+      $scope.$evalAsync();
+    }, 1);
+  }
+
+  function deactivateGallery() {
+    $scope.isGalleryMode = false;
+    //clearGalleryTileHtml();
+    $scope.$evalAsync();
+  }
+
+  function loadTileToGallery() {
+    // load report
+    var galleryTiles = _('.slide');
+    galleryTiles.each(function (iTile, tile) {
+      var $tile = _(tile);
+      clearGalleryTileHtml($tile);
+      var tileObj = $scope.getTileById($tile.attr('tileId'));
+      $izendaDashboardQuery.loadTileReport(false,
+        $izendaUrl.getReportInfo().fullName,
+        tileObj.reportFullName,
+        null,
+        tileObj.top,
+        900, 700)
+      .then(function (htmlData) {
+        applyGalleryTileHtml($tile, htmlData);
+        $scope.$evalAsync();
+      });
+    });
+  }
+
+  function updateGalleryContainer() {
+    var tileContainerTop = $scope.getGalleryContainer().offset().top;
+    $scope.galleryContainerStyle['height'] = _($window.top).height() - tileContainerTop - 10;
+    $scope.$evalAsync();
+  }
+
+  /**
+   * Clear tile inner html
+   */
+  function clearGalleryTileHtml($tile) {
+    $tile.empty();
+  }
+
+  /**
+   * Set tile inner html
+   */
+  function applyGalleryTileHtml($tile, htmlData) {
+    clearGalleryTileHtml($tile);
+    var $b = $tile;
+    if (!angular.isUndefined(ReportScripting))
+      ReportScripting.loadReportResponse(htmlData, $b);
+    if (!angular.isUndefined(AdHoc.Utility) && typeof AdHoc.Utility.DocumentReadyHandler == 'function') {
+      AdHoc.Utility.DocumentReadyHandler();
+    }
+    var divs$ = $b.find('div.DashPartBody, div.DashPartBodyNoScroll');
+    var $zerochartResults = divs$.find('.iz-zero-chart-results');
+    if ($zerochartResults.length > 0) {
+      $zerochartResults.closest('table').css('height', '100%');
+      divs$.css('height', '100%');
+    }
+    if (!angular.isUndefined(AdHoc) && !angular.isUndefined(AdHoc.Utility) && typeof (AdHoc.Utility.DocumentReady) == 'function') {
+      AdHoc.Utility.DocumentReady();
+    }
+  }
 }]);
