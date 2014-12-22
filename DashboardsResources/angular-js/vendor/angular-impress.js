@@ -212,8 +212,6 @@
 
           for (var i = 0; i < slides.length; i++) {
             data = slides[i].dataset;
-
-            console.log(data);
             step = {
               translate: {
                 x: toNumber(data.x),

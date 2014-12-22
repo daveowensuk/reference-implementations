@@ -191,7 +191,6 @@
 						</a></li>
 					</ul>
 					<ul ng-class="buttonbarClass" class="nav navbar-nav iz-dash-toolbtn-panel left-transition">
-						<!-- create new -->
 						<li>
 							<a ng-click="hideButtonBar()" title="Hide buttons" style="border-right: 1px solid #ddd;"
 								ng-if="!checkIsIE8()">
@@ -203,36 +202,43 @@
 							</a>
 						</li>
 						<li>
+							<a title="Gallery Mode"
+								ng-click="toggleGalleryMode(true)"
+								ng-hide="isGalleryMode">
+								<span class="glyphicon glyphicon-play" style="color: greenyellow;"></span>
+							</a>
+							<a title="Tile Mode"
+								ng-click="toggleGalleryMode(false)"
+								ng-hide="!isGalleryMode">
+								<span class="glyphicon glyphicon-th"></span>
+							</a>
+						</li>
+						<li>
 							<a title="Create New Dashboard"
 								ng-click="createNewDashboardHandler()"
-								ng-if="!checkIsIE8()">
+								ng-if="!checkIsIE8()"
+								ng-hide="isGalleryMode">
 								<span class="glyphicon glyphicon-plus"></span>
 							</a>
 							<a title="Create New Dashboard"
 								ng-click="createNewDashboardHandler()"
-								ng-if="checkIsIE8()">
+								ng-if="checkIsIE8()"
+								ng-hide="isGalleryMode">
 								<img src="DashboardsResources/images/add-new.png" />
-							</a>
-						</li>
-						<li>
-							<a title="Gallery Mode" style="min-width: 100px;"
-								ng-click="toggleGalleryMode(true)"
-								ng-hide="isGalleryMode">GALLERY
-							</a>
-							<a title="Gallery Mode" style="min-width: 100px;"
-								ng-click="toggleGalleryMode(false)"
-								ng-hide="!isGalleryMode">TILES
 							</a>
 						</li>
 						<!-- refresh -->
 						<li>
 							<a title="Refresh Dashboard"
 								ng-click="refreshDashboardHandler()"
-								ng-if="!checkIsIE8()"><span class="glyphicon glyphicon-refresh"></span>
+								ng-if="!checkIsIE8()"
+								ng-hide="isGalleryMode">
+								<span class="glyphicon glyphicon-refresh"></span>
 							</a>
 							<a title="Refresh Dashboard"
 								ng-click="refreshDashboardHandler()"
-								ng-if="checkIsIE8()">
+								ng-if="checkIsIE8()"
+								ng-hide="isGalleryMode">
 								<img src="DashboardsResources/images/refresh-18.png" />
 							</a>
 						</li>
@@ -240,11 +246,13 @@
 						<!-- save -->
 						<li class="dropdown">
 							<a class="dropdown-toggle" data-toggle="dropdown" title="Save Dashboard"
-								ng-if="!checkIsIE8()">
+								ng-if="!checkIsIE8()"
+								ng-hide="isGalleryMode">
 								<span class="glyphicon glyphicon-floppy-disk">&nbsp;<b class="caret"></b></span>
 							</a>
 							<a class="dropdown-toggle" data-toggle="dropdown" title="Save Dashboard"
-								ng-if="checkIsIE8()">
+								ng-if="checkIsIE8()"
+								ng-hide="isGalleryMode">
 								<img src="DashboardsResources/images/floppy.png" />&nbsp;<b class="caret"></b>
 							</a>
 							<ul class="dropdown-menu">
@@ -274,7 +282,8 @@
 								</li>
 							</ul>
 						</li>
-						<li class="dropdown">
+						<li class="dropdown"
+							ng-hide="isGalleryMode">
 							<a class="hue-rotate-btn dropdown-toggle" data-toggle="dropdown"
 								title="Toggle background hue rotate" ng-style="backgroundColorStyle">
 								<img class="icon" src="DashboardsResources/images/color-bw.png" style="width: 16px;" alt="Hue rotate" />
@@ -535,13 +544,24 @@
 
 				</div>
 			</div>
-			<div id="galleryBodyContainer" class="fx-fade-down fx-speed-500 fx-trigger fx-easing-quint"
+			<div id="galleryBodyContainer"
 				ng-hide="!isGalleryMode" 
 				ng-style="galleryContainerStyle">
+				<div class="container-fluid iz-dash-gallery-button-container">
+					<div class="row iz-dash-gallery-button-container">
+						<div class="col-xs-1 iz-dash-gallery-button-container text-center">
+							<button ng-click="$emit('previousSlide')" class="iz-dash-gallery-button glyphicon glyphicon-arrow-left"></button>
+						</div>
+						<div class="col-xs-10 text-center">
+						</div>
+						<div class="col-xs-1 iz-dash-gallery-button-container text-center">
+							<button ng-click="$emit('nextSlide')" class="iz-dash-gallery-button glyphicon glyphicon-arrow-right"></button>
+						</div>
+					</div>
+				</div>
 				<div id="impresshook">
 					<div class="impress">
-						<div class="step slide" 
-							tileId="{{tile.id}}"
+						<div class="step slide" tileId="{{tile.id}}"
 						ng-repeat="tile in tiles"
 						data-x="{{($index + 1) * 920}}"
 						data-y="{{0}}"
@@ -552,9 +572,8 @@
 							<h1>{{tile.reportFullName}}</h1>
 						</div>
 					</div>
-					<button ng-click="$emit('previousSlide')">Previous</button>
-					<button ng-click="$emit('nextSlide')">Next</button>
 				</div>
+				
 
 				<%--<div class="container-fluid">
 					<div class="row">

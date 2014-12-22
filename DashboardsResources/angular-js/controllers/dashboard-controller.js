@@ -329,20 +329,18 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
    * Next tile in gallery
    */
   $scope.nextGalleryTile = function () {
-    $scope.galleryTileIndex++;
-    if ($scope.galleryTileIndex >= $scope.tiles.length)
-      $scope.galleryTileIndex = 0;
-    loadTileToGallery();
+    clearInterval($scope.galleryIntervalId);
+    $scope.galleryIntervalId = null;
+    $scope.$emit('nextSlide');
   };
 
   /**
    * Previous tile in gallery
    */
   $scope.prevGalleryTile = function () {
-    $scope.galleryTileIndex--;
-    if ($scope.galleryTileIndex < 0)
-      $scope.galleryTileIndex = $scope.tiles.length - 1;
-    loadTileToGallery();
+    clearInterval($scope.galleryIntervalId);
+    $scope.galleryIntervalId = null;
+    $scope.$emit('previousSlide');
   };
 
   /**
@@ -885,12 +883,17 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
     setTimeout(function () {
       angular.element(document.getElementById('impresshook')).scope().$emit('initImpress');
       loadTileToGallery();
+      $scope.galleryIntervalId = setInterval(function() {
+        $scope.$emit('nextSlide');
+      }, 10000);
       $scope.$evalAsync();
     }, 1);
   }
 
   function deactivateGallery() {
     $scope.isGalleryMode = false;
+    clearInterval($scope.galleryIntervalId);
+    $scope.galleryIntervalId = null;
     //clearGalleryTileHtml();
     $scope.$evalAsync();
   }
@@ -907,7 +910,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
         tileObj.reportFullName,
         null,
         tileObj.top,
-        900, 700)
+        $tile.width(), $tile.height())
       .then(function (htmlData) {
         applyGalleryTileHtml($tile, htmlData);
         $scope.$evalAsync();
@@ -916,7 +919,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   }
 
   function updateGalleryContainer() {
-    var tileContainerTop = $scope.getGalleryContainer().offset().top;
+    var tileContainerTop = $scope.getRoot().offset().top;
     $scope.galleryContainerStyle['height'] = _($window.top).height() - tileContainerTop - 10;
     $scope.$evalAsync();
   }

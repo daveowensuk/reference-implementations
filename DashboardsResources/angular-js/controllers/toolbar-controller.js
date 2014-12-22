@@ -813,6 +813,10 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
     console.log('>>>>> Set current dashboard: "' + dashboardFullName + '"');
     console.log(' ');
 
+    // return from gallery mode.
+    $scope.isGalleryMode = false;
+    $rootScope.$broadcast('toggleGalleryMode', [false]);
+
     // check if category was changed
     var newCat = $izendaUrl.extractReportCategory(dashboardFullName);
     var prevCat = $scope.previousDashboardCategory;
