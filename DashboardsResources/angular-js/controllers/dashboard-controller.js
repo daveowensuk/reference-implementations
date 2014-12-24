@@ -834,7 +834,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
         height: (maxHeight) * $scope.tileHeight,
         width: 12 * $scope.tileWidth
       }]);
-      var animationSpeed = 200;
+      var animationSpeed = 400;
 
       // start adding tiles
       var index = 0;
