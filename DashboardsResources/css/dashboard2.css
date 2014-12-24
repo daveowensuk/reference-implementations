@@ -1,6 +1,6 @@
 ﻿html, body {
-	height: 100%;
-	min-height: 100%;
+	height: 101%;
+	min-height: 101%;
 	-ms-overflow-style: scrollbar;
 }
 
@@ -73,7 +73,7 @@
 
 .step {
     position: relative;
-    width: 900px;
+    width: 1200px;
     margin: 0px auto;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -83,8 +83,8 @@
 }
 .slide {
     display: block;
-    width: 900px;
-    height: 700px;
+    width: 1200px;
+    height: 675px;
     background-color: white;
     opacity: 0.3;
     -webkit-transition: opacity 0.3s ease;
@@ -1003,10 +1003,14 @@
 .iz-dash-gallery-button {
 	position: relative;
 	top: 50%;
-	font-size: 20px;
-	color: #666666;
+	font-size: 30px;
+	color: #ccc;
 	height: 50px;
 	margin-top: -25px;
+}
+
+.iz-dash-gallery-button-container:hover > .iz-dash-gallery-button {
+	color: #fff;
 }
 
 /* resizable fix */

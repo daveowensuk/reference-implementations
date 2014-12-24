@@ -202,7 +202,7 @@
 							</a>
 						</li>
 						<li>
-							<a title="Gallery Mode"
+							<a title="Presentation Mode"
 								ng-click="toggleGalleryMode(true)"
 								ng-hide="isGalleryMode">
 								<span class="glyphicon glyphicon-play" style="color: greenyellow;"></span>
@@ -404,7 +404,7 @@
 											href="{{izendaUrl.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{title}}
 										</a>
 										<a ng-if="(title == null || title == '') && reportCategory != null" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}"
-											href="{{izendaUrl.urlSettings.urlReportList}}#{{reportCategory}}">{{reportCategory}}
+											href="{{izendaUrl.urlSettings.urlReportList}}#{{reportCategory}}">{{reportCategory}} /
 										</a>
 										<span ng-if="(title == null || title == '') && title != '' && reportCategory != null">/</span>
 										<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}"
@@ -511,7 +511,7 @@
 											href="{{izendaUrl.urlSettings.urlReportViewer}}?rn={{reportNameWithCategory}}">{{title}}
 										</a>
 										<a ng-if="(title == null || title == '') && reportCategory != null" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}"
-											href="{{izendaUrl.urlSettings.urlReportList}}#{{reportCategory}}">{{reportCategory}}
+											href="{{izendaUrl.urlSettings.urlReportList}}#{{reportCategory}}">{{reportCategory}} /
 										</a>
 										<span ng-if="(title == null || title == '') && title != '' && reportCategory != null">/</span>
 										<a ng-if="(title == null || title == '')" class="db-title-repname" title="{{reportCategory}}\{{reportName}}\{{reportPartName}}"
@@ -549,13 +549,15 @@
 				ng-style="galleryContainerStyle">
 				<div class="container-fluid iz-dash-gallery-button-container">
 					<div class="row iz-dash-gallery-button-container">
-						<div class="col-xs-1 iz-dash-gallery-button-container text-center">
-							<button ng-click="$emit('previousSlide')" class="iz-dash-gallery-button glyphicon glyphicon-arrow-left"></button>
+						<div ng-click="prevGalleryTile()" class="col-xs-1 iz-dash-gallery-button-container text-center"
+							style="cursor: pointer;">
+							<span class="iz-dash-gallery-button glyphicon glyphicon-arrow-left"></span>
 						</div>
 						<div class="col-xs-10 text-center">
 						</div>
-						<div class="col-xs-1 iz-dash-gallery-button-container text-center">
-							<button ng-click="$emit('nextSlide')" class="iz-dash-gallery-button glyphicon glyphicon-arrow-right"></button>
+						<div ng-click="nextGalleryTile()" class="col-xs-1 iz-dash-gallery-button-container text-center"
+							style="cursor: pointer;">
+							<span class="iz-dash-gallery-button glyphicon glyphicon-arrow-right"></span>
 						</div>
 					</div>
 				</div>
@@ -563,7 +565,7 @@
 					<div class="impress">
 						<div class="step slide" tileId="{{tile.id}}"
 						ng-repeat="tile in tiles"
-						data-x="{{($index + 1) * 920}}"
+						data-x="{{($index + 1) * 1240}}"
 						data-y="{{0}}"
 						data-z="{{0}}"
 						data-rotate-x="{{0}}"
@@ -573,27 +575,12 @@
 						</div>
 					</div>
 				</div>
-				
-
-				<%--<div class="container-fluid">
-					<div class="row">
-						<div class="col-xs-1 text-center">
-							<h2>
-								<a style="color: #fff;" ng-click="prevGalleryTile()">&larr;</a>
-							</h2>
-						</div>
-						<div class="col-xs-10 text-center">
-							<div class="gallery-tile-container">
-								
-							</div>
-						</div>
-						<div class="col-xs-1 text-center">
-							<h2>
-								<a style="color: #fff;" ng-click="nextGalleryTile()">&rarr;</a>
-							</h2>
-						</div>
-					</div>
-				</div>--%>
+			</div>
+			<div style="width: 100%; text-align: center; position: absolute; top: 5px;"
+				ng-hide="!isGalleryMode">
+				<span style="background-color: #f8f8f8; border: 1px solid #e7e7e7; padding: 5px;">
+					{{galleryTileTitle}}
+				</span>
 			</div>
 		</div>
 	</div>

@@ -15,7 +15,6 @@
 		window.jQueryTemp = window.jQuery;
 	window.jQuery = jq$;
 </script>
-<%--<script type="text/javascript" src="DashboardsResources/angular-js/vendor/impress.js"></script>--%>
 <![if !IE]>
 <script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/vendor/angular-route.js"></script>

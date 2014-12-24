@@ -165,13 +165,7 @@
 
         $scope.$on('initImpress', function () {
           slides = $($element).find('.step');
-          /*     var meta = $('meta[name="viewport"]') || document.createElement('meta');
-               meta.content = 'width=device-width, minimum-scale=1, maximum-scale=1, user-scalable=no';
-               if (meta.parentNode !== document.head) {
-                   meta.name = 'viewport';
-                   document.head.appendChild(meta[0]);
-               } */
-
+          
           document.documentElement.style.height = '100%';
 
           $(document.body).css({

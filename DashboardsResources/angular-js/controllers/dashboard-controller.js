@@ -14,7 +14,8 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   };
 
   $scope.galleryContainerStyle = {
-    'height': 0
+    'height': 0,
+    'top': '20px'
   };
 
   // is dashboard changing now.
@@ -23,6 +24,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   $scope.isGalleryMode = false;
   $scope.galleryTileIndex = 0;
   $scope.galleryTile = null;
+  $scope.galleryTileTitle = null;
 
   // dashboard tiles
   $scope.tiles = [];
@@ -331,7 +333,14 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   $scope.nextGalleryTile = function () {
     clearInterval($scope.galleryIntervalId);
     $scope.galleryIntervalId = null;
+    $scope.galleryTileIndex++;
+    if ($scope.galleryTileIndex >= $scope.tiles.length) {
+      $scope.galleryTileIndex = 0;
+    }
+    $scope.galleryTile = $scope.tiles[$scope.galleryTileIndex];
+    $scope.galleryTileTitle = createTileTitle($scope.galleryTile);
     $scope.$emit('nextSlide');
+    $scope.$evalAsync();
   };
 
   /**
@@ -340,7 +349,14 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   $scope.prevGalleryTile = function () {
     clearInterval($scope.galleryIntervalId);
     $scope.galleryIntervalId = null;
+    $scope.galleryTileIndex--;
+    if ($scope.galleryTileIndex < 0) {
+      $scope.galleryTileIndex = $scope.tiles.length - 1;
+    }
+    $scope.galleryTile = $scope.tiles[$scope.galleryTileIndex];
+    $scope.galleryTileTitle = createTileTitle($scope.galleryTile);
     $scope.$emit('previousSlide');
+    $scope.$evalAsync();
   };
 
   /**
@@ -637,6 +653,16 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   // tiles functions:
   ////////////////////////////////////////////////////////
 
+  function createTileTitle(tile) {
+    if (tile.title != null && tile.title != '')
+      return tile.title;
+    var result = '';
+    if (tile.reportCategory != null && tile.reportCategory != '')
+      result = tile.reportCategory + ' / ';
+    result = result + tile.reportName + ' / ' + tile.reportPartName;
+    return result;
+  }
+
   function sortTilesByPosition(tilesArray) {
     return tilesArray.sort(function (a, b) {
       if (a.y != b.y)
@@ -845,17 +871,16 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
     $tileContainer.width(width);
     $scope.tileWidth = width / 12;
     $scope.tileHeight = $scope.tileWidth > 100 ? $scope.tileWidth : 100;
-    if (!$scope.$$phase)
-      $scope.$apply();
+    $scope.$evalAsync();
 
     // update height
     var maxHeight = 0;
-    $tileContainer.find('.iz-dash-tile').each(function (iTile, tile) {
-      var $tile = _(tile);
-      if ($tile.position().top + $tile.height() > maxHeight) {
-        maxHeight = $tile.position().top + $tile.height();
+    _.each($scope.tiles, function(iTile, tile) {
+      if (tile.y + tile.height > maxHeight) {
+        maxHeight = tile.y + tile.height;
       }
     });
+    maxHeight = maxHeight * $scope.tileHeight;
 
     // update height of union of tiles and additional box it is set
     if (!angular.isUndefined(additionalBox)) {
@@ -883,18 +908,20 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
     setTimeout(function () {
       angular.element(document.getElementById('impresshook')).scope().$emit('initImpress');
       loadTileToGallery();
-      $scope.galleryIntervalId = setInterval(function() {
+     /* $scope.galleryIntervalId = setInterval(function() {
         $scope.$emit('nextSlide');
-      }, 10000);
+      }, 10000);*/
       $scope.$evalAsync();
     }, 1);
   }
-
+  
   function deactivateGallery() {
     $scope.isGalleryMode = false;
     clearInterval($scope.galleryIntervalId);
     $scope.galleryIntervalId = null;
-    //clearGalleryTileHtml();
+    clearGalleryTiles();
+    _('body').css('overflow', 'auto');
+    updateTileContainerSize();
     $scope.$evalAsync();
   }
 
@@ -916,11 +943,14 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
         $scope.$evalAsync();
       });
     });
+    $scope.galleryTileIndex = 0;
+    $scope.galleryTile = $scope.tiles[0];
+    $scope.galleryTileTitle = createTileTitle($scope.galleryTile);
   }
 
   function updateGalleryContainer() {
     var tileContainerTop = $scope.getRoot().offset().top;
-    $scope.galleryContainerStyle['height'] = _($window.top).height() - tileContainerTop - 10;
+    $scope.galleryContainerStyle['height'] = _($window.top).height() - tileContainerTop - 30;
     $scope.$evalAsync();
   }
 
@@ -929,6 +959,10 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
    */
   function clearGalleryTileHtml($tile) {
     $tile.empty();
+  }
+
+  function clearGalleryTiles() {
+    $scope.getGalleryContainer().find('.slide').empty();
   }
 
   /**
