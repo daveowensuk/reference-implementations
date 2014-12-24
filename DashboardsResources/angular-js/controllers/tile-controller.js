@@ -296,6 +296,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
     $scope.y = y > 0 ? y : 0;
     $scope.width = width;
     $scope.height = height;
+    updateParentTile();
   };
 
   /**
@@ -513,6 +514,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
             if (tileSizeChanged) {
               var id1 = $scope.$parent.getTile$Id($swappedTile1),
                   id2 = $scope.$parent.getTile$Id($swappedTile2);
+              $scope.updateTileParameters();
               $rootScope.$broadcast('stopEditTileEvent', [{
                 tileId: [id1, id2],
                 refresh: true,
@@ -525,6 +527,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
 
         // cancel drag if have intersections or tile is out of dashboard space:
         if ($scope.$parent.checkTileIntersects($scope, $helper) || $scope.$parent.checkTileMovedToOuterSpace($helper, 10)) {
+          $scope.updateTileParameters();
           $rootScope.$broadcast('stopEditTileEvent', [{
             tileId: $scope.id,
             refresh: false,
@@ -540,6 +543,7 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
           left: Math.round(pos.left / $scope.$parent.tileWidth) * $scope.$parent.tileWidth,
           top: Math.round(pos.top / $scope.$parent.tileHeight) * $scope.$parent.tileHeight
         }, 500, function () {
+          $scope.updateTileParameters();
           $rootScope.$broadcast('stopEditTileEvent', [{
             tileId: $scope.id,
             refresh: false,
@@ -600,11 +604,13 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
             height: ui.originalSize.height
           }, 200, function () {
             // no need to update tile:
+            $scope.updateTileParameters();
             $rootScope.$broadcast('stopEditTileEvent', [{
               actionName: 'resize'
             }]);
           });
         } else {
+          $scope.updateTileParameters();
           $rootScope.$broadcast('stopEditTileEvent', [{
             tileId: $scope.id,
             actionName: 'resize',

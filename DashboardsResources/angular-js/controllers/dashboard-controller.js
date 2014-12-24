@@ -135,6 +135,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
       }
     } else {
       $scope.hideTileGrid();
+      updateTileContainerSize();
       $scope.editTileEvent.actionName = null;
     }
   });
@@ -360,6 +361,32 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   };
 
   /**
+   * Check bbox for intersects
+   */
+  $scope.checkTileIntersectsBbox = function (tile) {
+    var hitTest = function (a, b) {
+      var aLeft = a.x;
+      var aRight = a.x + a.width - 1;
+      var aTop = a.y;
+      var aBottom = a.y + a.height - 1;
+
+      var bLeft = b.x;
+      var bRight = b.x + b.width - 1;
+      var bTop = b.y;
+      var bBottom = b.y + b.height - 1;
+      return !(bLeft > aRight || bRight < aLeft || bTop > aBottom || bBottom < aTop);
+    };
+    var otherTiles = $scope.getOtherTiles($scope.tiles, tile);
+    for (var i = 0; i < otherTiles.length; i++) {
+      var oTile = otherTiles[i];
+      if (hitTest(tile, oTile)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  /**
    * Check tile intersects to any other tile
    */
   $scope.checkTileIntersects = function (tile, $helper) {
@@ -538,6 +565,20 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
         x: x,
         y: y
       });
+      while (!$scope.checkTileIntersectsBbox($scope.addtile.tile) && $scope.addtile.tile.width < 6
+            && $scope.addtile.tile.width + $scope.addtile.tile.x < 12) {
+        $scope.addtile.tile.width++;
+      }
+      if ($scope.checkTileIntersectsBbox($scope.addtile.tile)) {
+        $scope.addtile.tile.width--;
+      }
+      while (!$scope.checkTileIntersectsBbox($scope.addtile.tile) && $scope.addtile.tile.height < 3) {
+        $scope.addtile.tile.height++;
+      }
+      if ($scope.checkTileIntersectsBbox($scope.addtile.tile)) {
+        $scope.addtile.tile.height--;
+      }
+
       $scope.tiles.push($scope.addtile.tile);
       if (!$scope.$$phase)
         $scope.$apply();
