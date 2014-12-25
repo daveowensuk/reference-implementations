@@ -790,6 +790,14 @@ function IzendaTileController($window, $element, $rootScope, $scope, $injector, 
       AdHoc.Utility.DocumentReadyHandler();
     }
     var divs$ = $b.find('div.DashPartBody, div.DashPartBodyNoScroll');
+
+    divs$.find('span').each(function (iSpan, span) {
+      var $span = _(span);
+      if ($span.attr('id') && $span.attr('id').indexOf('_outerSpan') >= 0) {
+        $span.css('display', 'inline');
+      }
+    });
+
     var $zerochartResults = divs$.find('.iz-zero-chart-results');
     if ($zerochartResults.length > 0) {
       $zerochartResults.closest('table').css('height', '100%');

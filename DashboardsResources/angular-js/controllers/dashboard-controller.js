@@ -973,6 +973,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
       var $tile = _(tile);
       clearGalleryTileHtml($tile);
       var tileObj = $scope.getTileById($tile.attr('tileId'));
+      console.log($tile.width(), $tile.height());
       $izendaDashboardQuery.loadTileReport(false,
         $izendaUrl.getReportInfo().fullName,
         tileObj.reportFullName,
@@ -1010,6 +1011,9 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
    * Set tile inner html
    */
   function applyGalleryTileHtml($tile, htmlData) {
+/*    if ($tile.attr('tileid') == 'IzendaDashboardTile0') {
+      debugger;
+    }*/
     clearGalleryTileHtml($tile);
     var $b = $tile;
     if (!angular.isUndefined(ReportScripting))
@@ -1018,6 +1022,14 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
       AdHoc.Utility.DocumentReadyHandler();
     }
     var divs$ = $b.find('div.DashPartBody, div.DashPartBodyNoScroll');
+
+    divs$.find('span').each(function(iSpan, span) {
+      var $span = _(span);
+      if ($span.attr('id') && $span.attr('id').indexOf('_outerSpan') >= 0) {
+        $span.css('display', 'inline');
+      }
+    });
+
     var $zerochartResults = divs$.find('.iz-zero-chart-results');
     if ($zerochartResults.length > 0) {
       $zerochartResults.closest('table').css('height', '100%');
