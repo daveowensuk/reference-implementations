@@ -1051,3 +1051,44 @@
 	opacity: 1;
 	filter: Alpha(Opacity=100);
 }
+
+/* GALLERY MODE */
+
+:-webkit-full-screen {
+	position: fixed !important;
+	width: 100% !important;
+	height: 100% !important;
+	top: 0 !important;
+	background: none !important;
+	margin: 0 !important;
+	background-color: #000 !important;
+}
+
+:-webkit-full-screen::-webkit-backdrop {
+	background-color: #000 !important;
+}
+ 
+:-moz-full-screen {
+	background-color: #000 !important;
+	margin: 0 !important;
+}
+ 
+:-ms-fullscreen {
+	width: auto !important;
+	height: auto !important;
+	margin: auto !important;
+	background-color: #000 !important;
+}
+
+:-ms-fullscreen::-ms-backdrop {
+	background-color: #000 !important;
+}
+ 
+:fullscreen {
+	margin: 0 !important;
+	background-color: #000 !important;
+}
+
+:fullscreen::backdrop {
+	background-color: #000 !important;
+}

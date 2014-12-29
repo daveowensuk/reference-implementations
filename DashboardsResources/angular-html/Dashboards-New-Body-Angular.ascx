@@ -214,6 +214,13 @@
 							</a>
 						</li>
 						<li>
+							<a title="Fullscreen Mode"
+								ng-click="toggleGalleryModeFullScreen()"
+								ng-hide="!isGalleryMode">
+								<span class="glyphicon glyphicon-fullscreen"></span>
+							</a>
+						</li>
+						<li>
 							<a title="Create New Dashboard"
 								ng-click="createNewDashboardHandler()"
 								ng-if="!checkIsIE8()"

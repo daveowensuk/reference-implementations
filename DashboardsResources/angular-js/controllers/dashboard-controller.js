@@ -32,6 +32,66 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   $scope.tileHeight = 0;
 
   ////////////////////////////////////////////////////////
+  // scope helper functions:
+  ////////////////////////////////////////////////////////
+
+  $scope.getRoot = function () {
+    return _('#dashboardsDiv');
+  };
+  $scope.getTileContainer = function () {
+    return _('#dashboardBodyContainer');
+  };
+  $scope.getGalleryContainer = function () {
+    return _('#galleryBodyContainer');
+  };
+  $scope.getTileById = function (tileId) {
+    for (var i = 0; i < $scope.tiles.length; i++) {
+      if ($scope.tiles[i].id == tileId)
+        return $scope.tiles[i];
+    }
+    return null;
+  };
+  $scope.getTileByTile$ = function (tile$) {
+    return $scope.getTileById($scope.getTile$Id(tile$));
+  };
+  $scope.getOtherTiles = function (tiles, tile) {
+    if (tile == null)
+      return tiles;
+    var otherTiles = [];
+    for (var i = 0; i < tiles.length; i++) {
+      if (tiles[i].id != tile.id)
+        otherTiles.push(tiles[i]);
+    }
+    return otherTiles;
+  };
+  $scope.getTile$ById = function (tileId) {
+    return $scope.getTileContainer().find('.iz-dash-tile[tileid="' + tileId + '"]');
+  };
+  $scope.getTile$Id = function ($tile) {
+    return $tile.attr('tileid');
+  };
+  $scope.getTile$ByInnerEl = function (el) {
+    var $el = _(el);
+    return _($el.closest('.iz-dash-tile'));
+  };
+  $scope.isTile$ = function (el) {
+    var $el = _(el);
+    return $el.closest('.iz-dash-tile').length > 0;
+  };
+  $scope.getTilePositionIndex = function (tileId) {
+    var position = 0;
+    var currentTile = $scope.getTileById(tileId);
+    for (var i = 0; i < $scope.tiles.length; i++) {
+      var tile = $scope.tiles[i];
+      if (tile.y < currentTile.y)
+        position++;
+      if (tile.y == currentTile.y && tile.x < currentTile.x)
+        position++;
+    }
+    return position;
+  };
+
+  ////////////////////////////////////////////////////////
   // event handlers:
   ////////////////////////////////////////////////////////
 
@@ -173,65 +233,31 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
     }
   });
 
-  ////////////////////////////////////////////////////////
-  // scope helper functions:
-  ////////////////////////////////////////////////////////
-
-  $scope.getRoot = function () {
-    return _('#dashboardsDiv');
-  };
-  $scope.getTileContainer = function () {
-    return _('#dashboardBodyContainer');
-  };
-  $scope.getGalleryContainer = function () {
-    return _('#galleryBodyContainer');
-  };
-  $scope.getTileById = function (tileId) {
-    for (var i = 0; i < $scope.tiles.length; i++) {
-      if ($scope.tiles[i].id == tileId)
-        return $scope.tiles[i];
+  /**
+   * Open gallery mode in full screen
+   */
+  $scope.$on('toggleGalleryModeFullscreen', function(event, args) {
+    var requestFullScreen = function(htmlElement) {
+      var requestMethod = htmlElement.requestFullScreen || htmlElement.webkitRequestFullScreen || htmlElement.mozRequestFullScreen
+        || htmlElement.msRequestFullscreen;
+      if (requestMethod) {
+        requestMethod.call(htmlElement);
+      } else if (typeof window.ActiveXObject !== "undefined") {
+        var wscript = new ActiveXObject("WScript.Shell");
+        if (typeof (wscript.SendKeys) === 'function') {
+          wscript.SendKeys("{F11}");
+        } else {
+          alert('Can\'t run fullscreen mode!');
+        }
+      }
+    };
+    var $galleryRoot = $scope.getGalleryContainer();
+    if ($galleryRoot.length == 0) {
+      alert('Can\'t find gallery root node!');
+      return;
     }
-    return null;
-  };
-  $scope.getTileByTile$ = function (tile$) {
-    return $scope.getTileById($scope.getTile$Id(tile$));
-  };
-  $scope.getOtherTiles = function (tiles, tile) {
-    if (tile == null)
-      return tiles;
-    var otherTiles = [];
-    for (var i = 0; i < tiles.length; i++) {
-      if (tiles[i].id != tile.id)
-        otherTiles.push(tiles[i]);
-    }
-    return otherTiles;
-  };
-  $scope.getTile$ById = function (tileId) {
-    return $scope.getTileContainer().find('.iz-dash-tile[tileid="' + tileId + '"]');
-  };
-  $scope.getTile$Id = function ($tile) {
-    return $tile.attr('tileid');
-  };
-  $scope.getTile$ByInnerEl = function (el) {
-    var $el = _(el);
-    return _($el.closest('.iz-dash-tile'));
-  };
-  $scope.isTile$ = function (el) {
-    var $el = _(el);
-    return $el.closest('.iz-dash-tile').length > 0;
-  };
-  $scope.getTilePositionIndex = function (tileId) {
-    var position = 0;
-    var currentTile = $scope.getTileById(tileId);
-    for (var i = 0; i < $scope.tiles.length; i++) {
-      var tile = $scope.tiles[i];
-      if (tile.y < currentTile.y)
-        position++;
-      if (tile.y == currentTile.y && tile.x < currentTile.x)
-        position++;
-    }
-    return position;
-  };
+    requestFullScreen($galleryRoot.get(0));
+  });
 
   ////////////////////////////////////////////////////////
   // scope functions:

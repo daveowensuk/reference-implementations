@@ -210,6 +210,13 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
   };
 
   /**
+   * Open gallery in fullscreen mode
+   */
+  $scope.toggleGalleryModeFullScreen = function() {
+    $rootScope.$broadcast('toggleGalleryModeFullscreen', []);
+  };
+
+  /**
    * Create new dashboard button handler.
    */
   $scope.createNewDashboardHandler = function () {
