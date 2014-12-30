@@ -1,5 +1,5 @@
-﻿izendaDashboardModule.controller('IzendaDashboardController', ['$rootScope', '$scope', '$window', '$q', '$location', '$animate', '$injector', '$izendaUrl', '$izendaCompatibility', '$izendaDashboardQuery', '$izendaRsQuery',
-function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $animate, $injector, $izendaUrl, $izendaCompatibility, $izendaDashboardQuery, $izendaRsQuery) {
+﻿izendaDashboardModule.controller('IzendaDashboardController', ['$rootScope', '$scope', '$window', '$q', '$location', '$animate', '$injector', '$izendaBackground', '$izendaUrl', '$izendaCompatibility', '$izendaDashboardQuery', '$izendaRsQuery',
+function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $animate, $injector, $izendaBackground, $izendaUrl, $izendaCompatibility, $izendaDashboardQuery, $izendaRsQuery) {
   'use strict';
 
   var _ = angular.element;
@@ -22,6 +22,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   $scope.isChangingNow = false;
 
   $scope.isGalleryMode = false;
+  $scope.isFullscreenMode = false;
   $scope.galleryTileIndex = 0;
   $scope.galleryTile = null;
   $scope.galleryTileTitle = null;
@@ -50,6 +51,13 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
         return $scope.tiles[i];
     }
     return null;
+  };
+  $scope.getTileIndex = function(tileid) {
+    for (var i = 0; i < $scope.tiles.length; i++) {
+      if ($scope.tiles[i].id == tileId)
+        return i;
+    }
+    return -1;
   };
   $scope.getTileByTile$ = function (tile$) {
     return $scope.getTileById($scope.getTile$Id(tile$));
@@ -355,6 +363,19 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   };
 
   /**
+   * Go to selected slide
+   */
+  $scope.goToSlide = function (tileid) {
+    var index = $scope.getTileIndex(tileid);
+    if ($scope.galleryTileIndex < index) {
+      $scope.$emit('nextSlide');
+    } else {
+      $scope.$emit('previousSlide');
+    }
+    $scope.$evalAsync();
+  };
+
+  /**
    * Next tile in gallery
    */
   $scope.nextGalleryTile = function () {
@@ -550,6 +571,10 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
    */
   $scope.initialize = function (options) {
     // remove content from all tiles to speed up "bounce up" animation
+    document.addEventListener("fullscreenchange", fullscreenChangeHandler);
+    document.addEventListener("webkitfullscreenchange", fullscreenChangeHandler);
+    document.addEventListener("mozfullscreenchange", fullscreenChangeHandler);
+    document.addEventListener("MSFullscreenChange", fullscreenChangeHandler);
     _('.report').empty();
 
     // load dashboard tiles layout
@@ -560,6 +585,28 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   ////////////////////////////////////////////////////////
   // dashboard functions:
   ////////////////////////////////////////////////////////
+
+  function fullscreenChangeHandler() {
+    if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement ||
+      document.msFullscreenElement) {
+      $scope.isFullscreenMode = true;
+
+      var backgroundImg = $izendaBackground.getBackgroundImgFromStorage();
+      if (backgroundImg != null) {
+        $scope.getGalleryContainer().get(0).style.setProperty('background-image', 'url(' + backgroundImg + ')', 'important');
+      } else {
+        $scope.getGalleryContainer().get(0).style.setProperty('background-image', '');
+      }
+      $scope.getGalleryContainer().get(0).style.setProperty('background-color', $izendaBackground.getBackgroundColor(), 'important');
+
+      $scope.$applyAsync();
+    } else {
+      $scope.isFullscreenMode = false;
+      $scope.getGalleryContainer().get(0).style.setProperty('background-image', '');
+      $scope.getGalleryContainer().get(0).style.setProperty('background-color', '');
+      $scope.$applyAsync();
+    }
+  }
 
   /**
    * Get addtile context object

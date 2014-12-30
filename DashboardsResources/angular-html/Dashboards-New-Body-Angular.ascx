@@ -554,16 +554,22 @@
 			<div id="galleryBodyContainer"
 				ng-hide="!isGalleryMode" 
 				ng-style="galleryContainerStyle">
+					<div style="width: 100%; text-align: center; position: absolute; top: 20px; font-size: 24px;"
+						ng-hide="!isFullscreenMode">
+					<span style="background-color: #f8f8f8; border: 1px solid #e7e7e7; padding: 5px;">
+						{{galleryTileTitle}}
+					</span>
+				</div>
 				<div class="container-fluid iz-dash-gallery-button-container">
 					<div class="row iz-dash-gallery-button-container">
 						<div ng-click="prevGalleryTile()" class="col-xs-1 iz-dash-gallery-button-container text-center"
-							style="cursor: pointer;">
+							style="cursor: pointer; width: calc((100% - 1200px) / 2);">
 							<span class="iz-dash-gallery-button glyphicon glyphicon-arrow-left"></span>
 						</div>
-						<div class="col-xs-10 text-center">
+						<div class="col-xs-10 text-center" style="width: 1200px;">
 						</div>
 						<div ng-click="nextGalleryTile()" class="col-xs-1 iz-dash-gallery-button-container text-center"
-							style="cursor: pointer;">
+							style="cursor: pointer; width: calc((100% - 1200px) / 2);">
 							<span class="iz-dash-gallery-button glyphicon glyphicon-arrow-right"></span>
 						</div>
 					</div>
@@ -571,13 +577,14 @@
 				<div id="impresshook">
 					<div class="impress">
 						<div class="step slide" tileId="{{tile.id}}"
-						ng-repeat="tile in tiles"
-						data-x="{{($index + 1) * 1240}}"
-						data-y="{{0}}"
-						data-z="{{0}}"
-						data-rotate-x="{{0}}"
-						data-rotate-y="{{0}}"
-						data-rotate-z="{{0}}">
+							ng-repeat="tile in tiles"
+							data-x="{{($index + 1) * 1240}}"
+							data-y="{{0}}"
+							data-z="{{0}}"
+							data-rotate-x="{{0}}"
+							data-rotate-y="{{0}}"
+							data-rotate-z="{{0}}"
+							ng-click="goToSlide(tile.id)">
 							<h1>{{tile.reportFullName}}</h1>
 						</div>
 					</div>
@@ -596,6 +603,7 @@
 <script type="text/javascript" src="DashboardsResources/angular-js/modules/module-definition.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/services/url-service.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/services/compatibility-service.js"></script>
+<script type="text/javascript" src="DashboardsResources/angular-js/services/background-service.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/services/rs-query-service.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/services/common-query-service.js"></script>
 <script type="text/javascript" src="DashboardsResources/angular-js/services/toolbar-query-service.js"></script>

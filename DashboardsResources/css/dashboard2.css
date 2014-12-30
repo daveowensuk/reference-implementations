@@ -59,6 +59,17 @@
 	position: relative;
 	overflow: hidden;
 	width: 100%;
+	background-repeat: no-repeat;
+	-moz-background-position-x: 0px;
+	-o-background-position-x: 0px;
+	background-position-x: 0px;
+	-moz-background-position-y: 0px;
+	-o-background-position-y: 0px;
+	background-position-y: 0px;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
 }
 
 .gallery-tile-container {
@@ -1001,12 +1012,15 @@
 }
 
 .iz-dash-gallery-button {
-	position: relative;
+	position: absolute;
 	top: 50%;
+	left: 50%;
 	font-size: 30px;
 	color: #ccc;
 	height: 50px;
 	margin-top: -25px;
+	margin-left: -25px;
+	width: 50px;
 }
 
 .iz-dash-gallery-button-container:hover > .iz-dash-gallery-button {
@@ -1059,17 +1073,16 @@
 	width: 100% !important;
 	height: 100% !important;
 	top: 0 !important;
-	background: none !important;
 	margin: 0 !important;
-	background-color: #000 !important;
+	/*background-color: #000 !important;*/
 }
 
 :-webkit-full-screen::-webkit-backdrop {
-	background-color: #000 !important;
+	/*background-color: #000 !important;*/
 }
  
 :-moz-full-screen {
-	background-color: #000 !important;
+	/*background-color: #000 !important;*/
 	margin: 0 !important;
 }
  
@@ -1077,18 +1090,18 @@
 	width: auto !important;
 	height: auto !important;
 	margin: auto !important;
-	background-color: #000 !important;
+	/*background-color: #000 !important;*/
 }
 
 :-ms-fullscreen::-ms-backdrop {
-	background-color: #000 !important;
+	/*background-color: #000 !important;*/
 }
  
 :fullscreen {
 	margin: 0 !important;
-	background-color: #000 !important;
+	/*background-color: #000 !important;*/
 }
 
 :fullscreen::backdrop {
-	background-color: #000 !important;
+	/*background-color: #000 !important;*/
 }

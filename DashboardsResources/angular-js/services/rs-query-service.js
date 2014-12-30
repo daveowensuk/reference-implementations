@@ -5,6 +5,8 @@
 izendaQueryModule.factory('$izendaRsQuery', ['$http', '$q', '$izendaUrl', function ($http, $q, $izendaUrl) {
   'use strict';
 
+  var showLog = false;
+
   var rsQueryBaseUrl = $izendaUrl.urlSettings.urlRsPage;
 
   var rsQueryLog = {};
@@ -106,7 +108,8 @@ izendaQueryModule.factory('$izendaRsQuery', ['$http', '$q', '$izendaUrl', functi
         }
       }
       if (cancel) {
-        console.log('<<< (cancelled!) ' + ((new Date()).getTime() - rsQueryLog[request.url].getTime()) + 'ms: ' + request.url);
+        if (showLog)
+          console.log('<<< (cancelled!) ' + ((new Date()).getTime() - rsQueryLog[request.url].getTime()) + 'ms: ' + request.url);
         request.request.abort();
         requestList.splice(0, 1);
       } else {
@@ -129,7 +132,8 @@ izendaQueryModule.factory('$izendaRsQuery', ['$http', '$q', '$izendaUrl', functi
 
   function handleSuccess(response, state, params) {
     var currentUrl = this.url;
-    console.log('<<< ' + ((new Date()).getTime() - rsQueryLog[currentUrl].getTime()) + 'ms: ' + currentUrl);
+    if (showLog)
+      console.log('<<< ' + ((new Date()).getTime() - rsQueryLog[currentUrl].getTime()) + 'ms: ' + currentUrl);
     removeRequest(currentUrl);
     if (typeof (response.data) == 'string') {
       return response.data;

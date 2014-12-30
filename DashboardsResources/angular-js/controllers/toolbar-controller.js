@@ -1,5 +1,5 @@
-﻿izendaDashboardModule.controller('IzendaToolbarController', ['$scope', '$rootScope', '$window', '$location', '$cookies', '$izendaCompatibility', '$izendaRsQuery', '$izendaDashboardToolbarQuery', '$izendaUrl',
-function IzendaToolbarController($scope, $rootScope, $window, $location, $cookies, $izendaCompatibility, $izendaRsQuery, $izendaDashboardToolbarQuery, $izendaUrl) {
+﻿izendaDashboardModule.controller('IzendaToolbarController', ['$scope', '$rootScope', '$window', '$location', '$cookies', '$izendaCompatibility', '$izendaBackground', '$izendaRsQuery', '$izendaDashboardToolbarQuery', '$izendaUrl',
+function IzendaToolbarController($scope, $rootScope, $window, $location, $cookies, $izendaCompatibility, $izendaBackground, $izendaRsQuery, $izendaDashboardToolbarQuery, $izendaUrl) {
   'use strict';
 
   var _ = angular.element;
@@ -8,41 +8,8 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
   // PRIVATE (non scope methods)
   //////////////////////////////////////////////////////
 
-  /**
-   * Check if browser storage object available
-   */
-  var isStorageAvailable = function () {
-    return typeof (Storage) !== 'undefined';
-  };
-  $scope.isStorageAvailable = isStorageAvailable();
-
-  /**
-   * Set string to storage
-   */
-  var setToStorage = function (stringValue) {
-    if (!$scope.isStorageAvailable)
-      return false;
-    if (stringValue != null)
-      localStorage.setItem('izendaDashboardBackgroundImg', stringValue);
-    else
-      localStorage.removeItem('izendaDashboardBackgroundImg');
-    if (!$scope.$$phase)
-      $scope.$apply();
-    return true;
-  };
-
-  /**
-   * Get object from storage
-   */
-  var getFromStorage = function () {
-    if (!$scope.isStorageAvailable)
-      return null;
-    var dataImage = localStorage.getItem('izendaDashboardBackgroundImg');
-    if (!angular.isString(dataImage))
-      return null;
-    return dataImage;
-  };
-
+  $scope.isStorageAvailable = $izendaBackground.isStorageAvailable();
+  
   /**
    * Get cookie by name
    */
@@ -259,8 +226,9 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    * Remove background image link handler
    */
   $scope.removeBackgroundImageHandler = function() {
-    if (setToStorage(null))
+    if ($izendaBackground.setBackgroundImgToStorage(null)) {
       $scope.updateDashboardBackgroundImage();
+    }
   };
 
   /**
@@ -379,7 +347,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
       reader.onload = (function (theFile) {
         return function (e) {
           var bytes = e.target.result;
-          if (setToStorage(bytes))
+          if ($izendaBackground.setBackgroundImgToStorage(bytes))
             $scope.updateDashboardBackgroundImage();
         };
       })(file);
@@ -392,7 +360,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    * Set background image from remote url
    */
   $scope.setBackgroundImageFromUrl = function() {
-    if (setToStorage($scope.izendaBackgroundImageUrl))
+    if ($izendaBackground.setBackgroundImgToStorage($scope.izendaBackgroundImageUrl))
       $scope.updateDashboardBackgroundImage();
   };
 
@@ -400,7 +368,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    * Check if background image set
    */
   $scope.isBackgroundImageSet = function() {
-    var backgroundImg = getFromStorage();
+    var backgroundImg = $izendaBackground.getBackgroundImgFromStorage();
     return backgroundImg != null;
   };
 
@@ -408,7 +376,7 @@ function IzendaToolbarController($scope, $rootScope, $window, $location, $cookie
    * Update dashboard background
    */
   $scope.updateDashboardBackgroundImage = function () {
-    var backgroundImg = getFromStorage();
+    var backgroundImg = $izendaBackground.getBackgroundImgFromStorage();
     var $background = _('.iz-dash-background');
     if (backgroundImg != null)
       $background.css('background-image', 'url(' + backgroundImg + ')');
