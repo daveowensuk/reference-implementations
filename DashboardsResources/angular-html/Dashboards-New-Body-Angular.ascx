@@ -596,6 +596,16 @@
 					{{galleryTileTitle}}
 				</span>
 			</div>
+			<div id="notificationDiv" ng-hide="notifications.length === 0">
+				<div class="iz-dash-notification fx-fade-down fx-speed-500 fx-trigger fx-easing-quint" 
+					ng-repeat="notification in notifications">
+					<div class="close-button glyphicon glyphicon-remove"
+						ng-click="closeNotification(notification.id)"
+						ng-mouseover="cancelNotificationTimeout(notification.id)"></div>
+					<div class="title">{{notification.title}}</div>
+					<div class="text" ng-bind="notification.text"></div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>

@@ -32,6 +32,10 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
   $scope.tileWidth = 0;
   $scope.tileHeight = 0;
 
+  // dashboard notifications:
+  $scope.notificationsIdCounter = 1;
+  $scope.notifications = [];
+
   ////////////////////////////////////////////////////////
   // scope helper functions:
   ////////////////////////////////////////////////////////
@@ -283,6 +287,57 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
    */
   $scope.isOneColumnView = function () {
     return $izendaCompatibility.isOneColumnView();
+  };
+
+  /**
+   * Close notification
+   */
+  $scope.closeNotification = function(id) {
+    var i = 0;
+    while (i < $scope.notifications.length) {
+      if ($scope.notifications[i].id == id) {
+        $scope.cancelNotificationTimeout(id);
+        $scope.notifications.splice(i, 1);
+        $scope.$applyAsync();
+        return;
+      }
+      i++;
+    }
+  };
+
+  /**
+   * Open notification
+   */
+  $scope.showNotification = function (title, text) {
+    var nextId = $scope.notificationsIdCounter++;
+    var objToShow = {
+      id: nextId,
+      title: title,
+      text: text
+    };
+    objToShow.timeoutId = setTimeout(function() {
+      $scope.closeNotification(objToShow.id);
+    }, 5000);
+    $scope.notifications.push(objToShow);
+    $scope.$applyAsync();
+  };
+
+  /**
+   * Cancel notification item autohide
+   */
+  $scope.cancelNotificationTimeout = function(id) {
+    var i = 0;
+    while (i < $scope.notifications.length) {
+      var itm = $scope.notifications[i];
+      if (itm.id == id) {
+        if (itm.timeoutId >= 0) {
+          clearTimeout($scope.notifications[i].timeoutId);
+          $scope.notifications[i].timeoutId = -1;
+        }
+        return;
+      }
+      i++;
+    }
   };
 
   /**
@@ -829,7 +884,7 @@ function IzendaDashboardController($rootScope, $scope, $window, $q, $location, $
     $izendaDashboardQuery.saveDashboard(dashboardFullName, json).then(function (data) {
       var n = $izendaUrl.getReportInfo().name,
           c = $izendaUrl.getReportInfo().category;
-      alert('Dashboard saved!');
+      $scope.showNotification(null, 'Dashboard "' + dashboardName + '" successfully saved.');
       if (n != dashboardName || c != dashboardCategory) {
         $rootScope.$broadcast('selectedNewReportNameEvent', [dashboardName, dashboardCategory]);
       }
