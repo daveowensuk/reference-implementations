@@ -9,7 +9,8 @@
       if (HttpContext.Current.Session == null || HttpContext.Current.Session["ReportingInitialized"] != null)
         return;
       //Initialize System
-      AdHocSettings.LicenseKey = "Dev +DASH +FUSION +VISION +HTMLCHARTS +FORMS +PREVIEW +LANG +ETL +MAPS|Enterprise|8|1/1/2014|100|100|100|M|QWOJDST";
+      //AdHocSettings.LicenseKey = "Dev +DASH +FUSION +VISION +HTMLCHARTS +FORMS +PREVIEW +LANG +ETL +MAPS|Enterprise|8|1/1/2014|100|100|100|M|QWOJDST";
+      AdHocSettings.LicenseKey = "Dev +DASH +FUSION +VISION +HTMLCHARTS +FORMS +PREVIEW +LANG +ETL +MAPS|Enterprise|6.8|11/11/2014|0|5|5|M|TVF8/CP";
       AdHocSettings.SqlServerConnectionString = @"server=localhost;database=Northwind;User Id=sa;Password=iddqd;";
       AdHocSettings.GenerateThumbnails = true;
       AdHocSettings.ChartingEngine = ChartingEngine.HtmlChart;
